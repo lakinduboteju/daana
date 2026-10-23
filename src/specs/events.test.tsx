@@ -59,6 +59,46 @@ describe('events', () => {
     expect(hosts[1]).toContain('ඉදිරි පවුල')
   })
 
+  it("never shows household A's events or monasteries to household B", async () => {
+    const a = await seedHousehold('බොතේජු පවුල')
+    const b = await seedHousehold('සිල්වා පවුල')
+    const aEventId = await seedEvent(a.householdId, { date: colomboDate(2), host: 'A පවුල', monastery: 'A අසපුව' })
+
+    const { user } = await renderApp('/events', { signedInAs: b.organizer })
+    expect(await screen.findByText('තවම දාන කිසිවක් නැත')).toBeInTheDocument()
+    expect(screen.queryByText(/A පවුල/)).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('link', { name: 'අළුත් දානයක්' }))
+    expect(await screen.findByLabelText('අසපුවේ නම')).toBeInTheDocument()
+    expect(screen.queryByText('A අසපුව')).not.toBeInTheDocument()
+
+    window.history.pushState(null, '', `${import.meta.env.BASE_URL}events/${aEventId}`)
+    window.dispatchEvent(new PopStateEvent('popstate'))
+    expect(await screen.findByRole('heading', { name: 'පිටුව හමු නොවීය' })).toBeInTheDocument()
+    expect(screen.queryByText(/A අසපුව/)).not.toBeInTheDocument()
+  })
+
+  it('creates an event at a recently used monastery without a host', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    await seedEvent(householdId, { date: colomboDate(-30), monastery: 'පොල්ගහවෙල අසපුව' })
+    const { user } = await renderApp('/events/new', { signedInAs: organizer })
+
+    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-07')
+    await user.click(screen.getByRole('radio', { name: 'හීල් දානය' }))
+    await user.click(await screen.findByRole('radio', { name: 'පොල්ගහවෙල අසපුව' }))
+    expect(screen.queryByLabelText('අසපුවේ නම')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'ස්වාමීන් වහන්සේලා වැඩි කරන්න' }))
+    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    expect(await screen.findByRole('heading', { name: /පොල්ගහවෙල අසපුව/ })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('link', { name: 'ආපසු' }))
+    const day = await screen.findByRole('region', { name: 'නොවැම්බර් 07 සෙනසුරාදා' })
+    const card = within(day).getByRole('link')
+    expect(card).toHaveTextContent('හීල් දානය')
+    expect(card).toHaveTextContent('පොල්ගහවෙල අසපුව')
+    expect(card).toHaveTextContent('ස්වාමීන් වහන්සේලා 1')
+  })
+
   it('shows two events on the same date as separate cards under that date', async () => {
     const { householdId, organizer } = await seedHousehold()
     const date = colomboDate(3)
