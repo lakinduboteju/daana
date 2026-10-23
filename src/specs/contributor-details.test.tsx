@@ -85,6 +85,52 @@ describe('contributor details', () => {
     await waitFor(() => expect(menuRow(riceCategory, 'සුදු බත්')).toHaveTextContent('✓තහවුරුයි'))
   })
 
+  it('shows how many events a contributor helped with and how many items they brought', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ')
+    const lastMonth = await seedEvent(householdId, { date: colomboDate(-30), categories: ['බත්'] })
+    await seedAssignment(await seedItem(lastMonth, 'බත්', { name: 'කිරිබත්' }), sunil, { status: 'received' })
+    await seedAssignment(await seedItem(lastMonth, 'බත්', { name: 'කැවුම්' }), sunil, { status: 'received' })
+    const nextWeek = await seedEvent(householdId, { date: colomboDate(7), categories: ['බත්'] })
+    await seedAssignment(await seedItem(nextWeek, 'බත්', { name: 'සුදු බත්' }), sunil, { status: 'confirmed' })
+    // Only asked so far, and a cancelled event, don't count as helping.
+    const later = await seedEvent(householdId, { date: colomboDate(14), categories: ['බත්'] })
+    await seedAssignment(await seedItem(later, 'බත්', { name: 'පරිප්පු' }), sunil)
+    const cancelled = await seedEvent(householdId, { date: colomboDate(-10), categories: ['බත්'] })
+    await admin.from('event').update({ cancelled_at: new Date().toISOString() }).eq('id', cancelled)
+    await seedAssignment(await seedItem(cancelled, 'බත්', { name: 'අල' }), sunil, { status: 'received' })
+
+    await renderApp(`/contributors/${sunil}`, { signedInAs: organizer })
+
+    const stats = await screen.findByRole('list', { name: 'සංඛ්‍යා' })
+    await waitFor(() => expect(stats).toHaveTextContent('සහාය වූ දාන 2'))
+    expect(stats).toHaveTextContent('ගෙනා අයිතම 2')
+  })
+
+  it('the directory shows how many pending assignments each contributor has in upcoming events, and opens their page', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ')
+    await seedContributor(householdId, 'අනුලා විජේසේකර')
+    const upcoming = await seedEvent(householdId, { date: colomboDate(3), categories: ['බත්'] })
+    await seedAssignment(await seedItem(upcoming, 'බත්', { name: 'සුදු බත්' }), sunil)
+    await seedAssignment(await seedItem(upcoming, 'බත්', { name: 'කිරිබත්' }), sunil)
+    await seedAssignment(await seedItem(upcoming, 'බත්', { name: 'පරිප්පු' }), sunil, { status: 'confirmed' })
+    // A pending assignment on a past event is history, not a follow-up.
+    const past = await seedEvent(householdId, { date: colomboDate(-3), categories: ['බත්'] })
+    await seedAssignment(await seedItem(past, 'බත්', { name: 'අල' }), sunil)
+
+    const { user } = await renderApp('/contributors', { signedInAs: organizer })
+
+    const sunilRow = (await screen.findByText('සුනිල් ජයසිංහ')).closest('li')!
+    await waitFor(() => expect(sunilRow).toHaveTextContent('◔තහවුරු නොවූ 2'))
+    const anulaRow = screen.getByText('අනුලා විජේසේකර').closest('li')!
+    expect(anulaRow).not.toHaveTextContent('තහවුරු නොවූ')
+
+    await user.click(within(sunilRow).getByText('සුනිල් ජයසිංහ'))
+    expect(currentPath()).toBe(`/contributors/${sunil}`)
+    expect(await screen.findByRole('heading', { level: 1, name: 'සුනිල් ජයසිංහ' })).toBeInTheDocument()
+  })
+
   it("another household's contributor is not found", async () => {
     const other = await seedHousehold('සිල්වා පවුල')
     const stranger = await seedContributor(other.householdId, 'ගුණපාල')

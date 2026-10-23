@@ -117,3 +117,27 @@ export function useConfirmAssignment(contributorId: string) {
       ]),
   })
 }
+
+/** Counts from the database's contributor_activity view. Cancelled events never count. */
+export type ContributorActivity = {
+  /** Pending assignments in upcoming events: whom to follow up with. */
+  pending_count: number
+  /** Events with at least one confirmed or received assignment. */
+  events_helped: number
+  /** Received assignments. */
+  items_brought: number
+}
+
+/** Every contributor's activity counts, by contributor id. */
+export function useContributorActivity() {
+  return useQuery({
+    queryKey: ['contributors', 'activity'],
+    queryFn: async (): Promise<Map<string, ContributorActivity>> => {
+      const { data, error } = await supabase
+        .from('contributor_activity')
+        .select('contributor_id, pending_count, events_helped, items_brought')
+      if (error) throw error
+      return new Map(data.map(({ contributor_id, ...counts }) => [contributor_id as string, counts as ContributorActivity]))
+    },
+  })
+}

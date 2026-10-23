@@ -6,6 +6,7 @@ import { StatusBadge } from '../../components/StatusBadge'
 import { useSaveFailed, useToast } from '../../components/useToast'
 import {
   useConfirmAssignment,
+  useContributorActivity,
   useContributorAssignments,
   type ContributorAssignment,
   type ContributorEventGroup,
@@ -26,6 +27,7 @@ export function ContributorDetailScreen() {
   const { contributorId = '' } = useParams()
   const contributor = useContributor(contributorId)
   const groups = useContributorAssignments(contributorId)
+  const counts = useContributorActivity().data?.get(contributorId)
 
   if (contributor.data === null) return <NotFoundScreen />
   if (contributor.isPending) return <p className={styles.message}>පූරණය වෙමින්…</p>
@@ -47,6 +49,14 @@ export function ContributorDetailScreen() {
         </div>
         {notes && <p className={styles.notes}>සටහන: {notes}</p>}
       </section>
+
+      {counts && (
+        <ul aria-label="සංඛ්‍යා" className={styles.stats}>
+          <li className={styles.stat}>සහාය වූ දාන {counts.events_helped}</li>
+          <li className={styles.stat}>ගෙනා අයිතම {counts.items_brought}</li>
+          {counts.pending_count > 0 && <li className={styles.stat}>තහවුරු නොවූ {counts.pending_count}</li>}
+        </ul>
+      )}
 
       {groups.isPending && <p className={styles.message}>පූරණය වෙමින්…</p>}
       {groups.isError && <p role="alert" className={styles.message}>පැවරුම් පූරණය කිරීමට නොහැකි විය.</p>}

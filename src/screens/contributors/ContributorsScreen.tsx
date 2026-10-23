@@ -1,13 +1,16 @@
 import { Link, useSearchParams } from 'react-router'
 import { PageHeader } from '../../components/PageHeader'
 import { ContactLinks } from '../../components/ContactLinks'
+import { useContributorActivity } from '../../data/contributorAssignments'
 import { useContributors } from '../../data/contributors'
+import { STATUS_SYMBOL } from '../../data/status'
 import styles from './ContributorsScreen.module.css'
 
 export function ContributorsScreen() {
   const [searchParams, setSearchParams] = useSearchParams()
   const q = searchParams.get('q') ?? ''
   const contributors = useContributors(q)
+  const activity = useContributorActivity()
 
   function search(value: string) {
     setSearchParams(value ? { q: value } : {}, { replace: true })
@@ -43,9 +46,10 @@ export function ContributorsScreen() {
         {contributors.data?.map((contributor) => (
           <li key={contributor.id} className={styles.row}>
             <span className={styles.initial} aria-hidden="true">{initial(contributor.name)}</span>
-            <Link to={`/contributors/${contributor.id}/edit`} className={styles.name}>
+            <Link to={`/contributors/${contributor.id}`} className={styles.name}>
               <span className={styles.nameText}>{contributor.name}</span>
               {contributor.phone && <span className={styles.phone}>{contributor.phone}</span>}
+              <PendingBadge count={activity.data?.get(contributor.id)?.pending_count ?? 0} />
             </Link>
             <ContactLinks contributor={contributor} />
           </li>
@@ -57,6 +61,17 @@ export function ContributorsScreen() {
         නව දායකයා
       </Link>
     </>
+  )
+}
+
+/** "◔ තහවුරු නොවූ 2": pending assignments in upcoming events, to follow up on. */
+function PendingBadge({ count }: { count: number }) {
+  if (count === 0) return null
+  return (
+    <span className={styles.pending}>
+      <span aria-hidden="true">{STATUS_SYMBOL.pending}</span>
+      තහවුරු නොවූ {count}
+    </span>
   )
 }
 
