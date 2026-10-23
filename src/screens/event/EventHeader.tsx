@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router'
 import { BackHeader } from '../../components/BackHeader'
+import { CancelledBadge } from '../../components/CancelledBadge'
 import type { EventSummary } from '../../data/events'
 import { MEAL_LABEL } from '../../data/meal'
 import { formatDayMonth, formatWeekday } from '../../lib/dates'
@@ -19,6 +20,7 @@ export function EventHeader({ event }: { event: EventSummary }) {
           {event.monastery_name} · {formatWeekday(event.date)}
         </h2>
         {event.host && <p className={styles.host}>{event.host}</p>}
+        {event.cancelled_at && <CancelledBadge />}
         <div className={styles.chips}>
           <Chip label="ස්වාමීන් වහන්සේලා" count={event.monk_count} />
           <Chip label="ගිහි" count={event.layperson_count} />

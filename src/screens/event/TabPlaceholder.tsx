@@ -1,6 +1,6 @@
 import styles from './MenuTab.module.css'
 
-/** A tab whose screen hasn't been built yet (money; details until the edit-event form lands). */
+/** A tab whose screen hasn't been built yet (money). */
 export function TabPlaceholder({ title }: { title: string }) {
   return (
     <>

@@ -1,7 +1,9 @@
 import { Link } from 'react-router'
 import { useEventSummaries, type EventSummary } from '../../data/events'
+import { CancelledBadge } from '../../components/CancelledBadge'
 import { MEAL_LABEL } from '../../data/meal'
 import { formatDayMonth, formatDaysAway, formatWeekday } from '../../lib/dates'
+import { EventCardMenu } from './EventCardMenu'
 import styles from './EventsHome.module.css'
 
 export function EventsHome() {
@@ -98,23 +100,29 @@ function DateGroup({ date, daysAway, events }: { date: string; daysAway: number;
 
 function EventCard({ event }: { event: EventSummary }) {
   return (
-    <Link to={`/events/${event.id}`} className={styles.card}>
-      <span className={styles.meal}>{MEAL_LABEL[event.meal]}</span>
-      {event.host ? (
-        <>
-          <span className={styles.cardTitle}>{event.host}</span>
-          <span className={styles.monastery}>{event.monastery_name}</span>
-        </>
-      ) : (
-        <span className={styles.cardTitle}>{event.monastery_name}</span>
-      )}
-      <span className={styles.counts}>
-        <span>ස්වාමීන් වහන්සේලා <b>{event.monk_count}</b></span>{' '}
-        <span>ගිහි පිරිස <b>{event.layperson_count}</b></span>
-      </span>
-      {/* Items arrive with the menu ticket; until then no event has any. */}
-      <span className={styles.noMenu}>මෙනුවක් නැත</span>
-    </Link>
+    <div className={styles.cardWrap}>
+      <Link to={`/events/${event.id}`} className={styles.card}>
+        <span className={styles.cardTop}>
+          <span className={styles.meal}>{MEAL_LABEL[event.meal]}</span>
+          {event.cancelled_at && <CancelledBadge />}
+        </span>
+        {event.host ? (
+          <>
+            <span className={styles.cardTitle}>{event.host}</span>
+            <span className={styles.monastery}>{event.monastery_name}</span>
+          </>
+        ) : (
+          <span className={styles.cardTitle}>{event.monastery_name}</span>
+        )}
+        <span className={styles.counts}>
+          <span>ස්වාමීන් වහන්සේලා <b>{event.monk_count}</b></span>{' '}
+          <span>ගිහි පිරිස <b>{event.layperson_count}</b></span>
+        </span>
+        {/* Items arrive with the menu ticket; until then no event has any. */}
+        <span className={styles.noMenu}>මෙනුවක් නැත</span>
+      </Link>
+      <EventCardMenu event={event} />
+    </div>
   )
 }
 
@@ -125,6 +133,7 @@ function PastRow({ event }: { event: EventSummary }) {
       <span className={styles.pastMeta}>
         {formatDayMonth(event.date)} {formatWeekday(event.date)} · {MEAL_LABEL[event.meal]} · {event.monastery_name}
       </span>
+      {event.cancelled_at && <CancelledBadge />}
     </Link>
   )
 }

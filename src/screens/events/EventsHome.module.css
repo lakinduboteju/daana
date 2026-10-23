@@ -105,6 +105,10 @@
   gap: 12px;
 }
 
+.cardWrap {
+  position: relative;
+}
+
 .card {
   display: flex;
   flex-direction: column;
@@ -122,6 +126,13 @@
   border-color: var(--color-border-strong);
 }
 
+.cardTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
 .meal {
   font-size: 13px;
   font-weight: 600;
@@ -129,6 +140,12 @@
   border-radius: var(--radius-pill);
   background: var(--color-accent-soft);
   color: var(--color-accent-strong);
+}
+
+/* Room for the more-menu button in the top-right corner. */
+.cardTop,
+.cardTitle {
+  padding-right: 32px;
 }
 
 .cardTitle {
