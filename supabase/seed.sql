@@ -64,3 +64,28 @@ join (values
   ('මාලබේ අසපුව', current_date + 28, 'lunch', 'දහම් පාසල් ගුරු මණ්ඩලය', 15, 40),
   ('මාලබේ අසපුව', current_date - 12, 'lunch', 'ජයසිංහ පවුල — පින් අනුමෝදනා', 10, 15)
 ) as v (monastery, date, meal, host, monks, lay) on v.monastery = m.name;
+
+-- Design sample menu for the first මාලබේ event (ticket #5).
+insert into public.item (event_id, category_id, name, required_quantity, unit, custom_unit, notes)
+select c.event_id, c.id, v.name, v.qty, v.unit, v.custom_unit, v.notes
+from public.event e
+join public.household h on h.id = e.household_id and h.name = 'බොතේජු පවුල'
+join public.monastery mo on mo.id = e.monastery_id and mo.name = 'මාලබේ අසපුව'
+join public.category c on c.event_id = e.id
+join (values
+  ('බත්', 'කිරිබත්', 3, 'kg', null, null),
+  ('බත්', 'සුදු බත්', 3, 'kg', null, null),
+  ('හොදි', 'පොල් කිරි හොදි', 2, 'l', null, null),
+  ('ව්‍යංජන', 'පරිප්පු', 2, 'kg', null, null),
+  ('ව්‍යංජන', 'අල තෙම්පරාදුව', 2, 'kg', null, null),
+  ('ව්‍යංජන', 'බෝංචි', null, 'pieces', null, null),
+  ('ව්‍යංජන', 'කොස් ඇඹුල', 2, 'other', 'තැටි', null),
+  ('ව්‍යංජන', 'වම්බටු මෝජු', null, 'pieces', null, 'සීනි අඩුවෙන්'),
+  ('පලතුරු', 'කෙසෙල්', 2, 'other', 'කැන්', null),
+  ('පලතුරු', 'අන්නාසි', null, 'pieces', null, null),
+  ('කැවිලි හා අතුරුපස', 'කැවුම්', 40, 'pieces', null, null),
+  ('කැවිලි හා අතුරුපස', 'කොකිස්', 40, 'pieces', null, null),
+  ('පාන', 'වතුර බෝතල්', 40, 'pieces', null, null),
+  ('පාන', 'ඉඟුරු තේ', 4, 'l', null, null)
+) as v (category, name, qty, unit, custom_unit, notes) on v.category = c.name
+where e.date = current_date + 15 and e.meal = 'lunch';
