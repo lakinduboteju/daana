@@ -104,3 +104,23 @@ cross join (values
   ('රුවන් කුමාර', null, null, null)
 ) as c (name, phone, whatsapp, notes)
 where h.name = 'බොතේජු පවුල';
+
+-- Design sample assignments on the first මාලබේ event's menu (ticket #8).
+insert into public.assignment (event_id, item_id, contributor_id, quantity, status)
+select i.event_id, i.id, co.id, v.qty, v.status
+from public.item i
+join public.event e on e.id = i.event_id and e.date = current_date + 15 and e.meal = 'lunch'
+join public.monastery mo on mo.id = e.monastery_id and mo.name = 'මාලබේ අසපුව'
+join public.household h on h.id = e.household_id and h.name = 'බොතේජු පවුල'
+join (values
+  ('කිරිබත්', 'නිමල් සිල්වා', 3, 'confirmed'),
+  ('සුදු බත්', 'කමලා රත්නායක', 2, 'confirmed'),
+  ('සුදු බත්', 'සුනිල් ජයසිංහ', 1, 'pending'),
+  ('පරිප්පු', 'අනුලා විජේසේකර', 2, 'confirmed'),
+  ('අල තෙම්පරාදුව', 'රුවන් කුමාර', 2, 'pending'),
+  ('කොස් ඇඹුල', 'අනුලා විජේසේකර', 2, 'confirmed'),
+  ('වම්බටු මෝජු', 'දිල්රුක්ෂි', null, 'pending'),
+  ('කෙසෙල්', 'ගුණපාල', 2, 'received'),
+  ('ඉඟුරු තේ', 'කමලා රත්නායක', 4, 'confirmed')
+) as v (item, contributor, qty, status) on v.item = i.name
+join public.contributor co on co.household_id = h.id and co.name = v.contributor;
