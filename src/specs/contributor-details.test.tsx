@@ -131,6 +131,35 @@ describe('contributor details', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'සුනිල් ජයසිංහ' })).toBeInTheDocument()
   })
 
+  it('"ලැයිස්තුව යවන්න" opens WhatsApp with a Sinhala message listing that event\'s items and quantities', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ', { phone: '0711111111', whatsapp: '077 123 4567' })
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', monastery: 'මාලබේ අසපුව', categories: ['බත්'] })
+    await seedAssignment(await seedItem(eventId, 'බත්', { name: 'සුදු බත්', unit: 'kg' }), sunil, { quantity: 1 })
+    await seedAssignment(await seedItem(eventId, 'බත්', { name: 'කිරිබත්' }), sunil, { status: 'confirmed' })
+    const other = await seedEvent(householdId, { date: '2099-11-21', categories: ['බත්'] })
+    await seedAssignment(await seedItem(other, 'බත්', { name: 'වතුර බෝතල්' }), sunil, { quantity: 40 })
+    const past = await seedEvent(householdId, { date: colomboDate(-5), categories: ['බත්'] })
+    await seedAssignment(await seedItem(past, 'බත්', { name: 'කැවුම්' }), sunil)
+
+    await renderApp(`/contributors/${sunil}`, { signedInAs: organizer })
+
+    const group = await screen.findByRole('region', { name: /නොවැම්බර් 08/ })
+    const share = within(group).getByRole('link', { name: 'ලැයිස්තුව යවන්න' })
+    const url = new URL(share.getAttribute('href')!)
+    expect(url.origin + url.pathname).toBe('https://wa.me/94771234567')
+    const message = url.searchParams.get('text')!
+    expect(message).toContain('සුනිල් ජයසිංහ')
+    expect(message).toContain('නොවැම්බර් 08')
+    expect(message).toContain('දහවල් දානය')
+    expect(message).toContain('මාලබේ අසපුව')
+    expect(message).toContain('• සුදු බත් — කි.ග්‍රෑ. 1')
+    expect(message).toContain('• කිරිබත්')
+    expect(message).not.toContain('වතුර බෝතල්')
+    // Past events have nothing left to send.
+    expect(within(screen.getByRole('region', { name: /පසුගිය/ })).queryByRole('link', { name: 'ලැයිස්තුව යවන්න' })).not.toBeInTheDocument()
+  })
+
   it("another household's contributor is not found", async () => {
     const other = await seedHousehold('සිල්වා පවුල')
     const stranger = await seedContributor(other.householdId, 'ගුණපාල')

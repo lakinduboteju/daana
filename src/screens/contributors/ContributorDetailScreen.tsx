@@ -11,11 +11,12 @@ import {
   type ContributorAssignment,
   type ContributorEventGroup,
 } from '../../data/contributorAssignments'
-import { useContributor } from '../../data/contributors'
+import { useContributor, type Contributor } from '../../data/contributors'
+import { whatsappUrl } from '../../lib/contact'
 import { MEAL_LABEL } from '../../data/meal'
 import { STATUS_LABEL } from '../../data/status'
 import { formatAmount } from '../../data/units'
-import { formatDayMonth } from '../../lib/dates'
+import { formatDayMonth, formatWeekday } from '../../lib/dates'
 import { NotFoundScreen } from '../not-found/NotFoundScreen'
 import styles from './ContributorDetailScreen.module.css'
 
@@ -35,7 +36,8 @@ export function ContributorDetailScreen() {
     return <p role="alert" className={styles.message}>දායකයා පූරණය කිරීමට නොහැකි විය.</p>
   }
 
-  const { name, phone, notes } = contributor.data
+  const profile = contributor.data
+  const { name, phone, notes } = profile
   return (
     <main className={styles.screen}>
       <BackHeader title={name} backTo="/contributors" />
@@ -45,7 +47,7 @@ export function ContributorDetailScreen() {
             {phone && <p className={styles.phone}>{phone}</p>}
             <Link to="edit" className={styles.edit}>සංස්කරණය</Link>
           </div>
-          <ContactLinks contributor={contributor.data} />
+          <ContactLinks contributor={profile} />
         </div>
         {notes && <p className={styles.notes}>සටහන: {notes}</p>}
       </section>
@@ -61,20 +63,19 @@ export function ContributorDetailScreen() {
       {groups.isPending && <p className={styles.message}>පූරණය වෙමින්…</p>}
       {groups.isError && <p role="alert" className={styles.message}>පැවරුම් පූරණය කිරීමට නොහැකි විය.</p>}
       {groups.data?.length === 0 && <p className={styles.message}>තවම කිසිදු දානයකට පවරා නැත.</p>}
-      {groups.data?.map((group) => <EventGroup key={group.event.id} contributorId={contributorId} group={group} />)}
+      {groups.data?.map((group) => (
+        <EventGroup key={group.event.id} contributor={profile} group={group} />
+      ))}
     </main>
   )
 }
 
-function EventGroup({
-  contributorId,
-  group: { event, assignments },
-}: {
-  contributorId: string
-  group: ContributorEventGroup
-}) {
+function EventGroup({ contributor, group }: { contributor: Contributor; group: ContributorEventGroup }) {
+  const { event, assignments } = group
   const titleId = `contributor-event-${event.id}`
   const when = `${formatDayMonth(event.date)} · ${MEAL_LABEL[event.meal]}`
+  // Only upcoming events still need the contributor to bring anything.
+  const share = event.is_past || event.cancelled_at ? null : whatsappUrl(contributor, shareMessage(contributor, group))
   return (
     <section aria-labelledby={titleId} className={styles.group}>
       <div className={styles.groupHead}>
@@ -88,11 +89,35 @@ function EventGroup({
       <p className={styles.groupSub}>{[event.host, event.monastery_name].filter(Boolean).join(' · ')}</p>
       <ul className={styles.assignments}>
         {assignments.map((assignment) => (
-          <AssignmentRow key={assignment.id} contributorId={contributorId} assignment={assignment} />
+          <AssignmentRow key={assignment.id} contributorId={contributor.id} assignment={assignment} />
         ))}
       </ul>
+      {share && (
+        // Opens WhatsApp with the list typed in; the organizer sends it themselves.
+        <a href={share} target="_blank" rel="noreferrer" className={styles.share}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z" /></svg>
+          ලැයිස්තුව යවන්න
+        </a>
+      )}
     </section>
   )
+}
+
+/** The pre-filled WhatsApp message: what the contributor brings to this event. */
+function shareMessage(contributor: Contributor, { event, assignments }: ContributorEventGroup): string {
+  const where = `${formatDayMonth(event.date)} ${formatWeekday(event.date)} ${MEAL_LABEL[event.meal]} (${event.monastery_name})`
+  const lines = assignments.map(({ item, quantity }) => {
+    const amount = formatAmount(quantity, item)
+    return amount ? `• ${item.name} — ${amount}` : `• ${item.name}`
+  })
+  return [
+    `නමෝ බුද්ධාය! ${contributor.name},`,
+    '',
+    `${where} සඳහා ඔබ ගෙන එන අයිතම:`,
+    ...lines,
+    '',
+    'බොහොම ස්තූතියි!',
+  ].join('\n')
 }
 
 function AssignmentRow({ contributorId, assignment }: { contributorId: string; assignment: ContributorAssignment }) {
