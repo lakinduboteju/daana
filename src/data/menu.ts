@@ -77,3 +77,23 @@ export function useAddItem(eventId: string) {
     onSuccess: invalidate,
   })
 }
+
+export function useUpdateItem(eventId: string) {
+  const invalidate = useInvalidateEvent()
+  return useMutation({
+    mutationFn: async ({ itemId, fields }: { itemId: string; fields: ItemFields }) => {
+      const { error } = await supabase.from('item').update(itemRow(fields)).eq('id', itemId).eq('event_id', eventId)
+      if (error) throw error
+    },
+    onSuccess: invalidate,
+  })
+}
+
+/** The item with this id in a loaded menu, or null when it isn't on this event's menu. */
+export function findItem(menu: Category[], itemId: string): Item | null {
+  for (const category of menu) {
+    const item = category.items.find((i) => i.id === itemId)
+    if (item) return item
+  }
+  return null
+}

@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useParams, useSearchParams } from 'react-router'
 import { Sheet } from '../../components/Sheet'
 import { useCloseSheet } from '../../components/sheetNavigation'
-import { useAddItem, useMenu, type Category, type ItemFields, type Unit } from '../../data/menu'
+import { findItem, useAddItem, useMenu, useUpdateItem, type Category, type ItemFields, type Unit } from '../../data/menu'
 import { UNIT_OPTIONS } from '../../data/units'
 import styles from './ItemSheets.module.css'
 
@@ -30,6 +30,38 @@ export function AddItemSheet() {
           saving={addItem.isPending}
           failed={addItem.isError}
           onSubmit={(fields) => addItem.mutate(fields, { onSuccess: close })}
+        />
+      )}
+    </Sheet>
+  )
+}
+
+/** /events/:eventId/items/:itemId/edit: edit an item (or move it to another category), over the menu. */
+export function EditItemSheet() {
+  const { eventId = '', itemId = '' } = useParams()
+  const menu = useMenu(eventId)
+  const updateItem = useUpdateItem(eventId)
+  const close = useCloseSheet(`/events/${eventId}`)
+  const item = menu.data ? findItem(menu.data, itemId) : null
+
+  return (
+    <Sheet title="Item සංස්කරණය" onClose={close}>
+      {menu.data && !item && <p className={styles.missing}>මෙම Item එක හමු නොවීය.</p>}
+      {menu.data && item && (
+        <ItemForm
+          key={item.id}
+          categories={menu.data}
+          initial={{
+            categoryId: item.category_id,
+            name: item.name,
+            requiredQuantity: item.required_quantity,
+            unit: item.unit,
+            customUnit: item.custom_unit ?? '',
+            notes: item.notes ?? '',
+          }}
+          saving={updateItem.isPending}
+          failed={updateItem.isError}
+          onSubmit={(fields) => updateItem.mutate({ itemId: item.id, fields }, { onSuccess: close })}
         />
       )}
     </Sheet>
