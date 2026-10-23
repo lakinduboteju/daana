@@ -1,0 +1,220 @@
+.screen {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding-bottom: 32px;
+}
+
+.intro {
+  margin: 12px 16px;
+  color: var(--color-text-muted);
+  font-size: 15px;
+}
+
+.message {
+  margin: 16px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.list {
+  margin: 0 16px;
+  padding: 0;
+  list-style: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.row {
+  min-height: 56px;
+  padding: 6px 6px 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.row + .row {
+  border-top: 1px solid var(--color-border);
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.iconButton {
+  flex-shrink: 0;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.iconButton:hover {
+  background: var(--color-surface-muted);
+}
+
+.iconButton:disabled {
+  opacity: 0.35;
+  cursor: default;
+  background: transparent;
+}
+
+.editForm {
+  flex: 1;
+  padding: 6px 8px 6px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.editActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.input {
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: 17px;
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.primary,
+.secondary {
+  min-height: var(--touch-target);
+  padding: 0 18px;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary {
+  border: 0;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.primary:hover {
+  background: var(--color-accent-strong);
+}
+
+.primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.secondary {
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.error {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-error-bg);
+  color: var(--color-error-fg);
+  font-size: 15px;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.addForm {
+  margin: 20px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.addRow {
+  display: flex;
+  gap: 8px;
+}
+
+.addRow .input {
+  flex: 1;
+  min-width: 0;
+}
+
+.hint {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.danger {
+  min-height: var(--touch-target);
+  padding: 0 16px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-error-fg);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirm {
+  position: fixed;
+  inset: auto 0 0;
+  width: auto;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 -8px 24px rgba(42, 36, 32, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.confirmTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.confirmButtons {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
