@@ -43,3 +43,18 @@ select public.setup_household('බොතේජු පවුල', 'organizer');
 
 select pg_temp.create_organizer('other', 'password123');
 select public.setup_household('සිල්වා පවුල', 'other');
+
+-- Contributors from the design (Contributors / ContributorDetail artboards), in organizer's household.
+insert into public.contributor (household_id, name, phone, whatsapp, notes)
+select h.id, c.name, c.phone, c.whatsapp, c.notes
+from public.household h
+cross join (values
+  ('සුනිල් ජයසිංහ', '077 123 4567', null, 'සෙනසුරාදා උදේට කතා කරන්න. වාහනයක් ඇත.'),
+  ('අනුලා විජේසේකර', '071 234 5678', null, null),
+  ('කමලා රත්නායක', '070 345 6789', '077 345 6789', null),
+  ('ගුණපාල', '072 456 7890', null, null),
+  ('දිල්රුක්ෂි', '075 567 8901', null, null),
+  ('නිමල් සිල්වා', '076 678 9012', null, null),
+  ('රුවන් කුමාර', null, null, null)
+) as c (name, phone, whatsapp, notes)
+where h.name = 'බොතේජු පවුල';
