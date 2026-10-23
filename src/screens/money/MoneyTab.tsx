@@ -43,6 +43,25 @@ export function MoneyTab() {
               <span className={styles.totalAmount}>{formatRupees(money.data.totalExpense)}</span>
             </div>
           </section>
+          {money.data.reimbursements.length > 0 && (
+            <ul aria-label="ආපසු ගෙවිය යුතුයි" className={styles.owed}>
+              {money.data.reimbursements.map(({ contributor, amount }) => (
+                <li key={contributor.id} className={styles.owedRow}>
+                  <span className={styles.owedText}>
+                    {contributor.name}ට {formatRupees(amount)} ආපසු ගෙවිය යුතුයි
+                  </span>
+                  <Link
+                    to={`new?type=given&contributor=${contributor.id}&amount=${amount}`}
+                    state={OVER_PARENT}
+                    aria-label={`${contributor.name}ට ගෙවන්න`}
+                    className={styles.settle}
+                  >
+                    ගෙවන්න
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
           <p className={styles.hint}>ලබා දුන් මුදල් සහ වියදම් වෙන වෙනම ගණනය වේ — එකම මුදල දෙවරක් ගණන් නොවේ.</p>
 
           <nav aria-label="ගනුදෙනු වර්ගය" className={styles.filters}>

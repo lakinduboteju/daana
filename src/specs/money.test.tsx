@@ -110,6 +110,36 @@ describe('money', () => {
     expect(totals).toHaveTextContent('සත්‍ය වියදම්Rs 0')
   })
 
+  it('a contributor who spent more than they were given is owed a reimbursement, settled by another given', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08' })
+    const shriya = await seedContributor(householdId, 'ශ්‍රියා පෙරේරා')
+    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ')
+    await seedTransaction(eventId, { kind: 'given', amount: 1000, contributorId: shriya })
+    await seedTransaction(eventId, { kind: 'expense', amount: 2200, contributorId: shriya })
+    // Given more than spent: nothing owed (never a negative reimbursement).
+    await seedTransaction(eventId, { kind: 'given', amount: 2500, contributorId: sunil })
+    await seedTransaction(eventId, { kind: 'expense', amount: 1850, contributorId: sunil })
+    // The organizer's own expense owes no one.
+    await seedTransaction(eventId, { kind: 'expense', amount: 3150 })
+    const { user } = await renderApp(`/events/${eventId}/money`, { signedInAs: organizer })
+
+    const owed = await screen.findByRole('list', { name: 'ආපසු ගෙවිය යුතුයි' })
+    const rows = within(owed).getAllByRole('listitem')
+    expect(rows).toHaveLength(1)
+    expect(rows[0]).toHaveTextContent('ශ්‍රියා පෙරේරාට Rs 1,200 ආපසු ගෙවිය යුතුයි')
+
+    await user.click(within(rows[0]).getByRole('link', { name: 'ශ්‍රියා පෙරේරාට ගෙවන්න' }))
+    const sheet = await screen.findByRole('dialog', { name: 'ලබා දුන් මුදලක්' })
+    expect(within(sheet).getByLabelText(/^මුදල \(Rs\)/)).toHaveValue(1200)
+    await waitFor(() => expect(within(sheet).getByLabelText('දායකයා')).toHaveDisplayValue('ශ්‍රියා පෙරේරා'))
+    await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    await waitFor(() => expect(screen.queryByRole('list', { name: 'ආපසු ගෙවිය යුතුයි' })).not.toBeInTheDocument())
+    expect(screen.getByRole('region', { name: 'එකතුව' })).toHaveTextContent('දායකයන්ට ලබා දුන් මුදල්Rs 4,700')
+  })
+
   it('leaving a transaction sheet with unsaved changes asks first', async () => {
     const { householdId, organizer } = await seedHousehold()
     const eventId = await seedEvent(householdId, { date: '2099-11-08' })
