@@ -65,6 +65,26 @@ describe('copying a previous event', () => {
     expect(itemRow(fruit, 'අන්නාසි')).toHaveTextContent('දායකයෙකු තවම නැත')
   })
 
+  it("starts a new event from a previous one picked on the form's copy link", async () => {
+    const { householdId, organizer, eventId } = await seedPreviousEvent()
+    await seedEvent(householdId, { date: colomboDate(-30), host: 'සිල්වා පවුල', monastery: 'පොල්ගහවෙල අසපුව' })
+    const { user } = await renderApp('/events/new', { signedInAs: organizer })
+
+    await user.click(await screen.findByRole('button', { name: /පෙර දානයකින් පිටපත් කරන්න/ }))
+    const picker = screen.getByRole('dialog', { name: 'පෙර දානයකින් පිටපත් කරන්න' })
+    const choices = await within(picker).findAllByRole('link')
+    expect(choices.map((c) => c.textContent)).toEqual([
+      expect.stringContaining('බොතේජු පවුල'),
+      expect.stringContaining('සිල්වා පවුල'),
+    ])
+    await user.click(choices[0])
+
+    expect(currentPath()).toBe(`/events/new?from=${eventId}`)
+    expect(await screen.findByDisplayValue('බොතේජු පවුල')).toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByLabelText(/දිනය/)).toHaveValue('')
+  })
+
   it('leaves the source event as it was', async () => {
     const { organizer, eventId } = await seedPreviousEvent()
     const { user, unmount } = await renderApp(`/events/new?from=${eventId}`, { signedInAs: organizer })

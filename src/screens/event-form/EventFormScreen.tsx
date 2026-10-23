@@ -4,6 +4,7 @@ import { useToast } from '../../components/useToast'
 import { useCopyEvent, useCreateEvent, useEventDetails, type EventDetails } from '../../data/events'
 import { useHouseholds } from '../../data/household'
 import { NotFoundScreen } from '../not-found/NotFoundScreen'
+import { CopyFromPicker } from './CopyFromPicker'
 import { EventForm } from './EventForm'
 import { EMPTY_EVENT_FORM, eventFormValues } from './eventFormValues'
 import styles from './EventFormScreen.module.css'
@@ -27,6 +28,7 @@ function NewEvent() {
   return (
     <main className={styles.screen}>
       <BackHeader title="අළුත් දානයක්" backTo="/events" />
+      <CopyFromPicker />
       <EventForm
         initial={EMPTY_EVENT_FORM}
         submitLabel="සුරකින්න, මෙනුවට යන්න"
