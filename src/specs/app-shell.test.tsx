@@ -1,0 +1,62 @@
+import { screen, within } from '@testing-library/react'
+import { describe, expect, it } from 'vitest'
+import { currentPath, renderApp } from '../test/renderApp'
+import { seedHousehold } from '../test/seed'
+
+describe('app shell', () => {
+  it('opens the events home from the app root', async () => {
+    const { organizer } = await seedHousehold()
+    await renderApp('/', { signedInAs: organizer })
+
+    expect(await screen.findByRole('heading', { name: 'දාන' })).toBeInTheDocument()
+    expect(currentPath()).toBe('/events')
+  })
+
+  it('shows an empty state on the events home when the household has no events', async () => {
+    const { organizer } = await seedHousehold()
+    await renderApp('/events', { signedInAs: organizer })
+
+    expect(await screen.findByText('නමෝ බුද්ධාය!')).toBeInTheDocument()
+    expect(screen.getByText('තවම දාන කිසිවක් නැත')).toBeInTheDocument()
+  })
+
+  it('moves between events, search and contributors with the bottom tab bar', async () => {
+    const { organizer } = await seedHousehold()
+    const { user } = await renderApp('/events', { signedInAs: organizer })
+    const tabs = within(await screen.findByRole('navigation', { name: 'ප්‍රධාන' }))
+
+    expect(tabs.getByRole('link', { name: 'දාන' })).toHaveAttribute('aria-current', 'page')
+
+    await user.click(tabs.getByRole('link', { name: 'සොයන්න' }))
+    expect(await screen.findByRole('heading', { name: 'සොයන්න' })).toBeInTheDocument()
+    expect(currentPath()).toBe('/search')
+    expect(tabs.getByRole('link', { name: 'සොයන්න' })).toHaveAttribute('aria-current', 'page')
+
+    await user.click(tabs.getByRole('link', { name: 'දායකයන්' }))
+    expect(await screen.findByRole('heading', { name: 'දායකයන්' })).toBeInTheDocument()
+    expect(currentPath()).toBe('/contributors')
+
+    await user.click(tabs.getByRole('link', { name: 'දාන' }))
+    expect(await screen.findByRole('heading', { name: 'දාන' })).toBeInTheDocument()
+    expect(currentPath()).toBe('/events')
+  })
+
+  it('shows a not-found page for unknown paths that leads back to events', async () => {
+    const { organizer } = await seedHousehold()
+    const { user } = await renderApp('/no-such-page', { signedInAs: organizer })
+
+    expect(await screen.findByRole('heading', { name: 'පිටුව හමු නොවීය' })).toBeInTheDocument()
+    expect(screen.queryByRole('navigation', { name: 'ප්‍රධාන' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('link', { name: 'දාන වෙත යන්න' }))
+    expect(await screen.findByRole('heading', { name: 'දාන' })).toBeInTheDocument()
+    expect(currentPath()).toBe('/events')
+  })
+
+  it('sends a signed-out visit to an unknown path to the login screen first', async () => {
+    await renderApp('/no-such-page')
+
+    expect(await screen.findByLabelText('නම')).toBeInTheDocument()
+    expect(currentPath()).toBe('/login?next=%2Fno-such-page')
+  })
+})
