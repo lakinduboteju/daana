@@ -4,25 +4,33 @@ import { OVER_PARENT } from '../../components/sheetNavigation'
 import { StatusBadge } from '../../components/StatusBadge'
 import { useMenu, type Category, type Item } from '../../data/menu'
 import { formatQuantity } from '../../data/units'
+import { MenuFilterBar, useMenuFilters } from './MenuFilterBar'
+import { filterMenu, isFiltered } from './menuFilters'
 import styles from './MenuTab.module.css'
 
 /** /events/:eventId: the menu tab. Item sheets open over it through the outlet. */
 export function MenuTab() {
   const { eventId = '' } = useParams()
   const menu = useMenu(eventId)
+  const menuFilters = useMenuFilters()
+  const filtered = isFiltered(menuFilters.filters)
+  const shown = menu.data ? filterMenu(menu.data, menuFilters.filters) : undefined
 
   return (
     <>
+      {menu.data && shown && (
+        <MenuFilterBar menu={menu.data} shown={shown.reduce((n, c) => n + c.items.length, 0)} filters={menuFilters} />
+      )}
       <div className={styles.titleRow}>
         <h2 className={styles.title}>මෙනුව</h2>
         <Link to="categories" className={styles.editCategories}>Edit Categories</Link>
       </div>
       {menu.isPending && <p className={styles.status}>…</p>}
       {menu.isError && <p role="alert" className={styles.status}>මෙනුව පූරණය කිරීමට නොහැකි විය</p>}
-      {menu.data && (
+      {shown && (
         <div className={styles.categories}>
-          {menu.data.map((category) => (
-            <CategorySection key={category.id} category={category} />
+          {shown.map((category) => (
+            <CategorySection key={category.id} category={category} forceOpen={filtered} />
           ))}
         </div>
       )}
@@ -37,8 +45,10 @@ export function MenuTab() {
   )
 }
 
-function CategorySection({ category }: { category: Category }) {
-  const [open, setOpen] = useState(true)
+/** While the menu is filtered, every shown category is open (forceOpen). */
+function CategorySection({ category, forceOpen = false }: { category: Category; forceOpen?: boolean }) {
+  const [openState, setOpen] = useState(true)
+  const open = forceOpen || openState
   const nameId = `category-name-${category.id}`
   const bodyId = `category-body-${category.id}`
   return (
