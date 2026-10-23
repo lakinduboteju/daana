@@ -122,3 +122,57 @@ describe('editing an event', () => {
     expect(currentPath()).toBe('/events')
   })
 })
+
+describe('event card more-menu', () => {
+  it('opens the edit form from a card', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: colomboDate(3), host: 'බොතේජු පවුල' })
+    const { user } = await renderApp('/events', { signedInAs: organizer })
+
+    await user.click(await screen.findByRole('button', { name: 'බොතේජු පවුල: තවත් විකල්ප' }))
+    await user.click(screen.getByRole('link', { name: 'සංස්කරණය' }))
+    expect(currentPath()).toBe(`/events/${eventId}/edit`)
+    expect(await screen.findByDisplayValue('බොතේජු පවුල')).toBeInTheDocument()
+  })
+
+  it('deletes an event after a confirmation that says what will be lost', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    await seedEvent(householdId, { date: colomboDate(3), host: 'බොතේජු පවුල' })
+    await seedEvent(householdId, { date: colomboDate(3), host: 'සිල්වා පවුල' })
+    const { user } = await renderApp('/events', { signedInAs: organizer })
+
+    await user.click(await screen.findByRole('button', { name: 'බොතේජු පවුල: තවත් විකල්ප' }))
+    await user.click(screen.getByRole('button', { name: 'මකන්න' }))
+    const confirm = screen.getByRole('dialog', { name: /බොතේජු පවුල.*මකන්නද\?/ })
+    expect(confirm).toHaveTextContent('මෙනුව')
+    expect(confirm).toHaveTextContent('පැවරීම්')
+    expect(confirm).toHaveTextContent('ගෙවීම්')
+    expect(confirm).toHaveTextContent('ලේඛන')
+
+    await user.click(within(confirm).getByRole('button', { name: 'එපා' }))
+    expect(screen.getByRole('link', { name: /බොතේජු පවුල/ })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'බොතේජු පවුල: තවත් විකල්ප' }))
+    await user.click(screen.getByRole('button', { name: 'මකන්න' }))
+    await user.click(screen.getByRole('button', { name: 'ඔව්, මකන්න' }))
+
+    expect(await screen.findByRole('status')).toHaveTextContent('දානය මකා දැමුවා')
+    await waitFor(() => expect(screen.queryByRole('link', { name: /බොතේජු පවුල/ })).not.toBeInTheDocument())
+    expect(screen.getByRole('link', { name: /සිල්වා පවුල/ })).toBeInTheDocument()
+  })
+
+  it('deletes an event from its details screen and returns to the events home', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: colomboDate(3), host: 'බොතේජු පවුල' })
+    const { user } = await renderApp(`/events/${eventId}/edit`, { signedInAs: organizer })
+
+    await user.click(await screen.findByRole('button', { name: 'දානය මකන්න' }))
+    await user.click(await screen.findByRole('button', { name: 'ඔව්, මකන්න' }))
+
+    expect(await screen.findByText('තවම දාන කිසිවක් නැත')).toBeInTheDocument()
+    expect(currentPath()).toBe('/events')
+
+    goTo(`/events/${eventId}`)
+    expect(await screen.findByRole('heading', { name: 'පිටුව හමු නොවීය' })).toBeInTheDocument()
+  })
+})

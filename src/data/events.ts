@@ -185,6 +185,22 @@ export function useSetEventCancelled() {
   })
 }
 
+/** Deletes an event and everything in it (categories, items, assignments, money, documents). */
+export function useDeleteEvent() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (eventId: string) => {
+      const { error } = await supabase.from('event').delete().eq('id', eventId)
+      if (error) throw error
+    },
+    onSuccess: (_, eventId) => {
+      queryClient.removeQueries({ queryKey: ['events', eventId] })
+      void queryClient.invalidateQueries({ queryKey: ['events'] })
+      void queryClient.invalidateQueries({ queryKey: ['monasteries'] })
+    },
+  })
+}
+
 function blankToNull(value: string): string | null {
   return value.trim() || null
 }

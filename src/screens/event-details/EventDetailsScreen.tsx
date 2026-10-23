@@ -1,11 +1,19 @@
-import { useParams } from 'react-router'
+import { useState } from 'react'
+import { useNavigate, useParams } from 'react-router'
 import { BackHeader } from '../../components/BackHeader'
 import { useToast } from '../../components/useToast'
-import { useEventDetails, useSetEventCancelled, useUpdateEvent, type EventDetails } from '../../data/events'
+import {
+  useEventDetails,
+  useEventSummary,
+  useSetEventCancelled,
+  useUpdateEvent,
+  type EventDetails,
+} from '../../data/events'
 import { EventForm } from '../event-form/EventForm'
 import { eventFormValues } from '../event-form/eventFormValues'
 import formStyles from '../event-form/EventFormScreen.module.css'
 import { NotFoundScreen } from '../not-found/NotFoundScreen'
+import { DeleteEventDialog } from './DeleteEventDialog'
 import styles from './EventDetailsScreen.module.css'
 
 /**
@@ -37,6 +45,9 @@ function EditEvent({ event }: { event: EventDetails }) {
   const updateEvent = useUpdateEvent()
   const setCancelled = useSetEventCancelled()
   const toast = useToast()
+  const navigate = useNavigate()
+  const summary = useEventSummary(event.id)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
   const cancelled = event.cancelled_at !== null
 
   async function toggleCancelled() {
@@ -63,7 +74,17 @@ function EditEvent({ event }: { event: EventDetails }) {
         <button type="button" className={styles.action} onClick={toggleCancelled} disabled={setCancelled.isPending}>
           {cancelled ? 'අවලංගු කිරීම ඉවත් කරන්න' : 'දානය අවලංගු කරන්න'}
         </button>
+        <button type="button" className={styles.delete} onClick={() => setConfirmingDelete(true)}>
+          දානය මකන්න
+        </button>
       </section>
+      {confirmingDelete && summary.data && (
+        <DeleteEventDialog
+          event={summary.data}
+          onDeleted={() => navigate('/events')}
+          onCancel={() => setConfirmingDelete(false)}
+        />
+      )}
     </EventForm>
   )
 }
