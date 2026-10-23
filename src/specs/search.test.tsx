@@ -51,5 +51,18 @@ describe('global search', () => {
     expect(await screen.findByText(`ප්‍රතිඵල ${expected.length}`)).toBeInTheDocument()
     for (const name of expected) expect(screen.getByRole('link', { name: new RegExp(`^${name}`) })).toBeInTheDocument()
   })
-})
 
+  it("never shows another household's events, items or contributors", async () => {
+    const mine = await seedHousehold()
+    const theirs = await seedHousehold('සිල්වා පවුල')
+    const myEvent = await seedEvent(mine.householdId, { date: '2099-11-08', categories: ['බත්'] })
+    await seedItem(myEvent, 'බත්', { name: 'කිරිබත්' })
+    const theirEvent = await seedEvent(theirs.householdId, { date: '2099-11-08', host: 'කිරිබත් පවුල', categories: ['බත්'] })
+    const theirItem = await seedItem(theirEvent, 'බත්', { name: 'කිරිබත් කෑලි' })
+    await seedAssignment(theirItem, await seedContributor(theirs.householdId, 'කිරිබත් අම්මා'))
+
+    await renderApp(`/search?q=${encodeURIComponent('කිරිබත්')}`, { signedInAs: mine.organizer })
+    expect(await screen.findByText('ප්‍රතිඵල 1')).toBeInTheDocument()
+    expect(screen.queryByText(/කිරිබත් කෑලි|කිරිබත් පවුල|කිරිබත් අම්මා/)).not.toBeInTheDocument()
+  })
+})
