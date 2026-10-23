@@ -1,0 +1,116 @@
+import { Link, useParams } from 'react-router'
+import { BackHeader } from '../../components/BackHeader'
+import { CancelledBadge } from '../../components/CancelledBadge'
+import { ContactLinks } from '../../components/ContactLinks'
+import { StatusBadge } from '../../components/StatusBadge'
+import { useSaveFailed, useToast } from '../../components/useToast'
+import {
+  useConfirmAssignment,
+  useContributorAssignments,
+  type ContributorAssignment,
+  type ContributorEventGroup,
+} from '../../data/contributorAssignments'
+import { useContributor } from '../../data/contributors'
+import { MEAL_LABEL } from '../../data/meal'
+import { STATUS_LABEL } from '../../data/status'
+import { formatAmount } from '../../data/units'
+import { formatDayMonth } from '../../lib/dates'
+import { NotFoundScreen } from '../not-found/NotFoundScreen'
+import styles from './ContributorDetailScreen.module.css'
+
+/**
+ * /contributors/:contributorId: the contributor's profile and contact links,
+ * and everything they've taken on across events, past events included.
+ */
+export function ContributorDetailScreen() {
+  const { contributorId = '' } = useParams()
+  const contributor = useContributor(contributorId)
+  const groups = useContributorAssignments(contributorId)
+
+  if (contributor.data === null) return <NotFoundScreen />
+  if (contributor.isPending) return <p className={styles.message}>පූරණය වෙමින්…</p>
+  if (contributor.isError) {
+    return <p role="alert" className={styles.message}>දායකයා පූරණය කිරීමට නොහැකි විය.</p>
+  }
+
+  const { name, phone, notes } = contributor.data
+  return (
+    <main className={styles.screen}>
+      <BackHeader title={name} backTo="/contributors" />
+      <section aria-label="දායකයාගේ විස්තර" className={styles.profile}>
+        <div className={styles.profileRow}>
+          <div className={styles.profileText}>
+            {phone && <p className={styles.phone}>{phone}</p>}
+            <Link to="edit" className={styles.edit}>සංස්කරණය</Link>
+          </div>
+          <ContactLinks contributor={contributor.data} />
+        </div>
+        {notes && <p className={styles.notes}>සටහන: {notes}</p>}
+      </section>
+
+      {groups.isPending && <p className={styles.message}>පූරණය වෙමින්…</p>}
+      {groups.isError && <p role="alert" className={styles.message}>පැවරුම් පූරණය කිරීමට නොහැකි විය.</p>}
+      {groups.data?.length === 0 && <p className={styles.message}>තවම කිසිදු දානයකට පවරා නැත.</p>}
+      {groups.data?.map((group) => <EventGroup key={group.event.id} contributorId={contributorId} group={group} />)}
+    </main>
+  )
+}
+
+function EventGroup({
+  contributorId,
+  group: { event, assignments },
+}: {
+  contributorId: string
+  group: ContributorEventGroup
+}) {
+  const titleId = `contributor-event-${event.id}`
+  const when = `${formatDayMonth(event.date)} · ${MEAL_LABEL[event.meal]}`
+  return (
+    <section aria-labelledby={titleId} className={styles.group}>
+      <div className={styles.groupHead}>
+        <h2 id={titleId} className={styles.groupTitle}>
+          <Link to={`/events/${event.id}`} className={styles.groupLink}>
+            {event.is_past ? `පසුගිය · ${when}` : when}
+          </Link>
+        </h2>
+        {event.cancelled_at && <CancelledBadge />}
+      </div>
+      <p className={styles.groupSub}>{[event.host, event.monastery_name].filter(Boolean).join(' · ')}</p>
+      <ul className={styles.assignments}>
+        {assignments.map((assignment) => (
+          <AssignmentRow key={assignment.id} contributorId={contributorId} assignment={assignment} />
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+function AssignmentRow({ contributorId, assignment }: { contributorId: string; assignment: ContributorAssignment }) {
+  const confirm = useConfirmAssignment(contributorId)
+  const toast = useToast()
+  const saveFailed = useSaveFailed()
+  const { item } = assignment
+  const what = `${item.name} — ${STATUS_LABEL.confirmed}`
+
+  function agreed() {
+    confirm.mutate(assignment.id, {
+      onSuccess: () => toast(`${what} ලෙස සුරැකිණි`),
+      onError: () => saveFailed(`${what} සුරැකීමට නොහැකි විය`, agreed),
+    })
+  }
+
+  return (
+    <li className={styles.assignment}>
+      <div className={styles.assignmentText}>
+        <span className={styles.itemName}>{item.name}</span>
+        <span className={styles.quantity}>{formatAmount(assignment.quantity, item) ?? 'ප්‍රමාණය සඳහන් කර නැත'}</span>
+      </div>
+      {assignment.status === 'pending' && (
+        <button type="button" className={styles.confirm} aria-label={`${item.name} — ✓ එකඟ වුණා`} onClick={agreed}>
+          ✓ එකඟ වුණා
+        </button>
+      )}
+      <StatusBadge status={assignment.status} />
+    </li>
+  )
+}
