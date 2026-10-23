@@ -52,6 +52,30 @@ export function useAddCategoryTemplate() {
   })
 }
 
+/** Swaps two neighbouring templates, e.g. to move one up. Shows the new order straight away. */
+export function useSwapCategoryTemplates() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ([a, b]: [CategoryTemplate, CategoryTemplate]) => {
+      const results = await Promise.all([
+        supabase.from('category_template').update({ position: b.position }).eq('id', a.id),
+        supabase.from('category_template').update({ position: a.position }).eq('id', b.id),
+      ])
+      const error = results.find((result) => result.error)?.error
+      if (error) throw error
+    },
+    onMutate: async ([a, b]) => {
+      await queryClient.cancelQueries({ queryKey: KEY })
+      queryClient.setQueryData<CategoryTemplate[]>(KEY, (templates) =>
+        templates
+          ?.map((t) => (t.id === a.id ? { ...t, position: b.position } : t.id === b.id ? { ...t, position: a.position } : t))
+          .sort((x, y) => x.position - y.position),
+      )
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: KEY }),
+  })
+}
+
 export function useRenameCategoryTemplate() {
   const queryClient = useQueryClient()
   return useMutation({

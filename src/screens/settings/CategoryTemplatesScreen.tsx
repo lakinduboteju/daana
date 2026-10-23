@@ -4,6 +4,7 @@ import {
   useAddCategoryTemplate,
   useCategoryTemplates,
   useRenameCategoryTemplate,
+  useSwapCategoryTemplates,
   type CategoryTemplate,
 } from '../../data/categoryTemplates'
 import styles from './CategoryTemplatesScreen.module.css'
@@ -12,6 +13,7 @@ import styles from './CategoryTemplatesScreen.module.css'
 export function CategoryTemplatesScreen() {
   const templates = useCategoryTemplates()
   const [editingId, setEditingId] = useState<string | null>(null)
+  const swap = useSwapCategoryTemplates()
 
   return (
     <main className={styles.screen}>
@@ -21,13 +23,31 @@ export function CategoryTemplatesScreen() {
       {templates.isError && <p role="alert" className={styles.message}>පූරණය කිරීමට නොහැකි විය</p>}
       {templates.data && (
         <ol aria-label="කාණ්ඩ" className={styles.list}>
-          {templates.data.map((template) => (
+          {templates.data.map((template, index, all) => (
             <li key={template.id} className={styles.row}>
               {editingId === template.id ? (
                 <RenameForm template={template} onDone={() => setEditingId(null)} />
               ) : (
                 <>
                   <span className={styles.name}>{template.name}</span>
+                  <button
+                    type="button"
+                    aria-label={`${template.name} ඉහළට`}
+                    className={styles.iconButton}
+                    disabled={index === 0 || swap.isPending}
+                    onClick={() => swap.mutate([template, all[index - 1]])}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 15 6-6 6 6" /></svg>
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`${template.name} පහළට`}
+                    className={styles.iconButton}
+                    disabled={index === all.length - 1 || swap.isPending}
+                    onClick={() => swap.mutate([template, all[index + 1]])}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+                  </button>
                   <button
                     type="button"
                     aria-label={`${template.name} නම වෙනස් කරන්න`}

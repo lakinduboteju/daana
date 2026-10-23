@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
 import { seedHousehold } from '../test/seed'
@@ -96,6 +96,24 @@ describe('managing category templates', () => {
     unmount()
     await renderApp('/settings/categories', { signedInAs: organizer })
     expect(await templateNames()).toEqual([...DEFAULTS, 'දන්සල් බීම'])
+  })
+
+  it('moves templates up and down, and the order stays', async () => {
+    const { organizer } = await seedHousehold()
+    const { user, unmount } = await renderApp('/settings/categories', { signedInAs: organizer })
+
+    expect(await screen.findByRole('button', { name: 'බත් ඉහළට' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'ඖෂධ පහළට' })).toBeDisabled()
+
+    await user.click(screen.getByRole('button', { name: 'පලතුරු ඉහළට' }))
+    await waitFor(async () => expect((await templateNames()).slice(0, 4)).toEqual(['බත්', 'හොදි', 'පලතුරු', 'ව්‍යංජන']))
+    await waitFor(() => expect(screen.getByRole('button', { name: 'බත් පහළට' })).toBeEnabled())
+    await user.click(screen.getByRole('button', { name: 'බත් පහළට' }))
+    await waitFor(async () => expect((await templateNames()).slice(0, 4)).toEqual(['හොදි', 'බත්', 'පලතුරු', 'ව්‍යංජන']))
+
+    unmount()
+    await renderApp('/settings/categories', { signedInAs: organizer })
+    expect(await templateNames()).toEqual(['හොදි', 'බත්', 'පලතුරු', 'ව්‍යංජන', ...DEFAULTS.slice(4)])
   })
 })
 
