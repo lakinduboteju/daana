@@ -1,8 +1,8 @@
-import { useState, type FormEvent } from 'react'
+import { useId, useState, type FormEvent } from 'react'
 import { useParams, useSearchParams } from 'react-router'
 import { Sheet } from '../../components/Sheet'
 import { useCloseSheet } from '../../components/sheetNavigation'
-import { findItem, useAddItem, useMenu, useUpdateItem, type Category, type ItemFields, type Unit } from '../../data/menu'
+import { findItem, useAddItem, useDeleteItem, useMenu, useUpdateItem, type Category, type ItemFields, type Unit } from '../../data/menu'
 import { UNIT_OPTIONS } from '../../data/units'
 import styles from './ItemSheets.module.css'
 
@@ -41,28 +41,56 @@ export function EditItemSheet() {
   const { eventId = '', itemId = '' } = useParams()
   const menu = useMenu(eventId)
   const updateItem = useUpdateItem(eventId)
+  const deleteItem = useDeleteItem(eventId)
+  const [confirming, setConfirming] = useState(false)
+  const confirmTitleId = useId()
   const close = useCloseSheet(`/events/${eventId}`)
   const item = menu.data ? findItem(menu.data, itemId) : null
 
   return (
     <Sheet title="Item සංස්කරණය" onClose={close}>
-      {menu.data && !item && <p className={styles.missing}>මෙම Item එක හමු නොවීය.</p>}
+      {menu.data && !item && !deleteItem.isSuccess && <p className={styles.missing}>මෙම Item එක හමු නොවීය.</p>}
       {menu.data && item && (
-        <ItemForm
-          key={item.id}
-          categories={menu.data}
-          initial={{
-            categoryId: item.category_id,
-            name: item.name,
-            requiredQuantity: item.required_quantity,
-            unit: item.unit,
-            customUnit: item.custom_unit ?? '',
-            notes: item.notes ?? '',
-          }}
-          saving={updateItem.isPending}
-          failed={updateItem.isError}
-          onSubmit={(fields) => updateItem.mutate({ itemId: item.id, fields }, { onSuccess: close })}
-        />
+        <>
+          <ItemForm
+            key={item.id}
+            categories={menu.data}
+            initial={{
+              categoryId: item.category_id,
+              name: item.name,
+              requiredQuantity: item.required_quantity,
+              unit: item.unit,
+              customUnit: item.custom_unit ?? '',
+              notes: item.notes ?? '',
+            }}
+            saving={updateItem.isPending}
+            failed={updateItem.isError}
+            onSubmit={(fields) => updateItem.mutate({ itemId: item.id, fields }, { onSuccess: close })}
+          />
+          <button type="button" className={styles.danger} onClick={() => setConfirming(true)}>
+            Item එක මකන්න
+          </button>
+          {confirming && (
+            <dialog open aria-labelledby={confirmTitleId} className={styles.confirm}>
+              <h3 id={confirmTitleId} className={styles.confirmTitle}>{item.name} මකන්නද?</h3>
+              <p className={styles.confirmText}>
+                එයට පැවරූ දායකයන්ද ඉවත් වේ. එයට අදාළ මුදල් වාර්තා හා ලේඛන දානයේ ඉතිරි වේ.
+              </p>
+              {deleteItem.isError && <p role="alert" className={styles.error}>මැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න.</p>}
+              <div className={styles.confirmActions}>
+                <button type="button" className={styles.secondary} onClick={() => setConfirming(false)}>එපා</button>
+                <button
+                  type="button"
+                  className={styles.dangerSolid}
+                  disabled={deleteItem.isPending}
+                  onClick={() => deleteItem.mutate(item.id, { onSuccess: close })}
+                >
+                  ඔව්, මකන්න
+                </button>
+              </div>
+            </dialog>
+          )}
+        </>
       )}
     </Sheet>
   )

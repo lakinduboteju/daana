@@ -84,3 +84,62 @@
   padding: 16px 0;
   color: var(--color-text-muted);
 }
+
+.danger {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.confirm {
+  position: static;
+  margin: 12px 0 0;
+  padding: 14px;
+  width: 100%;
+  border: 1px solid var(--color-error-fg);
+  border-radius: var(--radius-md);
+  background: var(--color-error-bg);
+  color: var(--color-text);
+}
+
+.confirmTitle {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.confirmText {
+  margin: 6px 0 0;
+  font-size: 15px;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.secondary,
+.dangerSolid {
+  flex: 1;
+  min-height: 48px;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.secondary {
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+}
+
+.dangerSolid {
+  border: 0;
+  background: var(--color-error-fg);
+  color: var(--color-on-accent);
+}
+
+.dangerSolid:disabled {
+  opacity: 0.6;
+}

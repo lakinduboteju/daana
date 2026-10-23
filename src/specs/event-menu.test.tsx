@@ -150,4 +150,27 @@ describe('event menu', () => {
     expect(currentPath()).toBe(`/events/${eventId}`)
     expect(screen.getByRole('link', { name: /කිරිබත්/ })).toBeInTheDocument()
   })
+
+  it('deletes an item only after confirmation', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['පලතුරු'] })
+    await seedItem(eventId, 'පලතුරු', { name: 'අන්නාසි' })
+    await seedItem(eventId, 'පලතුරු', { name: 'කෙසෙල්' })
+    const { user } = await renderApp(`/events/${eventId}`, { signedInAs: organizer })
+
+    await user.click(await screen.findByRole('link', { name: /අන්නාසි/ }))
+    const sheet = await screen.findByRole('dialog', { name: 'Item සංස්කරණය' })
+    await user.click(await within(sheet).findByRole('button', { name: 'Item එක මකන්න' }))
+    await user.click(screen.getByRole('button', { name: 'එපා' }))
+    expect(screen.queryByRole('dialog', { name: 'අන්නාසි මකන්නද?' })).not.toBeInTheDocument()
+
+    await user.click(within(sheet).getByRole('button', { name: 'Item එක මකන්න' }))
+    const confirm = screen.getByRole('dialog', { name: 'අන්නාසි මකන්නද?' })
+    await user.click(within(confirm).getByRole('button', { name: 'ඔව්, මකන්න' }))
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(currentPath()).toBe(`/events/${eventId}`)
+    expect(screen.queryByRole('link', { name: /අන්නාසි/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /කෙසෙල්/ })).toBeInTheDocument()
+  })
 })

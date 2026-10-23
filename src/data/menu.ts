@@ -97,3 +97,15 @@ export function findItem(menu: Category[], itemId: string): Item | null {
   }
   return null
 }
+
+/** Deletes an item. Its assignments go with it; its money records and documents stay on the event. */
+export function useDeleteItem(eventId: string) {
+  const invalidate = useInvalidateEvent()
+  return useMutation({
+    mutationFn: async (itemId: string) => {
+      const { error } = await supabase.from('item').delete().eq('id', itemId).eq('event_id', eventId)
+      if (error) throw error
+    },
+    onSuccess: invalidate,
+  })
+}
