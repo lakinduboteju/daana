@@ -44,6 +44,8 @@ export function useContributor(contributorId: string) {
         .select(COLUMNS)
         .eq('id', contributorId)
         .maybeSingle()
+      // A malformed id in the URL is a broken link, so it's not found too.
+      if (error?.code === '22P02') return null
       if (error) throw error
       return data
     },

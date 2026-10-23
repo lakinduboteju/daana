@@ -1,5 +1,6 @@
 import { Navigate, type RouteObject } from 'react-router'
 import { RequireAuth } from './auth/RequireAuth'
+import { ContributorEditScreen } from './screens/contributors/ContributorEditScreen'
 import { ContributorNewScreen } from './screens/contributors/ContributorNewScreen'
 import { ContributorsScreen } from './screens/contributors/ContributorsScreen'
 import { EventsHome } from './screens/events/EventsHome'
@@ -25,6 +26,7 @@ export const routes: RouteObject[] = [
         ],
       },
       { path: '/contributors/new', element: <ContributorNewScreen /> },
+      { path: '/contributors/:contributorId/edit', element: <ContributorEditScreen /> },
       { path: '/settings', element: <SettingsScreen /> },
       { path: '*', element: <NotFoundScreen /> },
     ],
