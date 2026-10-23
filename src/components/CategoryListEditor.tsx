@@ -1,6 +1,8 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
 import type { UseMutationResult } from '@tanstack/react-query'
 import styles from './CategoryListEditor.module.css'
+import { ConfirmDialog } from './ConfirmDialog'
+import { useToast } from './useToast'
 
 type Named = { id: string; name: string }
 
@@ -25,6 +27,7 @@ type Props<T extends Named> = {
 export function CategoryListEditor<T extends Named>({ categories, add, rename, swap, remove, removeHint }: Props<T>) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [removing, setRemoving] = useState<T | null>(null)
+  const toast = useToast()
 
   return (
     <>
@@ -77,22 +80,24 @@ export function CategoryListEditor<T extends Named>({ categories, add, rename, s
       </ol>
       <AddForm add={add} />
       {removing && (
-        <dialog open aria-labelledby="remove-category-title" className={styles.confirm}>
-          <h2 id="remove-category-title" className={styles.confirmTitle}>{removing.name} ඉවත් කරන්නද?</h2>
-          <p className={styles.hint}>{removeHint(removing)}</p>
+        <ConfirmDialog
+          title={`${removing.name} ඉවත් කරන්නද?`}
+          confirmLabel="ඔව්, ඉවත් කරන්න"
+          destructive
+          busy={remove.isPending}
+          onCancel={() => setRemoving(null)}
+          onConfirm={() =>
+            remove.mutate(removing.id, {
+              onSuccess: () => {
+                setRemoving(null)
+                toast('කාණ්ඩය ඉවත් කළා')
+              },
+            })
+          }
+        >
+          <p>{removeHint(removing)}</p>
           {remove.isError && <p role="alert" className={styles.error}>ඉවත් කිරීමට නොහැකි විය</p>}
-          <div className={styles.confirmButtons}>
-            <button type="button" className={styles.secondary} onClick={() => setRemoving(null)}>එපා</button>
-            <button
-              type="button"
-              className={styles.danger}
-              disabled={remove.isPending}
-              onClick={() => remove.mutate(removing.id, { onSuccess: () => setRemoving(null) })}
-            >
-              ඔව්, ඉවත් කරන්න
-            </button>
-          </div>
-        </dialog>
+        </ConfirmDialog>
       )}
     </>
   )
@@ -125,10 +130,19 @@ function AddForm({ add }: { add: Mutation<string> }) {
 
 function RenameForm({ category, rename, onDone }: { category: Named; rename: Mutation<{ id: string; name: string }>; onDone: () => void }) {
   const [name, setName] = useState(category.name)
+  const toast = useToast()
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    rename.mutate({ id: category.id, name }, { onSuccess: onDone })
+    rename.mutate(
+      { id: category.id, name },
+      {
+        onSuccess: () => {
+          onDone()
+          toast('සුරැකිණි')
+        },
+      },
+    )
   }
 
   return (
