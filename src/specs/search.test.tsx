@@ -32,5 +32,24 @@ describe('global search', () => {
     expect(currentPath()).toBe(`/events/${first}/items/${kiribath}`)
     expect(await screen.findByRole('heading', { level: 1, name: 'කිරිබත්' })).toBeInTheDocument()
   })
+
+  it.each([
+    ['item', 'FRIED', ['Fried rice']],
+    ['contributor', 'nimal', ['Curd']],
+    ['monastery', 'malabe ARAMAYA', ['Fried rice']],
+    ['host', 'PERERA FAMILY', ['Curd', 'Juice']],
+  ])('matches a %s ignoring case', async (_, q, expected) => {
+    const { householdId, organizer } = await seedHousehold()
+    const temple = await seedEvent(householdId, { date: '2099-11-08', monastery: 'Malabe Aramaya', categories: ['බත්'] })
+    const family = await seedEvent(householdId, { date: '2099-11-09', host: 'Perera family', categories: ['බත්'] })
+    await seedItem(temple, 'බත්', { name: 'Fried rice' })
+    const curd = await seedItem(family, 'බත්', { name: 'Curd' })
+    await seedItem(family, 'බත්', { name: 'Juice' })
+    await seedAssignment(curd, await seedContributor(householdId, 'Nimal Silva'))
+
+    await renderApp(`/search?q=${encodeURIComponent(q)}`, { signedInAs: organizer })
+    expect(await screen.findByText(`ප්‍රතිඵල ${expected.length}`)).toBeInTheDocument()
+    for (const name of expected) expect(screen.getByRole('link', { name: new RegExp(`^${name}`) })).toBeInTheDocument()
+  })
 })
 
