@@ -56,6 +56,24 @@ describe('contributors directory', () => {
     expect(currentPath()).toBe('/contributors')
   })
 
+  it('calls and WhatsApps a contributor, using the phone number when there is no WhatsApp number', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    await seedContributor(householdId, { name: 'කමලා රත්නායක', phone: '077 123 4567' })
+    await seedContributor(householdId, { name: 'ගුණපාල', phone: '0711111111', whatsapp: '+94 77 999 9999' })
+    await seedContributor(householdId, { name: 'දිල්රුක්ෂි' })
+    await renderApp('/contributors', { signedInAs: organizer })
+
+    expect(await screen.findByRole('link', { name: 'කමලා රත්නායක අමතන්න' })).toHaveAttribute('href', 'tel:0771234567')
+    expect(screen.getByRole('link', { name: 'කමලා රත්නායකට WhatsApp පණිවිඩයක්' })).toHaveAttribute('href', 'https://wa.me/94771234567')
+
+    expect(screen.getByRole('link', { name: 'ගුණපාල අමතන්න' })).toHaveAttribute('href', 'tel:0711111111')
+    expect(screen.getByRole('link', { name: 'ගුණපාලට WhatsApp පණිවිඩයක්' })).toHaveAttribute('href', 'https://wa.me/94779999999')
+
+    expect(screen.getByText('දිල්රුක්ෂි')).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'දිල්රුක්ෂි අමතන්න' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'දිල්රුක්ෂිට WhatsApp පණිවිඩයක්' })).not.toBeInTheDocument()
+  })
+
   it("shows not found for another household's contributor", async () => {
     const theirs = await seedHousehold('සිල්වා පවුල')
     const contributorId = await seedContributor(theirs.householdId, { name: 'නිමල් සිල්වා' })
