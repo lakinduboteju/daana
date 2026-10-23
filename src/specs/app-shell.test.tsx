@@ -17,7 +17,7 @@ describe('app shell', () => {
     await renderApp('/events', { signedInAs: organizer })
 
     expect(await screen.findByText('නමෝ බුද්ධාය!')).toBeInTheDocument()
-    expect(screen.getByText('තවම දාන කිසිවක් නැත')).toBeInTheDocument()
+    expect(await screen.findByText('තවම දාන කිසිවක් නැත')).toBeInTheDocument()
   })
 
   it('moves between events, search and contributors with the bottom tab bar', async () => {
