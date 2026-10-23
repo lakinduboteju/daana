@@ -2,6 +2,7 @@ import { Navigate, type RouteObject } from 'react-router'
 import { RequireAuth } from './auth/RequireAuth'
 import { ContributorsScreen } from './screens/contributors/ContributorsScreen'
 import { EventScreen } from './screens/event/EventScreen'
+import { AddItemSheet } from './screens/event/ItemSheets'
 import { MenuTab } from './screens/event/MenuTab'
 import { TabPlaceholder } from './screens/event/TabPlaceholder'
 import { EventFormScreen } from './screens/event-form/EventFormScreen'
@@ -32,7 +33,11 @@ export const routes: RouteObject[] = [
         path: '/events/:eventId',
         element: <EventScreen />,
         children: [
-          { index: true, element: <MenuTab /> },
+          {
+            path: '',
+            element: <MenuTab />,
+            children: [{ path: 'items/new', element: <AddItemSheet /> }],
+          },
           { path: 'money', element: <TabPlaceholder title="මුදල් හා ලේඛන" /> },
           { path: 'edit', element: <TabPlaceholder title="විස්තර" /> },
         ],

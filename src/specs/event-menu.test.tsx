@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
 import { seedEvent, seedHousehold } from '../test/seed'
@@ -40,5 +40,47 @@ describe('event menu', () => {
 
     await user.click(within(tabs).getByRole('link', { name: 'විස්තර' }))
     expect(currentPath()).toBe(`/events/${eventId}/edit`)
+  })
+
+  it('adds an item under a category from its row, with a quantity, unit and notes', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්', 'පිරිකර'] })
+    const { user } = await renderApp(`/events/${eventId}`, { signedInAs: organizer })
+
+    const rice = await screen.findByRole('region', { name: 'බත්' })
+    await user.click(within(rice).getByRole('link', { name: 'Item එකක් එක් කරන්න' }))
+    expect(currentPath()).toMatch(new RegExp(`^/events/${eventId}/items/new\\?category=[0-9a-f-]{36}$`))
+
+    const sheet = await screen.findByRole('dialog', { name: 'අළුත් Item' })
+    expect(within(sheet).getByLabelText(/කාණ්ඩය/)).toHaveDisplayValue('බත්')
+    await user.type(within(sheet).getByLabelText(/^නම/), 'කිරිබත්')
+    await user.type(within(sheet).getByLabelText(/අවශ්‍ය ප්‍රමාණය/), '3')
+    await user.selectOptions(within(sheet).getByLabelText('ඒකකය'), 'kg')
+    await user.type(within(sheet).getByLabelText(/සටහන්/), 'කිරි වැඩිපුර')
+    await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(currentPath()).toBe(`/events/${eventId}`)
+    const item = await within(rice).findByRole('link', { name: /කිරිබත්/ })
+    expect(item).toHaveTextContent('කි.ග්‍රෑ. 3')
+  })
+
+  it('adds a requisite with a typed unit from the floating Item button', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්', 'පිරිකර'] })
+    const { user } = await renderApp(`/events/${eventId}`, { signedInAs: organizer })
+
+    await user.click(await screen.findByRole('link', { name: 'Item' }))
+    const sheet = await screen.findByRole('dialog', { name: 'අළුත් Item' })
+    await user.selectOptions(within(sheet).getByLabelText(/කාණ්ඩය/), 'පිරිකර')
+    await user.type(within(sheet).getByLabelText(/^නම/), 'සිවුරු')
+    await user.type(within(sheet).getByLabelText(/අවශ්‍ය ප්‍රමාණය/), '12')
+    await user.selectOptions(within(sheet).getByLabelText('ඒකකය'), 'other')
+    await user.type(within(sheet).getByLabelText('ඒකකයේ නම'), 'කට්ටල')
+    await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
+
+    const requisites = screen.getByRole('region', { name: 'පිරිකර' })
+    expect(await within(requisites).findByRole('link', { name: /සිවුරු/ })).toHaveTextContent('කට්ටල 12')
+    expect(within(screen.getByRole('region', { name: 'බත්' })).queryByRole('link', { name: /සිවුරු/ })).not.toBeInTheDocument()
   })
 })

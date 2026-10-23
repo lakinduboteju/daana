@@ -1,6 +1,8 @@
 import { useState } from 'react'
-import { Outlet, useParams } from 'react-router'
-import { useMenu, type Category } from '../../data/menu'
+import { Link, Outlet, useParams } from 'react-router'
+import { OVER_PARENT } from '../../components/sheetNavigation'
+import { useMenu, type Category, type Item } from '../../data/menu'
+import { formatQuantity } from '../../data/units'
 import styles from './MenuTab.module.css'
 
 /** /events/:eventId: the menu tab. Item sheets open over it through the outlet. */
@@ -22,6 +24,12 @@ export function MenuTab() {
           ))}
         </div>
       )}
+
+      <Link to="items/new" state={OVER_PARENT} className={styles.fab}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+        Item
+      </Link>
+
       <Outlet />
     </>
   )
@@ -29,9 +37,10 @@ export function MenuTab() {
 
 function CategorySection({ category }: { category: Category }) {
   const [open, setOpen] = useState(true)
-  const bodyId = `category-${category.id}`
+  const nameId = `category-name-${category.id}`
+  const bodyId = `category-body-${category.id}`
   return (
-    <section className={styles.category}>
+    <section aria-labelledby={nameId} className={styles.category}>
       <button
         type="button"
         className={styles.categoryToggle}
@@ -39,10 +48,33 @@ function CategorySection({ category }: { category: Category }) {
         aria-controls={bodyId}
         onClick={() => setOpen(!open)}
       >
-        <span className={styles.categoryName}>{category.name}</span>
+        <span id={nameId} className={styles.categoryName}>{category.name}</span>
+        <span className={styles.count}>{category.items.length}</span>
         <svg className={open ? styles.chevronOpen : styles.chevron} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
       </button>
-      {open && <div id={bodyId} />}
+      {open && (
+        <div id={bodyId}>
+          {category.items.map((item) => (
+            <ItemRow key={item.id} item={item} />
+          ))}
+          <Link to={`items/new?category=${category.id}`} state={OVER_PARENT} className={styles.addRow}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+            Item එකක් එක් කරන්න
+          </Link>
+        </div>
+      )}
     </section>
+  )
+}
+
+function ItemRow({ item }: { item: Item }) {
+  const quantity = formatQuantity(item)
+  return (
+    <Link to={`items/${item.id}/edit`} state={OVER_PARENT} className={styles.item}>
+      <span className={styles.itemName}>{item.name}</span>
+      <span className={styles.itemSub}>
+        {quantity ? `${quantity} · ` : ''}දායකයෙකු තවම නැත
+      </span>
+    </Link>
   )
 }
