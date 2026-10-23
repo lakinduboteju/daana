@@ -1,49 +1,15 @@
 import { useState } from 'react'
-import { useSearchParams } from 'react-router'
 import type { Category } from '../../data/menu'
 import {
-  FILTER_PARAMS,
   STATUS_FILTER_LABEL,
   STATUS_FILTERS,
   isFiltered,
   menuContributors,
-  readFilters,
   statusCounts,
   type StatusFilter,
+  type useMenuFilters,
 } from './menuFilters'
 import styles from './MenuFilterBar.module.css'
-
-/** The menu's filters, read from and written to the query string. */
-export function useMenuFilters() {
-  const [params, setParams] = useSearchParams()
-  const filters = readFilters(params)
-
-  /** Sets (or with null, removes) one filter param, keeping the others. Replaces the history entry. */
-  function set(name: (typeof FILTER_PARAMS)[number], value: string | null) {
-    setParams(
-      (current) => {
-        const next = new URLSearchParams(current)
-        if (value) next.set(name, value)
-        else next.delete(name)
-        return next
-      },
-      { replace: true },
-    )
-  }
-
-  function clear() {
-    setParams(
-      (current) => {
-        const next = new URLSearchParams(current)
-        for (const name of FILTER_PARAMS) next.delete(name)
-        return next
-      },
-      { replace: true },
-    )
-  }
-
-  return { filters, set, clear }
-}
 
 type Props = {
   menu: Category[]

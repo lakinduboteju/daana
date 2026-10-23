@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { Link, Outlet, useParams } from 'react-router'
+import { Link, Outlet, useLocation, useParams } from 'react-router'
 import { OVER_PARENT } from '../../components/sheetNavigation'
 import { StatusBadge } from '../../components/StatusBadge'
 import { useMenu, type Category, type Item } from '../../data/menu'
 import { formatQuantity } from '../../data/units'
-import { MenuFilterBar, useMenuFilters } from './MenuFilterBar'
-import { filterMenu, isFiltered } from './menuFilters'
+import { MenuFilterBar } from './MenuFilterBar'
+import { filterMenu, fromMenu, isFiltered, useMenuFilters } from './menuFilters'
 import styles from './MenuTab.module.css'
 
 /** /events/:eventId: the menu tab. Item sheets open over it through the outlet. */
@@ -88,9 +88,10 @@ function CategorySection({ category, forceOpen = false }: { category: Category; 
 function ItemRow({ item }: { item: Item }) {
   const quantity = formatQuantity(item)
   const unassigned = item.assignments.length === 0
+  const { search } = useLocation()
   return (
     <li className={styles.item}>
-      <Link to={`items/${item.id}`} className={styles.itemLink}>
+      <Link to={`items/${item.id}`} state={fromMenu(search)} className={styles.itemLink}>
         <span className={styles.itemName}>{item.name}</span>
         <span className={unassigned ? styles.itemSubMissing : styles.itemSub}>
           {unassigned ? 'දායකයෙකු තවම නැත' : contributorNames(item)}

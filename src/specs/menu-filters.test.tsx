@@ -109,6 +109,36 @@ describe('menu filters', () => {
     expect(shownItems()).toEqual(['සුදු බත්', 'අල තෙම්පරාදුව'])
   })
 
+  it('filters survive a reload, and coming back from an item by its back button or the browser', async () => {
+    const { organizer, eventId, ids } = await seedMenu()
+    const first = await renderApp(`/events/${eventId}`, { signedInAs: organizer })
+    await screen.findByRole('region', { name: 'බත්' })
+    await first.user.click(within(chips()).getByRole('button', { name: 'තහවුරුයි · 2' }))
+    await first.user.selectOptions(screen.getByRole('combobox', { name: 'දායකයා' }), 'කමලා රත්නායක')
+    expect(shownItems()).toEqual(['පරිප්පු'])
+    const filteredPath = currentPath()
+    expect(filteredPath).toBe(`/events/${eventId}?status=confirmed&contributor=${ids.kamala}`)
+
+    first.unmount()
+    const { user } = await renderApp(filteredPath)
+    await screen.findByRole('region', { name: 'ව්‍යංජන' })
+    expect(shownItems()).toEqual(['පරිප්පු'])
+    expect(within(chips()).getByRole('button', { name: 'තහවුරුයි · 1' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('combobox', { name: 'දායකයා' })).toHaveDisplayValue('කමලා රත්නායක')
+
+    await user.click(screen.getByRole('link', { name: /පරිප්පු/ }))
+    await screen.findByRole('heading', { level: 1, name: 'පරිප්පු' })
+    await user.click(screen.getByRole('link', { name: 'ආපසු' }))
+    await waitFor(() => expect(currentPath()).toBe(filteredPath))
+    expect(shownItems()).toEqual(['පරිප්පු'])
+
+    await user.click(screen.getByRole('link', { name: /පරිප්පු/ }))
+    await screen.findByRole('heading', { level: 1, name: 'පරිප්පු' })
+    window.history.back()
+    await waitFor(() => expect(currentPath()).toBe(filteredPath))
+    expect(shownItems()).toEqual(['පරිප්පු'])
+  })
+
   it('shows a message when nothing matches', async () => {
     const { organizer, eventId } = await seedMenu()
     await renderApp(`/events/${eventId}?q=කිරි%20හොදි`, { signedInAs: organizer })

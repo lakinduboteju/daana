@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router'
 import type { Category, Item } from '../../data/menu'
 import type { ItemStatus } from '../../data/status'
 
@@ -86,4 +87,47 @@ export function filterMenu(menu: Category[], filters: MenuFilters): Category[] {
   return menu
     .map((category) => ({ ...category, items: category.items.filter((i) => matchesStatus(i, filters.status) && matchesOthers(i, filters)) }))
     .filter((category) => category.items.length > 0)
+}
+
+/** The menu's filters, read from and written to the query string. */
+export function useMenuFilters() {
+  const [params, setParams] = useSearchParams()
+  const filters = readFilters(params)
+
+  /** Sets (or with null, removes) one filter param, keeping the others. Replaces the history entry. */
+  function set(name: (typeof FILTER_PARAMS)[number], value: string | null) {
+    setParams(
+      (current) => {
+        const next = new URLSearchParams(current)
+        if (value) next.set(name, value)
+        else next.delete(name)
+        return next
+      },
+      { replace: true },
+    )
+  }
+
+  function clear() {
+    setParams(
+      (current) => {
+        const next = new URLSearchParams(current)
+        for (const name of FILTER_PARAMS) next.delete(name)
+        return next
+      },
+      { replace: true },
+    )
+  }
+
+  return { filters, set, clear }
+}
+
+/** Link state for an item opened from the (maybe filtered) menu, so its back button keeps the filters. */
+export function fromMenu(search: string) {
+  return { menuSearch: search }
+}
+
+/** Where an item's back button goes: the menu, with the filters it was opened from. */
+export function menuPath(eventId: string, state: unknown): string {
+  const search = (state as ReturnType<typeof fromMenu> | null)?.menuSearch
+  return `/events/${eventId}${typeof search === 'string' ? search : ''}`
 }
