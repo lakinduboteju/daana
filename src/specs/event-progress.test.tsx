@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { renderApp } from '../test/renderApp'
-import { colomboDate, seedAssignment, seedContributor, seedEvent, seedHousehold, seedItem } from '../test/seed'
+import { admin, colomboDate, seedAssignment, seedContributor, seedEvent, seedHousehold, seedItem } from '../test/seed'
 
 /**
  * Seeds a menu with one of each kind of item:
@@ -52,5 +52,26 @@ describe('event progress', () => {
     expect(attention).toHaveTextContent('අයිතම 2කට දායකයන් නැත')
     expect(attention).toHaveTextContent('1ක් තවම තහවුරු කර නැත')
     expect(within(attention).getByText('අයිතම 1ක් අර්ධ වශයෙන් පමණක් තහවුරුයි')).toBeInTheDocument()
+  })
+
+  it('cancelled and past events show their progress but nothing needing attention', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const cancelled = await seedEvent(householdId, { date: colomboDate(3), categories: ['බත්', 'ව්‍යංජන'] })
+    await seedMixedMenu(householdId, cancelled)
+    await admin.from('event').update({ cancelled_at: new Date().toISOString() }).eq('id', cancelled).throwOnError()
+    const past = await seedEvent(householdId, { date: colomboDate(-1), categories: ['බත්', 'ව්‍යංජන'] })
+    await seedMixedMenu(householdId, past)
+
+    const { unmount } = await renderApp(`/events/${cancelled}`, { signedInAs: organizer })
+    const cancelledSummary = await screen.findByRole('region', { name: /මාලබේ අසපුව/ })
+    await waitFor(() => expect(cancelledSummary).toHaveTextContent('3 / 7 අයිතම තහවුරුයි'))
+    expect(cancelledSummary).toHaveTextContent('අවලංගුයි')
+    expect(screen.queryByRole('region', { name: 'අවධානය අවශ්‍යයි' })).not.toBeInTheDocument()
+    unmount()
+
+    await renderApp(`/events/${past}`)
+    const pastSummary = await screen.findByRole('region', { name: /මාලබේ අසපුව/ })
+    await waitFor(() => expect(pastSummary).toHaveTextContent('3 / 7 අයිතම තහවුරුයි'))
+    expect(screen.queryByRole('region', { name: 'අවධානය අවශ්‍යයි' })).not.toBeInTheDocument()
   })
 })
