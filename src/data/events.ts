@@ -14,9 +14,27 @@ export type EventSummary = {
   days_away: number
   is_past: boolean
   cancelled_at: string | null
+} & EventProgress
+
+/** How many of the event's items are in each item status, from the event_summary view. */
+export type EventProgress = {
+  item_count: number
+  unassigned_count: number
+  pending_count: number
+  partial_count: number
+  confirmed_count: number
+  received_count: number
+  /** Confirmed plus received. */
+  ready_count: number
+  /** Unassigned plus pending; 0 for past or cancelled events. */
+  attention_count: number
+  /** Partial items; 0 for past or cancelled events. */
+  short_count: number
 }
 
-const SUMMARY_COLUMNS = 'id, date, meal, host, monk_count, layperson_count, monastery_name, days_away, is_past, cancelled_at'
+const PROGRESS_COLUMNS =
+  'item_count, unassigned_count, pending_count, partial_count, confirmed_count, received_count, ready_count, attention_count, short_count'
+const SUMMARY_COLUMNS = `id, date, meal, host, monk_count, layperson_count, monastery_name, days_away, is_past, cancelled_at, ${PROGRESS_COLUMNS}`
 
 /** All the household's events, by date. Upcoming or past comes from the database (Sri Lanka date). */
 export function useEventSummaries() {

@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router'
 import { BackHeader } from '../../components/BackHeader'
 import { CancelledBadge } from '../../components/CancelledBadge'
+import { StackedProgress } from '../../components/Progress'
 import type { EventSummary } from '../../data/events'
 import { MEAL_LABEL } from '../../data/meal'
 import { formatDayMonth, formatWeekday } from '../../lib/dates'
@@ -8,7 +9,7 @@ import styles from './EventHeader.module.css'
 
 /**
  * The top of every event tab: date and meal, monastery and weekday, host,
- * the people counts and the tabs (මෙනුව, money, details).
+ * the people counts, readiness and the tabs (මෙනුව, money, details).
  */
 export function EventHeader({ event }: { event: EventSummary }) {
   const base = `/events/${event.id}`
@@ -26,6 +27,17 @@ export function EventHeader({ event }: { event: EventSummary }) {
           <Chip label="ගිහි" count={event.layperson_count} />
           <Chip label="මුළු" count={event.monk_count + event.layperson_count} />
         </div>
+        {event.item_count > 0 && (
+          <div className={styles.readiness}>
+            <div className={styles.readinessRow}>
+              <span className={styles.readinessTitle}>සූදානම</span>
+              <span>
+                <b className={styles.readyCount}>{event.ready_count}</b> / {event.item_count} අයිතම තහවුරුයි
+              </span>
+            </div>
+            <StackedProgress progress={event} />
+          </div>
+        )}
       </section>
       <nav aria-label="දාන කොටස්" className={styles.tabs}>
         <NavLink to={base} end className={tabClass}>මෙනුව</NavLink>
