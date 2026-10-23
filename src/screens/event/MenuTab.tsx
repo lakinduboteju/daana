@@ -27,6 +27,7 @@ export function MenuTab() {
       </div>
       {menu.isPending && <p className={styles.status}>…</p>}
       {menu.isError && <p role="alert" className={styles.status}>මෙනුව පූරණය කිරීමට නොහැකි විය</p>}
+      {shown && filtered && shown.length === 0 && <p className={styles.status}>ගැළපෙන Item නැත</p>}
       {shown && (
         <div className={styles.categories}>
           {shown.map((category) => (

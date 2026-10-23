@@ -52,3 +52,63 @@
   color: var(--color-accent);
   cursor: pointer;
 }
+
+.pickers {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px 0;
+}
+
+.picker,
+.pickerOn {
+  min-width: 0;
+  max-width: 40%;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  border: 1px dashed var(--color-border-strong);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font: inherit;
+  font-size: 14px;
+  text-overflow: ellipsis;
+}
+
+.pickerOn {
+  border-style: solid;
+  border-color: var(--color-text);
+  background: var(--color-text);
+  color: var(--color-surface);
+  font-weight: 600;
+}
+
+.searchToggle {
+  flex: none;
+  margin-left: auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.search {
+  padding: 8px 16px 0;
+}
+
+.searchInput {
+  width: 100%;
+  min-height: var(--touch-target);
+  padding: 0 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 16px;
+}

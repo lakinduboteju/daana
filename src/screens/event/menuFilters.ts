@@ -23,28 +23,58 @@ const STATUSES_OF: Record<StatusFilter, ItemStatus[]> = {
 /** The menu filters, as kept in the query string (docs/routes.md). */
 export type MenuFilters = {
   status: StatusFilter | null
+  /** Category id. */
+  category: string | null
+  /** Contributor id. */
+  contributor: string | null
+  /** Search text, as typed. */
+  q: string
 }
 
-export const FILTER_PARAMS = ['status'] as const
+export const FILTER_PARAMS = ['status', 'category', 'contributor', 'q'] as const
 
 export function readFilters(params: URLSearchParams): MenuFilters {
   const status = params.get('status')
   return {
     status: STATUS_FILTERS.includes(status as StatusFilter) ? (status as StatusFilter) : null,
+    category: params.get('category') || null,
+    contributor: params.get('contributor') || null,
+    q: params.get('q') ?? '',
   }
 }
 
 export function isFiltered(filters: MenuFilters): boolean {
-  return filters.status !== null
+  return filters.status !== null || filters.category !== null || filters.contributor !== null || filters.q.trim() !== ''
+}
+
+/** Everyone assigned to something on this menu, by name. */
+export function menuContributors(menu: Category[]): { id: string; name: string }[] {
+  const byId = new Map<string, string>()
+  for (const item of menu.flatMap((c) => c.items)) {
+    for (const a of item.assignments) byId.set(a.contributor.id, a.contributor.name)
+  }
+  return [...byId].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name))
+}
+
+/** Category, contributor and search: every filter except status. */
+function matchesOthers(item: Item, filters: MenuFilters): boolean {
+  if (filters.category && item.category_id !== filters.category) return false
+  if (filters.contributor && !item.assignments.some((a) => a.contributor.id === filters.contributor)) return false
+  const q = filters.q.trim().toLocaleLowerCase()
+  if (q) {
+    const names = [item.name, ...item.assignments.map((a) => a.contributor.name)]
+    if (!names.some((name) => name.toLocaleLowerCase().includes(q))) return false
+  }
+  return true
 }
 
 function matchesStatus(item: Item, status: StatusFilter | null): boolean {
   return status === null || STATUSES_OF[status].includes(item.status)
 }
 
-/** How many items each status chip would show. */
-export function statusCounts(menu: Category[]): Record<StatusFilter | 'all', number> {
-  const items = menu.flatMap((c) => c.items)
+/** How many items each status chip would show, given the other filters. */
+export function statusCounts(menu: Category[], filters: MenuFilters): Record<StatusFilter | 'all', number> {
+  const items = menu.flatMap((c) => c.items).filter((i) => matchesOthers(i, filters))
   const counts = { all: items.length } as Record<StatusFilter | 'all', number>
   for (const status of STATUS_FILTERS) counts[status] = items.filter((i) => matchesStatus(i, status)).length
   return counts
@@ -54,6 +84,6 @@ export function statusCounts(menu: Category[]): Record<StatusFilter | 'all', num
 export function filterMenu(menu: Category[], filters: MenuFilters): Category[] {
   if (!isFiltered(filters)) return menu
   return menu
-    .map((category) => ({ ...category, items: category.items.filter((i) => matchesStatus(i, filters.status)) }))
+    .map((category) => ({ ...category, items: category.items.filter((i) => matchesStatus(i, filters.status) && matchesOthers(i, filters)) }))
     .filter((category) => category.items.length > 0)
 }
