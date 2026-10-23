@@ -3,9 +3,7 @@ import { RequireAuth } from './auth/RequireAuth'
 import { ContributorEditScreen } from './screens/contributors/ContributorEditScreen'
 import { ContributorNewScreen } from './screens/contributors/ContributorNewScreen'
 import { ContributorsScreen } from './screens/contributors/ContributorsScreen'
-import { AssignSheet } from './screens/item/AssignSheet'
-import { EditAssignmentSheet } from './screens/item/EditAssignmentSheet'
-import { ItemDetailScreen } from './screens/item/ItemDetailScreen'
+import { EventCategoriesScreen } from './screens/event-categories/EventCategoriesScreen'
 import { EventScreen } from './screens/event/EventScreen'
 import { AddItemSheet, EditItemSheet } from './screens/event/ItemSheets'
 import { MenuTab } from './screens/event/MenuTab'
@@ -13,6 +11,9 @@ import { TabPlaceholder } from './screens/event/TabPlaceholder'
 import { EventDetailsTab } from './screens/event-details/EventDetailsTab'
 import { EventFormScreen } from './screens/event-form/EventFormScreen'
 import { EventsHome } from './screens/events/EventsHome'
+import { AssignSheet } from './screens/item/AssignSheet'
+import { EditAssignmentSheet } from './screens/item/EditAssignmentSheet'
+import { ItemDetailScreen } from './screens/item/ItemDetailScreen'
 import { LoginScreen } from './screens/login/LoginScreen'
 import { NotFoundScreen } from './screens/not-found/NotFoundScreen'
 import { SearchScreen } from './screens/search/SearchScreen'
@@ -61,6 +62,7 @@ export const routes: RouteObject[] = [
           { path: 'edit', element: <EventDetailsTab /> },
         ],
       },
+      { path: '/events/:eventId/categories', element: <EventCategoriesScreen /> },
       { path: '/contributors/new', element: <ContributorNewScreen /> },
       { path: '/contributors/:contributorId/edit', element: <ContributorEditScreen /> },
       { path: '/settings', element: <SettingsScreen /> },

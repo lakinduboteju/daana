@@ -11,6 +11,16 @@
   font-weight: 700;
 }
 
+.editCategories {
+  min-height: var(--touch-target);
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
 .status {
   padding: 24px 16px;
   text-align: center;
