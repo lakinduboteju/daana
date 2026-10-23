@@ -115,6 +115,192 @@ describe('assignments', () => {
   })
 })
 
+describe('assigning several contributors and changing plans', () => {
+  it('adds a second contributor from the item details, picking a recent one', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })
+    const earlier = await seedItem(eventId, 'බත්', { name: 'කිරිබත්' })
+    const itemId = await seedItem(eventId, 'බත්', { name: 'සුදු බත්', requiredQuantity: 3, unit: 'kg' })
+    const kamala = await seedContributor(householdId, 'කමලා රත්නායක')
+    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ')
+    await seedContributor(householdId, 'රුවන් කුමාර')
+    await seedAssignment(earlier, sunil)
+    await seedAssignment(itemId, kamala, { quantity: 2, status: 'confirmed' })
+    const { user } = await renderApp(`/events/${eventId}/items/${itemId}`, { signedInAs: organizer })
+
+    await user.click(await screen.findByRole('link', { name: 'තවත් දායකයෙක් එක් කරන්න' }))
+    const sheet = await screen.findByRole('dialog', { name: 'සුදු බත් — දායකයා' })
+    const recent = within(sheet).getByRole('group', { name: 'මෑතදී පැවරූ අය' })
+    expect(await within(recent).findByRole('radio', { name: /සුනිල් ජයසිංහ/ })).toBeInTheDocument()
+    expect(within(recent).queryByRole('radio', { name: /රුවන් කුමාර/ })).not.toBeInTheDocument()
+    await user.click(within(recent).getByRole('radio', { name: /සුනිල් ජයසිංහ/ }))
+    await user.type(within(sheet).getByLabelText(/ප්‍රමාණය/), '1')
+    await user.click(within(sheet).getByRole('radio', { name: /තහවුරුයි/ }))
+    await user.click(within(sheet).getByRole('button', { name: 'සුනිල් ට පවරන්න' }))
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(currentPath()).toBe(`/events/${eventId}/items/${itemId}`)
+    const contributors = screen.getByRole('list', { name: 'දායකයන්' })
+    await waitFor(() => expect(within(contributors).getAllByRole('listitem')).toHaveLength(2))
+    await waitFor(() => expect(screen.getByRole('region', { name: 'අයිතමයේ තත්ත්වය' })).toHaveTextContent('✓තහවුරුයි'))
+    expect(screen.getByRole('region', { name: 'අයිතමයේ තත්ත්වය' })).toHaveTextContent('තහවුරු 3 / 3')
+  })
+
+  it('adds a new contributor from inside the assign sheet', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['පාන'] })
+    const itemId = await seedItem(eventId, 'පාන', { name: 'ඉඟුරු තේ' })
+    const { user } = await renderApp(`/events/${eventId}/items/${itemId}/assign`, { signedInAs: organizer })
+
+    const sheet = await screen.findByRole('dialog', { name: 'ඉඟුරු තේ — දායකයා' })
+    await user.type(within(sheet).getByRole('searchbox', { name: 'දායකයා සොයන්න' }), 'දිල්රුක්ෂි')
+    await user.click(within(sheet).getByRole('radio', { name: /නව දායකයෙක් එක් කරන්න/ }))
+    expect(within(sheet).getByLabelText('නම')).toHaveValue('දිල්රුක්ෂි')
+    await user.type(within(sheet).getByLabelText(/දුරකථන අංකය/), '0711234567')
+    await user.click(within(sheet).getByRole('button', { name: 'දිල්රුක්ෂි ට පවරන්න' }))
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    const contributors = await screen.findByRole('list', { name: 'දායකයන්' })
+    expect(within(contributors).getByRole('radio', { name: /තහවුරු කර නැත/ })).toBeChecked()
+    expect(within(contributors).getByRole('link', { name: 'දිල්රුක්ෂි අමතන්න' })).toHaveAttribute('href', 'tel:0711234567')
+
+    // The new contributor is in the household's list too.
+    goTo('/contributors')
+    expect(await screen.findByText('දිල්රුක්ෂි')).toBeInTheDocument()
+  })
+
+  it("edits an assignment's quantity and status, then removes it", async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })
+    const itemId = await seedItem(eventId, 'බත්', { name: 'සුදු බත්', requiredQuantity: 3, unit: 'kg' })
+    const nimal = await seedContributor(householdId, 'නිමල් සිල්වා')
+    await seedAssignment(itemId, nimal, { quantity: 1 })
+    const { user } = await renderApp(`/events/${eventId}/items/${itemId}`, { signedInAs: organizer })
+
+    await user.click(await screen.findByRole('link', { name: 'නිමල් සිල්වා — පැවරුම සංස්කරණය' }))
+    expect(currentPath()).toMatch(new RegExp(`^/events/${eventId}/items/${itemId}/assignments/[0-9a-f-]{36}$`))
+    const sheet = await screen.findByRole('dialog', { name: 'පැවරුම සංස්කරණය' })
+    const quantity = within(sheet).getByLabelText(/ප්‍රමාණය/)
+    expect(quantity).toHaveValue(1)
+    await user.clear(quantity)
+    await user.type(quantity, '3')
+    await user.click(within(sheet).getByRole('radio', { name: /තහවුරුයි/ }))
+    await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(await screen.findByRole('status')).toHaveTextContent('නිමල් සිල්වාගේ පැවරුම සුරැකිණි')
+    const status = screen.getByRole('region', { name: 'අයිතමයේ තත්ත්වය' })
+    await waitFor(() => expect(status).toHaveTextContent('✓තහවුරුයි'))
+    expect(status).toHaveTextContent('තහවුරු 3 / 3')
+
+    await user.click(screen.getByRole('link', { name: 'නිමල් සිල්වා — පැවරුම සංස්කරණය' }))
+    await user.click(await screen.findByRole('button', { name: 'පැවරුම ඉවත් කරන්න' }))
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(currentPath()).toBe(`/events/${eventId}/items/${itemId}`)
+    await waitFor(() => expect(status).toHaveTextContent('○පවරා නැත'))
+    expect(screen.queryByRole('list', { name: 'දායකයන්' })).not.toBeInTheDocument()
+  })
+
+  it('deleting an assigned contributor archives them: their assignment stays, and pickers no longer offer them', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })
+    const itemId = await seedItem(eventId, 'බත්', { name: 'කිරිබත්' })
+    await seedItem(eventId, 'බත්', { name: 'කහ බත්' })
+    const nimal = await seedContributor(householdId, 'නිමල් සිල්වා')
+    await seedContributor(householdId, 'නිමාලි පෙරේරා')
+    await seedAssignment(itemId, nimal, { status: 'confirmed' })
+    const { user } = await renderApp(`/contributors/${nimal}/edit`, { signedInAs: organizer })
+
+    await user.click(await screen.findByRole('button', { name: 'මකන්න' }))
+    await user.click(within(screen.getByRole('dialog', { name: 'නිමල් සිල්වා මකන්නද?' })).getByRole('button', { name: 'ඔව්, මකන්න' }))
+    await waitFor(() => expect(currentPath()).toBe('/contributors'))
+    expect(await screen.findByText('නිමාලි පෙරේරා')).toBeInTheDocument()
+    expect(screen.queryByText('නිමල් සිල්වා')).not.toBeInTheDocument()
+
+    // Still reachable, and still on the item they were assigned.
+    goTo(`/contributors/${nimal}/edit`)
+    expect(await screen.findByDisplayValue('නිමල් සිල්වා')).toBeInTheDocument()
+
+    goTo(`/events/${eventId}`)
+    const rice = await screen.findByRole('region', { name: 'බත්' })
+    await waitFor(() => expect(itemRow(rice, 'කිරිබත්')).toHaveTextContent('නිමල් සිල්වා'))
+    expect(itemRow(rice, 'කිරිබත්')).toHaveTextContent('✓තහවුරුයි')
+
+    // Not offered when assigning, by search or as a recent contributor.
+    await user.click(within(itemRow(rice, 'කහ බත්')).getByRole('link', { name: 'පවරන්න' }))
+    const sheet = await screen.findByRole('dialog', { name: 'කහ බත් — දායකයා' })
+    expect(within(sheet).queryByRole('radio', { name: /නිමල් සිල්වා/ })).not.toBeInTheDocument()
+    await user.type(within(sheet).getByRole('searchbox', { name: 'දායකයා සොයන්න' }), 'නිම')
+    expect(await within(sheet).findByRole('radio', { name: /නිමාලි පෙරේරා/ })).toBeInTheDocument()
+    expect(within(sheet).queryByRole('radio', { name: /නිමල් සිල්වා/ })).not.toBeInTheDocument()
+  })
+})
+
+describe('item status', () => {
+  it('counts a shortfall only when the required quantity and every confirmed quantity are known', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })
+    const nimal = await seedContributor(householdId, 'නිමල් සිල්වා')
+    const kamala = await seedContributor(householdId, 'කමලා රත්නායක')
+
+    // Required 3 kg, 2 kg confirmed: short.
+    const short = await seedItem(eventId, 'බත්', { name: 'සුදු බත්', requiredQuantity: 3, unit: 'kg' })
+    await seedAssignment(short, nimal, { quantity: 2, status: 'confirmed' })
+    // Required 3 kg, 2 kg plus an unknown amount confirmed: can't tell, so confirmed.
+    const unknownConfirmed = await seedItem(eventId, 'බත්', { name: 'කහ බත්', requiredQuantity: 3, unit: 'kg' })
+    await seedAssignment(unknownConfirmed, nimal, { quantity: 2, status: 'confirmed' })
+    await seedAssignment(unknownConfirmed, kamala, { status: 'confirmed' })
+    // No required quantity: confirmed whatever the amounts.
+    const unknownRequired = await seedItem(eventId, 'බත්', { name: 'කිරිබත්' })
+    await seedAssignment(unknownRequired, nimal, { quantity: 1, status: 'confirmed' })
+    // Required 3 kg, 2 kg confirmed and 1 kg received: covered.
+    const covered = await seedItem(eventId, 'බත්', { name: 'දන්කුඩ', requiredQuantity: 3, unit: 'kg' })
+    await seedAssignment(covered, nimal, { quantity: 2, status: 'confirmed' })
+    await seedAssignment(covered, kamala, { quantity: 1, status: 'received' })
+
+    await renderApp(`/events/${eventId}`, { signedInAs: organizer })
+    const rice = await screen.findByRole('region', { name: 'බත්' })
+    await waitFor(() => expect(itemRow(rice, 'සුදු බත්')).toHaveTextContent('◑අර්ධ වශයෙන් තහවුරුයි'))
+    expect(itemRow(rice, 'කහ බත්')).toHaveTextContent('✓තහවුරුයි')
+    expect(itemRow(rice, 'කිරිබත්')).toHaveTextContent('✓තහවුරුයි')
+    expect(itemRow(rice, 'දන්කුඩ')).toHaveTextContent('✓තහවුරුයි')
+  })
+
+  it('is received only when every assignment is received, and pending when none is confirmed', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['පලතුරු'] })
+    const nimal = await seedContributor(householdId, 'නිමල් සිල්වා')
+    const kamala = await seedContributor(householdId, 'කමලා රත්නායක')
+
+    const allReceived = await seedItem(eventId, 'පලතුරු', { name: 'කෙසෙල්' })
+    await seedAssignment(allReceived, nimal, { status: 'received' })
+    await seedAssignment(allReceived, kamala, { status: 'received' })
+    const someReceived = await seedItem(eventId, 'පලතුරු', { name: 'අඹ' })
+    await seedAssignment(someReceived, nimal, { status: 'received' })
+    await seedAssignment(someReceived, kamala, { status: 'confirmed' })
+    const halfReceived = await seedItem(eventId, 'පලතුරු', { name: 'පැපොල්' })
+    await seedAssignment(halfReceived, nimal, { status: 'received' })
+    await seedAssignment(halfReceived, kamala)
+    const nonePending = await seedItem(eventId, 'පලතුරු', { name: 'අන්නාසි' })
+    await seedAssignment(nonePending, nimal)
+    await seedAssignment(nonePending, kamala)
+
+    await renderApp(`/events/${eventId}`, { signedInAs: organizer })
+    const fruit = await screen.findByRole('region', { name: 'පලතුරු' })
+    await waitFor(() => expect(itemRow(fruit, 'කෙසෙල්')).toHaveTextContent('✓✓ලැබී ඇත'))
+    expect(itemRow(fruit, 'අඹ')).toHaveTextContent('✓තහවුරුයි')
+    expect(itemRow(fruit, 'පැපොල්')).toHaveTextContent('◑අර්ධ වශයෙන් තහවුරුයි')
+    expect(itemRow(fruit, 'අන්නාසි')).toHaveTextContent('◔තහවුරු කර නැත')
+  })
+})
+
+/** Navigates within the rendered app, like following a link from elsewhere. `path` is relative to the base. */
+function goTo(path: string) {
+  window.history.pushState(null, '', import.meta.env.BASE_URL.replace(/\/$/, '') + path)
+  window.dispatchEvent(new PopStateEvent('popstate'))
+}
+
 /** The menu row for the item with this name: a link to its details, and a පවරන්න link when unassigned. */
 function itemRow(container: HTMLElement, name: string): HTMLElement {
   const row = within(container).getByText(name, { selector: 'li a span' }).closest('li')
