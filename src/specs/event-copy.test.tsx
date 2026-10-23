@@ -64,4 +64,44 @@ describe('copying a previous event', () => {
     expect(itemRow(fruit, 'කෙසෙල්')).toHaveTextContent('තහවුරු කර නැත')
     expect(itemRow(fruit, 'අන්නාසි')).toHaveTextContent('දායකයෙකු තවම නැත')
   })
+
+  it('leaves the source event as it was', async () => {
+    const { organizer, eventId } = await seedPreviousEvent()
+    const { user, unmount } = await renderApp(`/events/new?from=${eventId}`, { signedInAs: organizer })
+
+    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
+    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    expect(await screen.findByRole('heading', { name: 'නොවැම්බර් 08 · දහවල් දානය' })).toBeInTheDocument()
+    unmount()
+
+    await renderApp(`/events/${eventId}`, { signedInAs: organizer })
+    const rice = await screen.findByRole('region', { name: 'බත්' })
+    expect(itemRow(rice, 'සුදු බත්')).toHaveTextContent('සුනිල් ජයසිංහ')
+    expect(itemRow(rice, 'සුදු බත්')).toHaveTextContent('තහවුරුයි')
+    const fruit = screen.getByRole('region', { name: 'පලතුරු' })
+    expect(itemRow(fruit, 'කෙසෙල්')).toHaveTextContent('ලැබී ඇත')
+    expect(within(fruit).getAllByRole('listitem')).toHaveLength(2)
+  })
+
+  it('leaves out contributors who have since been archived', async () => {
+    const { householdId, organizer, eventId } = await seedPreviousEvent()
+    const rice = await seedItem(eventId, 'බත්', { name: 'කහ බත්' })
+    await seedAssignment(rice, await seedContributor(householdId, 'කමලා රත්නායක', { archived: true }))
+    const { user } = await renderApp(`/events/new?from=${eventId}`, { signedInAs: organizer })
+
+    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
+    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+
+    const copied = await screen.findByRole('region', { name: 'බත්' })
+    expect(itemRow(copied, 'කහ බත්')).toHaveTextContent('දායකයෙකු තවම නැත')
+  })
+
+  it("can't copy another household's event", async () => {
+    const { eventId } = await seedPreviousEvent()
+    const other = await seedHousehold('සිල්වා පවුල')
+    await renderApp(`/events/new?from=${eventId}`, { signedInAs: other.organizer })
+
+    expect(await screen.findByRole('heading', { name: 'පිටුව හමු නොවීය' })).toBeInTheDocument()
+    expect(screen.queryByDisplayValue('බොතේජු පවුල')).not.toBeInTheDocument()
+  })
 })
