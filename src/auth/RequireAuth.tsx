@@ -8,6 +8,7 @@ export function RequireAuth() {
 
   if (auth.status === 'loading') return null
   if (auth.status === 'signedOut') {
+    if (auth.byOrganizer) return <Navigate to="/login" replace />
     const next = location.pathname + location.search
     return <Navigate to={`/login?next=${encodeURIComponent(next)}`} replace />
   }

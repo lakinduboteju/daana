@@ -4,6 +4,7 @@ import { ContributorsScreen } from './screens/contributors/ContributorsScreen'
 import { EventsHome } from './screens/events/EventsHome'
 import { LoginScreen } from './screens/login/LoginScreen'
 import { SearchScreen } from './screens/search/SearchScreen'
+import { SettingsScreen } from './screens/settings/SettingsScreen'
 import { AppShell } from './screens/shell/AppShell'
 
 // The route contract is docs/routes.md.
@@ -21,6 +22,7 @@ export const routes: RouteObject[] = [
           { path: '/contributors', element: <ContributorsScreen /> },
         ],
       },
+      { path: '/settings', element: <SettingsScreen /> },
     ],
   },
 ]

@@ -36,4 +36,49 @@ describe('signing in', () => {
     expect(screen.getByText('නමෝ බුද්ධාය!')).toBeInTheDocument()
     expect(currentPath()).toBe('/events')
   })
+
+  it('shows a Sinhala error when the password is wrong', async () => {
+    const { organizer } = await seedHousehold()
+    const { user } = await renderApp('/login')
+
+    await user.type(await screen.findByLabelText('නම'), organizer.username)
+    await user.type(screen.getByLabelText('මුරපදය'), 'wrong-password')
+    await user.click(screen.getByRole('button', { name: 'ඇතුළු වන්න' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('නම හෝ මුරපදය වැරදියි')
+    expect(currentPath()).toBe('/login')
+  })
+
+  it('keeps the organizer signed in when the app is reloaded', async () => {
+    const { organizer } = await seedHousehold()
+    const { user, unmount } = await renderApp('/login')
+    await user.type(await screen.findByLabelText('නම'), organizer.username)
+    await user.type(screen.getByLabelText('මුරපදය'), organizer.password)
+    await user.click(screen.getByRole('button', { name: 'ඇතුළු වන්න' }))
+    await screen.findByRole('heading', { name: 'දාන' })
+
+    unmount()
+    await renderApp('/search')
+
+    expect(await screen.findByRole('heading', { name: 'සොයන්න' })).toBeInTheDocument()
+    expect(currentPath()).toBe('/search')
+  })
+})
+
+describe('signing out', () => {
+  it('returns the organizer to the login screen, and pages need signing in again', async () => {
+    const { organizer } = await seedHousehold()
+    const { user, unmount } = await renderApp('/events', { signedInAs: organizer })
+
+    await user.click(await screen.findByRole('link', { name: 'සැකසුම්' }))
+    await user.click(await screen.findByRole('button', { name: 'ඉවත් වන්න' }))
+
+    expect(await screen.findByLabelText('නම')).toBeInTheDocument()
+    expect(currentPath()).toBe('/login')
+
+    unmount()
+    await renderApp('/events')
+    expect(await screen.findByLabelText('නම')).toBeInTheDocument()
+    expect(currentPath()).toBe('/login?next=%2Fevents')
+  })
 })
