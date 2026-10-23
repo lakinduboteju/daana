@@ -15,14 +15,17 @@ A mobile-first web app for planning Buddhist almsgiving events (දාන): the 
 
 ## Development
 
-Requires Node 24 (see `.nvmrc`).
+Requires Node 24 (see `.nvmrc`) and Docker (for local Supabase).
 
 ```bash
 npm install
+supabase start   # local Postgres, Auth and Storage in Docker
 npm run dev      # http://localhost:5173/daana/
 npm run lint
 npm run build
 ```
+
+Lint and tests run locally only. Pushing to `main` deploys to production: the workflow applies `supabase/migrations/` to the hosted project (`daana`, ref `zrwkacxrfxsgsimhyttz`, Mumbai), then publishes the app to GitHub Pages. See [ADR 0003](docs/adr/0003-ci-deploys-only-tests-run-locally.md).
 
 ## Layout
 

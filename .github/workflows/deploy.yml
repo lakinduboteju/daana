@@ -1,4 +1,6 @@
-name: Deploy to GitHub Pages
+name: Deploy to production
+
+# Deploy only. Lint and tests run locally against Supabase in Docker.
 
 on:
   push:
@@ -11,11 +13,34 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: production
+  cancel-in-progress: false
 
 jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        run: |
+          if ls supabase/migrations/*.sql >/dev/null 2>&1; then
+            echo "has_migrations=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.check.outputs.has_migrations == 'true'
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - if: steps.check.outputs.has_migrations == 'true'
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
+      - if: steps.check.outputs.has_migrations == 'true'
+        run: supabase db push
+
   build:
+    needs: migrate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,8 +49,10 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npm run lint
       - run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
       # SPA fallback: GitHub Pages serves 404.html for unknown paths,
       # so deep links like /daana/events/<id> still load the app.
       - run: cp dist/index.html dist/404.html
