@@ -21,9 +21,21 @@
   font-weight: 700;
 }
 
-.username {
+.details {
   margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 16px;
+}
+
+.details dt {
   color: var(--color-text-muted);
+}
+
+.details dd {
+  margin: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .signOut {

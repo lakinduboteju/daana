@@ -1,10 +1,12 @@
-import { useAuth, useSignOut } from '../../auth/AuthProvider'
+import { useAuth, useSignOut } from '../../auth/useAuth'
 import { BackHeader } from '../../components/BackHeader'
+import { useHouseholds } from '../../data/household'
 import styles from './SettingsScreen.module.css'
 
 export function SettingsScreen() {
   const auth = useAuth()
   const signOut = useSignOut()
+  const households = useHouseholds()
   const username = auth.status === 'signedIn' ? auth.session.user.email?.split('@')[0] : undefined
 
   return (
@@ -12,7 +14,16 @@ export function SettingsScreen() {
       <BackHeader title="සැකසුම්" backTo="/events" />
       <section className={styles.section} aria-labelledby="account">
         <h2 id="account" className={styles.sectionTitle}>ගිණුම</h2>
-        {username && <p className={styles.username}>{username}</p>}
+        <dl className={styles.details}>
+          <dt>නම</dt>
+          <dd>{username}</dd>
+          <dt>පවුල</dt>
+          <dd>
+            {households.isPending && '…'}
+            {households.isError && 'පූරණය කිරීමට නොහැකි විය'}
+            {households.data?.map((household) => <div key={household.id}>{household.name}</div>)}
+          </dd>
+        </dl>
         <button type="button" className={styles.signOut} onClick={signOut}>ඉවත් වන්න</button>
       </section>
     </main>

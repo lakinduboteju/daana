@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate, useSearchParams } from 'react-router'
-import { useAuth } from '../../auth/AuthProvider'
+import { useAuth } from '../../auth/useAuth'
 import { usernameToEmail } from '../../auth/username'
 import { supabase } from '../../lib/supabase'
 import styles from './LoginScreen.module.css'
