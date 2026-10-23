@@ -4,21 +4,6 @@
   min-height: 100dvh;
 }
 
-.body {
-  padding: 16px;
-}
-
-.date {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.host {
-  margin: 4px 0 0;
-  color: var(--color-text-muted);
-}
-
 .status {
   padding: 24px 16px;
   text-align: center;

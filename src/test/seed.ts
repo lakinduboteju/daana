@@ -56,6 +56,8 @@ type SeedEventOptions = {
   monastery?: string
   monkCount?: number
   laypersonCount?: number
+  /** The event's categories, in order. None by default. */
+  categories?: string[]
 }
 
 /** Adds an event (and a new monastery for it) to a household. Returns the event's id. */
@@ -81,6 +83,13 @@ export async function seedEvent(householdId: string, options: SeedEventOptions):
     .select('id')
     .single()
   if (error) throw error
+
+  if (options.categories?.length) {
+    const { error: categoryError } = await admin
+      .from('category')
+      .insert(options.categories.map((name, i) => ({ event_id: event.id, name, position: i + 1 })))
+    if (categoryError) throw categoryError
+  }
   return event.id
 }
 

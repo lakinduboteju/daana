@@ -2,6 +2,8 @@ import { Navigate, type RouteObject } from 'react-router'
 import { RequireAuth } from './auth/RequireAuth'
 import { ContributorsScreen } from './screens/contributors/ContributorsScreen'
 import { EventScreen } from './screens/event/EventScreen'
+import { MenuTab } from './screens/event/MenuTab'
+import { TabPlaceholder } from './screens/event/TabPlaceholder'
 import { EventFormScreen } from './screens/event-form/EventFormScreen'
 import { EventsHome } from './screens/events/EventsHome'
 import { LoginScreen } from './screens/login/LoginScreen'
@@ -26,7 +28,15 @@ export const routes: RouteObject[] = [
         ],
       },
       { path: '/events/new', element: <EventFormScreen /> },
-      { path: '/events/:eventId', element: <EventScreen /> },
+      {
+        path: '/events/:eventId',
+        element: <EventScreen />,
+        children: [
+          { index: true, element: <MenuTab /> },
+          { path: 'money', element: <TabPlaceholder title="මුදල් හා ලේඛන" /> },
+          { path: 'edit', element: <TabPlaceholder title="විස්තර" /> },
+        ],
+      },
       { path: '/settings', element: <SettingsScreen /> },
       { path: '*', element: <NotFoundScreen /> },
     ],
