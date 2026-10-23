@@ -46,4 +46,42 @@ describe('editing an event', () => {
     expect(screen.queryByText('බොතේජු පවුල')).not.toBeInTheDocument()
     expect(currentPath()).toBe('/events')
   })
+
+  it('asks before leaving with unsaved changes, and not once they are saved', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', host: 'බොතේජු පවුල' })
+    const { user } = await renderApp(`/events/${eventId}/edit`, { signedInAs: organizer })
+
+    await user.type(await screen.findByLabelText(/දානය භාරගත් අය/), ' සහ දරුවන්')
+    await user.click(screen.getByRole('link', { name: 'ආපසු' }))
+    const prompt = await screen.findByRole('dialog', { name: 'වෙනස්කම් ඉවත දමන්නද?' })
+    expect(currentPath()).toBe(`/events/${eventId}/edit`)
+
+    await user.click(within(prompt).getByRole('button', { name: 'එපා' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByLabelText(/දානය භාරගත් අය/)).toHaveValue('බොතේජු පවුල සහ දරුවන්')
+
+    await user.click(screen.getByRole('link', { name: 'අවලංගු' }))
+    await user.click(await screen.findByRole('button', { name: 'ඉවත දමන්න' }))
+    expect(currentPath()).toBe(`/events/${eventId}`)
+
+    goTo(`/events/${eventId}/edit`)
+    expect(await screen.findByLabelText(/දානය භාරගත් අය/)).toHaveValue('බොතේජු පවුල')
+    await user.type(screen.getByLabelText(/දානය භාරගත් අය/), ' සහ දරුවන්')
+    await user.click(screen.getByRole('button', { name: 'සුරකින්න' }))
+    await screen.findByRole('status')
+    await user.click(screen.getByRole('link', { name: 'ආපසු' }))
+    expect(currentPath()).toBe(`/events/${eventId}`)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('asks before leaving a half-filled new event', async () => {
+    const { organizer } = await seedHousehold()
+    const { user } = await renderApp('/events/new', { signedInAs: organizer })
+
+    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
+    await user.click(screen.getByRole('link', { name: 'ආපසු' }))
+    await user.click(await screen.findByRole('button', { name: 'ඉවත දමන්න' }))
+    expect(currentPath()).toBe('/events')
+  })
 })

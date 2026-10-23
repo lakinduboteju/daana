@@ -1,0 +1,80 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgba(42, 36, 32, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+}
+
+.dialog {
+  position: static;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 0 env(safe-area-inset-bottom);
+  padding: 20px 18px 16px;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.body {
+  margin-top: 8px;
+  font-size: 15px;
+  color: var(--color-text-secondary);
+}
+
+.body p {
+  margin: 0 0 6px;
+}
+
+.actions {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+}
+
+.cancel,
+.confirm,
+.destructive {
+  flex: 1;
+  min-height: 50px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancel {
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+}
+
+.confirm {
+  border: 0;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.destructive {
+  border: 0;
+  background: var(--color-error-fg);
+  color: var(--color-on-accent);
+}
+
+.confirm:disabled,
+.destructive:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

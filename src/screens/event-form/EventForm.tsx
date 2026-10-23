@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router'
+import { UnsavedChangesGuard } from '../../components/UnsavedChangesGuard'
 import type { EventFields } from '../../data/events'
 import { MEAL_LABEL, type Meal } from '../../data/meal'
 import { useRecentMonasteries } from '../../data/monasteries'
@@ -24,6 +25,12 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled }: 
   const [values, setValues] = useState(initial)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // What was last loaded or saved; leaving with anything else asks first.
+  const saved = useRef(initial)
+  const current = useRef(values)
+  useEffect(() => {
+    current.current = values
+  }, [values])
 
   function set<K extends keyof EventFormValues>(key: K, value: EventFormValues[K]) {
     setValues((v) => ({ ...v, [key]: value }))
@@ -40,6 +47,7 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled }: 
     if (monasteryChoice === NEW_MONASTERY && !values.monasteryName.trim()) return setError('අසපුවේ නම ඇතුළත් කරන්න.')
     setError(null)
     setSaving(true)
+    const submitted = values
 
     try {
       const next = await onSave({
@@ -57,6 +65,7 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled }: 
         notes: values.notes,
         instructions: values.instructions,
       })
+      saved.current = submitted
       if (next) navigate(next)
     } catch {
       setError('සුරැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න.')
@@ -67,6 +76,7 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled }: 
 
   return (
     <form className={styles.form} onSubmit={onSubmit} noValidate>
+      <UnsavedChangesGuard isDirty={() => !sameValues(current.current, saved.current)} />
       <div className={styles.field}>
         <label htmlFor="event-date" className={styles.label}>
           දිනය <span className={styles.required}>*</span>
@@ -186,6 +196,10 @@ function Stepper({ id, label, value, onChange }: { id: string; label: string; va
       <button type="button" className={styles.step} aria-label={`${label} වැඩි කරන්න`} onClick={() => onChange(String(count + 1))}>+</button>
     </div>
   )
+}
+
+function sameValues(a: EventFormValues, b: EventFormValues): boolean {
+  return (Object.keys(a) as (keyof EventFormValues)[]).every((key) => a[key] === b[key])
 }
 
 function toCount(value: string): number {
