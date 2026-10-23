@@ -1,11 +1,42 @@
+/* Design tokens (docs/design.md). Components style themselves with CSS Modules on these. */
 :root {
   --color-bg: #faf7f2;
   --color-surface: #ffffff;
+  --color-surface-muted: #f3eee7;
   --color-border: #e7e1d8;
+  --color-border-strong: #cfc6ba;
   --color-text: #2a2420;
+  --color-text-secondary: #3f3833;
   --color-text-muted: #6b625a;
+  --color-text-subtle: #57504a;
   --color-accent: #b04e0a;
   --color-accent-strong: #8a3d08;
+  --color-accent-soft: #fbeadb;
+  --color-on-accent: #ffffff;
+  --color-track: #efe9e1;
+  --color-ready: #2e7d4a;
+
+  /* Status colours: background / text */
+  --status-unassigned-bg: #f1eeea;
+  --status-unassigned-fg: #57504a;
+  --status-pending-bg: #fdf0d5;
+  --status-pending-fg: #7a4a00;
+  --status-confirmed-bg: #e2f0e6;
+  --status-confirmed-fg: #1c5e33;
+  --status-received-bg: #e3ecf8;
+  --status-received-fg: #1e4a85;
+
+  --color-error-bg: #fbe4e1;
+  --color-error-fg: #9b2c1f;
+
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --touch-target: 44px;
+  --tab-bar-height: 72px;
+  --content-max-width: 480px;
 
   font-family: 'Noto Sans Sinhala', system-ui, sans-serif;
   line-height: 1.5;
@@ -23,4 +54,21 @@
 body {
   margin: 0;
   min-height: 100dvh;
+  background: var(--color-bg);
+}
+
+a {
+  color: var(--color-accent);
+}
+
+a:hover {
+  color: var(--color-accent-strong);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
 }
