@@ -1,6 +1,7 @@
 import { useAuth, useSignOut } from '../../auth/useAuth'
 import { BackHeader } from '../../components/BackHeader'
 import { useHouseholds } from '../../data/household'
+import { PasswordForm } from './PasswordForm'
 import styles from './SettingsScreen.module.css'
 
 export function SettingsScreen() {
@@ -25,6 +26,10 @@ export function SettingsScreen() {
           </dd>
         </dl>
         <button type="button" className={styles.signOut} onClick={signOut}>ඉවත් වන්න</button>
+      </section>
+      <section className={styles.section} aria-labelledby="password">
+        <h2 id="password" className={styles.sectionTitle}>මුරපදය වෙනස් කිරීම</h2>
+        <PasswordForm />
       </section>
     </main>
   )
