@@ -47,3 +47,46 @@ export async function seedHousehold(name = 'බොතේජු පවුල'): P
     organizer: { username, password, userId: data.user.id },
   }
 }
+
+type SeedEventOptions = {
+  /** 'YYYY-MM-DD'. Use `colomboDate(offset)` for dates relative to today in Sri Lanka. */
+  date: string
+  meal?: 'breakfast' | 'lunch'
+  host?: string | null
+  monastery?: string
+  monkCount?: number
+  laypersonCount?: number
+}
+
+/** Adds an event (and a new monastery for it) to a household. Returns the event's id. */
+export async function seedEvent(householdId: string, options: SeedEventOptions): Promise<string> {
+  const { data: monastery, error: monasteryError } = await admin
+    .from('monastery')
+    .insert({ household_id: householdId, name: options.monastery ?? 'මාලබේ අසපුව' })
+    .select('id')
+    .single()
+  if (monasteryError) throw monasteryError
+
+  const { data: event, error } = await admin
+    .from('event')
+    .insert({
+      household_id: householdId,
+      monastery_id: monastery.id,
+      date: options.date,
+      meal: options.meal ?? 'lunch',
+      host: options.host ?? null,
+      monk_count: options.monkCount ?? 10,
+      layperson_count: options.laypersonCount ?? 5,
+    })
+    .select('id')
+    .single()
+  if (error) throw error
+  return event.id
+}
+
+/** Today's date in Sri Lanka plus `offsetDays`, as 'YYYY-MM-DD'. */
+export function colomboDate(offsetDays = 0): string {
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Colombo' }).format(new Date())
+  const [year, month, day] = today.split('-').map(Number)
+  return new Date(Date.UTC(year, month - 1, day + offsetDays)).toISOString().slice(0, 10)
+}
