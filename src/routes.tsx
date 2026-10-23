@@ -3,6 +3,7 @@ import { RequireAuth } from './auth/RequireAuth'
 import { ContributorEditScreen } from './screens/contributors/ContributorEditScreen'
 import { ContributorNewScreen } from './screens/contributors/ContributorNewScreen'
 import { ContributorsScreen } from './screens/contributors/ContributorsScreen'
+import { EventCategoriesScreen } from './screens/event-categories/EventCategoriesScreen'
 import { EventScreen } from './screens/event/EventScreen'
 import { AddItemSheet, EditItemSheet } from './screens/event/ItemSheets'
 import { MenuTab } from './screens/event/MenuTab'
@@ -48,6 +49,7 @@ export const routes: RouteObject[] = [
           { path: 'edit', element: <TabPlaceholder title="විස්තර" /> },
         ],
       },
+      { path: '/events/:eventId/categories', element: <EventCategoriesScreen /> },
       { path: '/contributors/new', element: <ContributorNewScreen /> },
       { path: '/contributors/:contributorId/edit', element: <ContributorEditScreen /> },
       { path: '/settings', element: <SettingsScreen /> },

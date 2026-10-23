@@ -14,6 +14,7 @@ export function MenuTab() {
     <>
       <div className={styles.titleRow}>
         <h2 className={styles.title}>මෙනුව</h2>
+        <Link to="categories" className={styles.editCategories}>Edit Categories</Link>
       </div>
       {menu.isPending && <p className={styles.status}>…</p>}
       {menu.isError && <p role="alert" className={styles.status}>මෙනුව පූරණය කිරීමට නොහැකි විය</p>}

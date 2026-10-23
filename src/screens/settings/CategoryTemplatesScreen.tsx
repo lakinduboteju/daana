@@ -1,22 +1,21 @@
-import { useState, type FormEvent } from 'react'
 import { BackHeader } from '../../components/BackHeader'
+import { CategoryListEditor } from '../../components/CategoryListEditor'
 import {
   useAddCategoryTemplate,
   useCategoryTemplates,
   useRemoveCategoryTemplate,
   useRenameCategoryTemplate,
   useSwapCategoryTemplates,
-  type CategoryTemplate,
 } from '../../data/categoryTemplates'
 import styles from './CategoryTemplatesScreen.module.css'
 
 /** /settings/categories: the default categories copied into new events. */
 export function CategoryTemplatesScreen() {
   const templates = useCategoryTemplates()
-  const [editingId, setEditingId] = useState<string | null>(null)
+  const add = useAddCategoryTemplate()
+  const rename = useRenameCategoryTemplate()
   const swap = useSwapCategoryTemplates()
   const remove = useRemoveCategoryTemplate()
-  const [removing, setRemoving] = useState<CategoryTemplate | null>(null)
 
   return (
     <main className={styles.screen}>
@@ -25,128 +24,15 @@ export function CategoryTemplatesScreen() {
       {templates.isPending && <p className={styles.message}>…</p>}
       {templates.isError && <p role="alert" className={styles.message}>පූරණය කිරීමට නොහැකි විය</p>}
       {templates.data && (
-        <ol aria-label="කාණ්ඩ" className={styles.list}>
-          {templates.data.map((template, index, all) => (
-            <li key={template.id} className={styles.row}>
-              {editingId === template.id ? (
-                <RenameForm template={template} onDone={() => setEditingId(null)} />
-              ) : (
-                <>
-                  <span className={styles.name}>{template.name}</span>
-                  <button
-                    type="button"
-                    aria-label={`${template.name} ඉහළට`}
-                    className={styles.iconButton}
-                    disabled={index === 0 || swap.isPending}
-                    onClick={() => swap.mutate([template, all[index - 1]])}
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 15 6-6 6 6" /></svg>
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={`${template.name} පහළට`}
-                    className={styles.iconButton}
-                    disabled={index === all.length - 1 || swap.isPending}
-                    onClick={() => swap.mutate([template, all[index + 1]])}
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={`${template.name} නම වෙනස් කරන්න`}
-                    className={styles.iconButton}
-                    onClick={() => setEditingId(template.id)}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z" /></svg>
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={`${template.name} ඉවත් කරන්න`}
-                    className={styles.iconButton}
-                    onClick={() => setRemoving(template)}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg>
-                  </button>
-                </>
-              )}
-            </li>
-          ))}
-        </ol>
-      )}
-      {templates.data && <AddForm />}
-      {removing && (
-        <dialog open aria-labelledby="remove-template-title" className={styles.confirm}>
-          <h2 id="remove-template-title" className={styles.confirmTitle}>{removing.name} ඉවත් කරන්නද?</h2>
-          <p className={styles.hint}>අළුත් දානවලට මෙම කාණ්ඩය එකතු නොවේ. දැනට ඇති දානවල කාණ්ඩ වෙනස් නොවේ.</p>
-          {remove.isError && <p role="alert" className={styles.error}>ඉවත් කිරීමට නොහැකි විය</p>}
-          <div className={styles.confirmButtons}>
-            <button type="button" className={styles.secondary} onClick={() => setRemoving(null)}>එපා</button>
-            <button
-              type="button"
-              className={styles.danger}
-              disabled={remove.isPending}
-              onClick={() => remove.mutate(removing.id, { onSuccess: () => setRemoving(null) })}
-            >
-              ඔව්, ඉවත් කරන්න
-            </button>
-          </div>
-        </dialog>
+        <CategoryListEditor
+          categories={templates.data}
+          add={add}
+          rename={rename}
+          swap={swap}
+          remove={remove}
+          removeHint={() => 'අළුත් දානවලට මෙම කාණ්ඩය එකතු නොවේ. දැනට ඇති දානවල කාණ්ඩ වෙනස් නොවේ.'}
+        />
       )}
     </main>
-  )
-}
-
-function AddForm() {
-  const [name, setName] = useState('')
-  const add = useAddCategoryTemplate()
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    add.mutate(name, { onSuccess: () => setName('') })
-  }
-
-  return (
-    <form className={styles.addForm} onSubmit={handleSubmit}>
-      <label htmlFor="new-template" className={styles.label}>අළුත් කාණ්ඩයක්</label>
-      <div className={styles.addRow}>
-        <input
-          id="new-template"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          className={styles.input}
-        />
-        <button type="submit" className={styles.primary} disabled={add.isPending || !name.trim()}>එක් කරන්න</button>
-      </div>
-      {add.isError && <p role="alert" className={styles.error}>එක් කිරීමට නොහැකි විය</p>}
-    </form>
-  )
-}
-
-function RenameForm({ template, onDone }: { template: CategoryTemplate; onDone: () => void }) {
-  const [name, setName] = useState(template.name)
-  const rename = useRenameCategoryTemplate()
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    rename.mutate({ id: template.id, name }, { onSuccess: onDone })
-  }
-
-  return (
-    <form className={styles.editForm} onSubmit={handleSubmit}>
-      <label htmlFor={`template-${template.id}`} className={styles.visuallyHidden}>කාණ්ඩයේ නම</label>
-      <input
-        id={`template-${template.id}`}
-        value={name}
-        onChange={(event) => setName(event.target.value)}
-        required
-        autoFocus
-        className={styles.input}
-      />
-      {rename.isError && <p role="alert" className={styles.error}>සුරැකීමට නොහැකි විය</p>}
-      <div className={styles.editActions}>
-        <button type="button" className={styles.secondary} onClick={onDone}>එපා</button>
-        <button type="submit" className={styles.primary} disabled={rename.isPending || !name.trim()}>සුරකින්න</button>
-      </div>
-    </form>
   )
 }
