@@ -66,6 +66,11 @@ export function MoneyTab() {
             transactions={money.data.transactions.filter((t) => !filter || t.kind === filter)}
             empty={money.data.transactions.length === 0 ? 'තවම මුදල් වාර්තා නැත.' : 'මෙම වර්ගයේ වාර්තා නැත.'}
           />
+
+          <div className={styles.actions}>
+            <Link to="new?type=given" state={OVER_PARENT} className={styles.add}>+ ලබා දුන් මුදලක්</Link>
+            <Link to="new?type=expense" state={OVER_PARENT} className={styles.add}>+ වියදමක්</Link>
+          </div>
         </div>
       )}
       <Outlet />

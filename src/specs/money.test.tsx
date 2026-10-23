@@ -45,6 +45,86 @@ describe('money', () => {
     expect(currentPath()).toBe(`/events/${eventId}/money`)
     await waitFor(() => expect(within(list).getAllByRole('listitem')).toHaveLength(3))
   })
+
+  it('organizer records a given to a contributor in a sheet over the money tab', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })
+    await seedItem(eventId, 'බත්', { name: 'කිරිබත්' })
+    await seedContributor(householdId, 'නිමල් සිල්වා')
+    await seedContributor(householdId, 'පැරණි දායකයා', { archived: true })
+    const { user } = await renderApp(`/events/${eventId}/money`, { signedInAs: organizer })
+
+    expect(await screen.findByText('තවම මුදල් වාර්තා නැත.')).toBeInTheDocument()
+    await user.click(screen.getByRole('link', { name: '+ ලබා දුන් මුදලක්' }))
+    expect(currentPath()).toBe(`/events/${eventId}/money/new?type=given`)
+
+    const sheet = await screen.findByRole('dialog', { name: 'ලබා දුන් මුදලක්' })
+    await user.type(within(sheet).getByLabelText(/^මුදල \(Rs\)/), '3000')
+    const contributor = within(sheet).getByLabelText('දායකයා')
+    await waitFor(() => expect(within(contributor).getByRole('option', { name: 'නිමල් සිල්වා' })).toBeInTheDocument())
+    expect(within(contributor).queryByRole('option', { name: 'පැරණි දායකයා' })).not.toBeInTheDocument()
+    await user.selectOptions(contributor, 'නිමල් සිල්වා')
+    await user.selectOptions(within(sheet).getByLabelText('Item'), 'කිරිබත්')
+    await user.click(within(sheet).getByRole('radio', { name: 'මුදල්' }))
+    await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(await screen.findByRole('status')).toHaveTextContent('සුරැකිණි')
+    expect(currentPath()).toBe(`/events/${eventId}/money`)
+    const list = await screen.findByRole('list', { name: 'ගනුදෙනු' })
+    expect(row(list, 'Rs 3,000')).toHaveTextContent('ලබා දුන්')
+    expect(row(list, 'Rs 3,000')).toHaveTextContent('නිමල් සිල්වා')
+    expect(row(list, 'Rs 3,000')).toHaveTextContent('කිරිබත් · මුදල්')
+    expect(screen.getByRole('region', { name: 'එකතුව' })).toHaveTextContent('දායකයන්ට ලබා දුන් මුදල්Rs 3,000')
+  })
+
+  it('organizer edits a transaction into an expense, then deletes it', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08' })
+    const transactionId = await seedTransaction(eventId, { kind: 'given', amount: 2000, method: 'cash' })
+    const { user } = await renderApp(`/events/${eventId}/money`, { signedInAs: organizer })
+
+    const list = await screen.findByRole('list', { name: 'ගනුදෙනු' })
+    await user.click(within(row(list, 'Rs 2,000')).getByRole('link'))
+    expect(currentPath()).toBe(`/events/${eventId}/money/${transactionId}`)
+    const sheet = await screen.findByRole('dialog', { name: 'ගනුදෙනුව සංස්කරණය' })
+    await user.click(within(sheet).getByRole('radio', { name: 'වියදම' }))
+    const amount = within(sheet).getByLabelText(/^මුදල \(Rs\)/)
+    await user.clear(amount)
+    await user.type(amount, '2200')
+    await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    const totals = screen.getByRole('region', { name: 'එකතුව' })
+    await waitFor(() => expect(totals).toHaveTextContent('සත්‍ය වියදම්Rs 2,200'))
+    expect(totals).toHaveTextContent('දායකයන්ට ලබා දුන් මුදල්Rs 0')
+
+    await user.click(within(row(list, 'Rs 2,200')).getByRole('link'))
+    const again = await screen.findByRole('dialog', { name: 'ගනුදෙනුව සංස්කරණය' })
+    await user.click(within(again).getByRole('button', { name: 'මකන්න' }))
+    const confirm = await screen.findByRole('dialog', { name: 'මෙම ගනුදෙනුව මකන්නද?' })
+    await user.click(within(confirm).getByRole('button', { name: 'ඔව්, මකන්න' }))
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(await screen.findByText('තවම මුදල් වාර්තා නැත.')).toBeInTheDocument()
+    expect(totals).toHaveTextContent('සත්‍ය වියදම්Rs 0')
+  })
+
+  it('leaving a transaction sheet with unsaved changes asks first', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08' })
+    const { user } = await renderApp(`/events/${eventId}/money`, { signedInAs: organizer })
+
+    await user.click(await screen.findByRole('link', { name: '+ වියදමක්' }))
+    const sheet = await screen.findByRole('dialog', { name: 'වියදමක්' })
+    await user.type(within(sheet).getByLabelText(/^මුදල \(Rs\)/), '500')
+    await user.click(within(sheet).getByRole('button', { name: 'වසන්න' }))
+
+    const prompt = await screen.findByRole('dialog', { name: 'වෙනස්කම් ඉවත දමන්නද?' })
+    await user.click(within(prompt).getByRole('button', { name: 'ඉවත දමන්න' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(currentPath()).toBe(`/events/${eventId}/money`)
+  })
 })
 
 /** The transaction row in `list` showing this amount. */

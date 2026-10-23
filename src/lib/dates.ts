@@ -22,6 +22,11 @@ export function formatWeekday(date: string): string {
   return weekday.format(atNoonUtc(date))
 }
 
+/** Today in Sri Lanka, as 'YYYY-MM-DD'. */
+export function colomboToday(): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: TIME_ZONE }).format(new Date())
+}
+
 /** 'අද', 'හෙට' or 'තව දින 15', for an upcoming date `daysAway` days from today. */
 export function formatDaysAway(daysAway: number): string {
   if (daysAway === 0) return 'අද'

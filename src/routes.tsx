@@ -8,6 +8,7 @@ import { EventScreen } from './screens/event/EventScreen'
 import { AddItemSheet, EditItemSheet } from './screens/event/ItemSheets'
 import { MenuTab } from './screens/event/MenuTab'
 import { MoneyTab } from './screens/money/MoneyTab'
+import { AddTransactionSheet, EditTransactionSheet } from './screens/money/TransactionSheets'
 import { EventDetailsTab } from './screens/event-details/EventDetailsTab'
 import { EventFormScreen } from './screens/event-form/EventFormScreen'
 import { EventsHome } from './screens/events/EventsHome'
@@ -58,7 +59,14 @@ export const routes: RouteObject[] = [
               },
             ],
           },
-          { path: 'money', element: <MoneyTab /> },
+          {
+            path: 'money',
+            element: <MoneyTab />,
+            children: [
+              { path: 'new', element: <AddTransactionSheet /> },
+              { path: ':transactionId', element: <EditTransactionSheet /> },
+            ],
+          },
           { path: 'edit', element: <EventDetailsTab /> },
         ],
       },
