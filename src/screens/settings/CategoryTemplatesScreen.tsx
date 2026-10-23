@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { BackHeader } from '../../components/BackHeader'
 import {
+  useAddCategoryTemplate,
   useCategoryTemplates,
   useRenameCategoryTemplate,
   type CategoryTemplate,
@@ -41,7 +42,34 @@ export function CategoryTemplatesScreen() {
           ))}
         </ol>
       )}
+      {templates.data && <AddForm />}
     </main>
+  )
+}
+
+function AddForm() {
+  const [name, setName] = useState('')
+  const add = useAddCategoryTemplate()
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    add.mutate(name, { onSuccess: () => setName('') })
+  }
+
+  return (
+    <form className={styles.addForm} onSubmit={handleSubmit}>
+      <label htmlFor="new-template" className={styles.label}>අළුත් කාණ්ඩයක්</label>
+      <div className={styles.addRow}>
+        <input
+          id="new-template"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          className={styles.input}
+        />
+        <button type="submit" className={styles.primary} disabled={add.isPending || !name.trim()}>එක් කරන්න</button>
+      </div>
+      {add.isError && <p role="alert" className={styles.error}>එක් කිරීමට නොහැකි විය</p>}
+    </form>
   )
 }
 

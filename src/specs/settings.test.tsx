@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
 import { seedHousehold } from '../test/seed'
@@ -79,6 +79,30 @@ describe('category templates', () => {
     expect(screen.queryByText('බත් වර්ග')).not.toBeInTheDocument()
   })
 })
+
+describe('managing category templates', () => {
+  const DEFAULTS = ['බත්', 'හොදි', 'ව්‍යංජන', 'පලතුරු', 'කැවිලි හා අතුරුපස', 'පාන', 'වෙනත් ආහාර', 'පිරිකර', 'ඖෂධ']
+
+  it('starts with the nine default categories, and an added one goes last and stays', async () => {
+    const { organizer } = await seedHousehold()
+    const { user, unmount } = await renderApp('/settings/categories', { signedInAs: organizer })
+    expect(await templateNames()).toEqual(DEFAULTS)
+
+    await user.type(screen.getByLabelText('අළුත් කාණ්ඩයක්'), 'දන්සල් බීම')
+    await user.click(screen.getByRole('button', { name: 'එක් කරන්න' }))
+    await screen.findByText('දන්සල් බීම')
+    expect(screen.getByLabelText('අළුත් කාණ්ඩයක්')).toHaveValue('')
+
+    unmount()
+    await renderApp('/settings/categories', { signedInAs: organizer })
+    expect(await templateNames()).toEqual([...DEFAULTS, 'දන්සල් බීම'])
+  })
+})
+
+async function templateNames() {
+  const list = await screen.findByRole('list', { name: 'කාණ්ඩ' })
+  return within(list).getAllByRole('listitem').map((item) => item.textContent)
+}
 
 function goTo(path: string) {
   window.history.pushState(null, '', import.meta.env.BASE_URL.replace(/\/$/, '') + path)

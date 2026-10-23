@@ -25,6 +25,33 @@ export function useCategoryTemplates() {
   })
 }
 
+/** Adds a template after the household's last one. */
+export function useAddCategoryTemplate() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (name: string) => {
+      const { data: household, error: householdError } = await supabase
+        .from('household')
+        .select('id')
+        .limit(1)
+        .single()
+      if (householdError) throw householdError
+      const { data: last, error: lastError } = await supabase
+        .from('category_template')
+        .select('position')
+        .order('position', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      if (lastError) throw lastError
+      const { error } = await supabase
+        .from('category_template')
+        .insert({ household_id: household.id, name: name.trim(), position: (last?.position ?? 0) + 1 })
+      if (error) throw error
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: KEY }),
+  })
+}
+
 export function useRenameCategoryTemplate() {
   const queryClient = useQueryClient()
   return useMutation({
