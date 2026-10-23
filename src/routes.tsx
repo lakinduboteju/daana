@@ -7,7 +7,7 @@ import { EventCategoriesScreen } from './screens/event-categories/EventCategorie
 import { EventScreen } from './screens/event/EventScreen'
 import { AddItemSheet, EditItemSheet } from './screens/event/ItemSheets'
 import { MenuTab } from './screens/event/MenuTab'
-import { TabPlaceholder } from './screens/event/TabPlaceholder'
+import { MoneyTab } from './screens/money/MoneyTab'
 import { EventDetailsTab } from './screens/event-details/EventDetailsTab'
 import { EventFormScreen } from './screens/event-form/EventFormScreen'
 import { EventsHome } from './screens/events/EventsHome'
@@ -58,7 +58,7 @@ export const routes: RouteObject[] = [
               },
             ],
           },
-          { path: 'money', element: <TabPlaceholder title="මුදල් හා ලේඛන" /> },
+          { path: 'money', element: <MoneyTab /> },
           { path: 'edit', element: <EventDetailsTab /> },
         ],
       },

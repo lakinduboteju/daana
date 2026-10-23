@@ -189,3 +189,35 @@ export async function seedAssignment(
   if (error) throw error
   return data.id
 }
+
+type SeedTransactionOptions = {
+  kind: 'given' | 'expense'
+  /** Whole rupees. */
+  amount: number
+  contributorId?: string | null
+  itemId?: string | null
+  /** 'YYYY-MM-DD'. Today in Sri Lanka by default. */
+  date?: string
+  method?: 'cash' | 'bank_transfer' | null
+  notes?: string | null
+}
+
+/** Records a given or an expense on an event. Returns the transaction's id. */
+export async function seedTransaction(eventId: string, options: SeedTransactionOptions): Promise<string> {
+  const { data, error } = await admin
+    .from('transaction')
+    .insert({
+      event_id: eventId,
+      kind: options.kind,
+      amount: options.amount,
+      contributor_id: options.contributorId ?? null,
+      item_id: options.itemId ?? null,
+      date: options.date ?? colomboDate(),
+      method: options.method ?? null,
+      notes: options.notes ?? null,
+    })
+    .select('id')
+    .single()
+  if (error) throw error
+  return data.id
+}
