@@ -9,6 +9,7 @@ import { EventsHome } from './screens/events/EventsHome'
 import { LoginScreen } from './screens/login/LoginScreen'
 import { NotFoundScreen } from './screens/not-found/NotFoundScreen'
 import { SearchScreen } from './screens/search/SearchScreen'
+import { CategoryTemplatesScreen } from './screens/settings/CategoryTemplatesScreen'
 import { SettingsScreen } from './screens/settings/SettingsScreen'
 import { AppShell } from './screens/shell/AppShell'
 
@@ -32,6 +33,7 @@ export const routes: RouteObject[] = [
       { path: '/contributors/new', element: <ContributorNewScreen /> },
       { path: '/contributors/:contributorId/edit', element: <ContributorEditScreen /> },
       { path: '/settings', element: <SettingsScreen /> },
+      { path: '/settings/categories', element: <CategoryTemplatesScreen /> },
       { path: '*', element: <NotFoundScreen /> },
     ],
   },

@@ -44,3 +44,43 @@ describe('changing the password', () => {
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
 })
+
+describe('category templates', () => {
+  it('a renamed template appears in events created afterwards, but not in existing ones', async () => {
+    const { organizer } = await seedHousehold()
+    const { user } = await renderApp('/events/new', { signedInAs: organizer })
+
+    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
+    await user.type(await screen.findByLabelText('අසපුවේ නම'), 'මාලබේ අසපුව')
+    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    expect(await screen.findByText('බත්')).toBeInTheDocument()
+    const existingEventPath = currentPath()
+
+    await user.click(screen.getByRole('link', { name: 'ආපසු' }))
+    await user.click(await screen.findByRole('link', { name: 'සැකසුම්' }))
+    await user.click(await screen.findByRole('link', { name: 'Edit Categories' }))
+    expect(currentPath()).toBe('/settings/categories')
+    await user.click(await screen.findByRole('button', { name: 'බත් නම වෙනස් කරන්න' }))
+    const name = screen.getByLabelText('කාණ්ඩයේ නම')
+    await user.clear(name)
+    await user.type(name, 'බත් වර්ග')
+    await user.click(screen.getByRole('button', { name: 'සුරකින්න' }))
+    expect(await screen.findByText('බත් වර්ග')).toBeInTheDocument()
+
+    goTo('/events/new')
+    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-15')
+    await user.click(await screen.findByRole('radio', { name: /මාලබේ අසපුව/ }))
+    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    expect(await screen.findByText('බත් වර්ග')).toBeInTheDocument()
+    expect(screen.queryByText('බත්')).not.toBeInTheDocument()
+
+    goTo(existingEventPath)
+    expect(await screen.findByText('බත්')).toBeInTheDocument()
+    expect(screen.queryByText('බත් වර්ග')).not.toBeInTheDocument()
+  })
+})
+
+function goTo(path: string) {
+  window.history.pushState(null, '', import.meta.env.BASE_URL.replace(/\/$/, '') + path)
+  window.dispatchEvent(new PopStateEvent('popstate'))
+}

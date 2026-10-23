@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { useAuth, useSignOut } from '../../auth/useAuth'
 import { BackHeader } from '../../components/BackHeader'
 import { useHouseholds } from '../../data/household'
@@ -26,6 +27,11 @@ export function SettingsScreen() {
           </dd>
         </dl>
         <button type="button" className={styles.signOut} onClick={signOut}>ඉවත් වන්න</button>
+      </section>
+      <section className={styles.section} aria-labelledby="defaults">
+        <h2 id="defaults" className={styles.sectionTitle}>අළුත් දාන සඳහා කාණ්ඩ</h2>
+        <p className={styles.hint}>අළුත් දානයක් සාදන විට මෙම කාණ්ඩ එයට එකතු වේ.</p>
+        <Link to="/settings/categories" className={styles.linkButton}>Edit Categories</Link>
       </section>
       <section className={styles.section} aria-labelledby="password">
         <h2 id="password" className={styles.sectionTitle}>මුරපදය වෙනස් කිරීම</h2>
