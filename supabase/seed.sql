@@ -43,3 +43,24 @@ select public.setup_household('බොතේජු පවුල', 'organizer');
 
 select pg_temp.create_organizer('other', 'password123');
 select public.setup_household('සිල්වා පවුල', 'other');
+
+-- Design sample events for `organizer` (dates relative to today, so there is
+-- always something upcoming and something past).
+with h as (
+  select id from public.household where name = 'බොතේජු පවුල'
+), m as (
+  insert into public.monastery (household_id, name, location)
+  select h.id, v.name, v.location
+  from h, (values ('මාලබේ අසපුව', 'මාලබේ'), ('පොල්ගහවෙල අසපුව', 'පොල්ගහවෙල')) as v (name, location)
+  returning id, household_id, name
+)
+select public.create_event(
+  m.household_id, v.date, v.meal, m.id, v.host, v.monks, v.lay
+)
+from m
+join (values
+  ('මාලබේ අසපුව', current_date + 15, 'lunch', 'බොතේජු පවුල', 12, 20),
+  ('පොල්ගහවෙල අසපුව', current_date + 15, 'breakfast', 'සිල්වා පවුල', 8, 6),
+  ('මාලබේ අසපුව', current_date + 28, 'lunch', 'දහම් පාසල් ගුරු මණ්ඩලය', 15, 40),
+  ('මාලබේ අසපුව', current_date - 12, 'lunch', 'ජයසිංහ පවුල — පින් අනුමෝදනා', 10, 15)
+) as v (monastery, date, meal, host, monks, lay) on v.monastery = m.name;

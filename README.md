@@ -42,6 +42,7 @@ There is one test seam ([ADR 0003](docs/adr/0003-ci-deploys-only-tests-run-local
 - `seedHousehold(name?)` creates a fresh organizer and household through the same `setup_household` function production uses. Every test seeds its own, so tests don't depend on each other or on `seed.sql`. `admin` (service role) is exported for seeding further data; never use it to check results.
 - `renderApp(path, { signedInAs })` renders `<App />` at `path` (relative to the base, e.g. `/events`), optionally signed in. It returns a `user` from user-event plus the render result.
 - `currentPath()` returns the current route relative to the base, e.g. `/login?next=%2Fevents`.
+- `seedEvent(householdId, { date, meal?, host?, monastery?, ... })` adds an event (with a new monastery) and returns its id. `colomboDate(offsetDays)` gives a date relative to today in Sri Lanka, for upcoming and past events.
 
 ```tsx
 const { organizer } = await seedHousehold()
