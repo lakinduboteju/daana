@@ -83,6 +83,39 @@ export function useUpdateContributor(contributorId: string) {
   })
 }
 
+/** Hides the contributor from lists and pickers; their history stays. */
+export function useArchiveContributor(contributorId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from('contributor')
+        .update({ archived_at: new Date().toISOString() })
+        .eq('id', contributorId)
+      if (error) throw error
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['contributors'] }),
+  })
+}
+
+/**
+ * Deletes a contributor who has never been assigned. One who has been is
+ * archived instead (the database decides), so past events stay accurate.
+ */
+export function useRemoveContributor(contributorId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (): Promise<'deleted' | 'archived' | null> => {
+      const { data, error } = await supabase.rpc('remove_contributor', {
+        p_contributor_id: contributorId,
+      })
+      if (error) throw error
+      return data
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['contributors'] }),
+  })
+}
+
 /** `%`, `_` and `\` match literally, so a search for "50%" isn't a wildcard. */
 function escapeLike(text: string): string {
   return text.replace(/[\\%_]/g, '\\$&')

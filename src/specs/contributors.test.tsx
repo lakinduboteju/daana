@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
 import { admin, seedHousehold } from '../test/seed'
@@ -72,6 +72,41 @@ describe('contributors directory', () => {
     expect(screen.getByText('දිල්රුක්ෂි')).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'දිල්රුක්ෂි අමතන්න' })).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'දිල්රුක්ෂිට WhatsApp පණිවිඩයක්' })).not.toBeInTheDocument()
+  })
+
+  it('archiving a contributor hides them from the list and from search', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const contributorId = await seedContributor(householdId, { name: 'රුවන් කුමාර' })
+    await seedContributor(householdId, { name: 'නිමල් සිල්වා' })
+    const { user } = await renderApp(`/contributors/${contributorId}/edit`, { signedInAs: organizer })
+
+    await user.click(await screen.findByRole('button', { name: 'Archive කරන්න' }))
+
+    expect(await screen.findByText('නිමල් සිල්වා')).toBeInTheDocument()
+    expect(currentPath()).toBe('/contributors')
+    expect(screen.queryByText('රුවන් කුමාර')).not.toBeInTheDocument()
+
+    await user.type(screen.getByRole('searchbox', { name: 'දායකයන් සොයන්න' }), 'රුවන්')
+    expect(await screen.findByText(/ගැළපෙන දායකයන් නැත/)).toBeInTheDocument()
+    expect(screen.queryByText('රුවන් කුමාර')).not.toBeInTheDocument()
+  })
+
+  it('deletes a contributor who has never been assigned, after confirming', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const contributorId = await seedContributor(householdId, { name: 'ගුණපාල' })
+    await seedContributor(householdId, { name: 'නිමල් සිල්වා' })
+    const { user, unmount } = await renderApp(`/contributors/${contributorId}/edit`, { signedInAs: organizer })
+
+    await user.click(await screen.findByRole('button', { name: 'මකන්න' }))
+    const confirm = await screen.findByRole('dialog', { name: 'ගුණපාල මකන්නද?' })
+    await user.click(within(confirm).getByRole('button', { name: 'ඔව්, මකන්න' }))
+
+    expect(await screen.findByText('නිමල් සිල්වා')).toBeInTheDocument()
+    expect(screen.queryByText('ගුණපාල')).not.toBeInTheDocument()
+
+    unmount()
+    await renderApp(`/contributors/${contributorId}/edit`)
+    expect(await screen.findByRole('heading', { name: 'පිටුව හමු නොවීය' })).toBeInTheDocument()
   })
 
   it("shows not found for another household's contributor", async () => {

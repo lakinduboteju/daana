@@ -39,3 +39,34 @@ create policy "Members can delete their household's contributors"
 
 revoke all on public.contributor from anon;
 grant select, insert, update, delete on public.contributor to authenticated;
+
+-- Deletes a contributor, or archives them when anything still references them
+-- (for example an assignment), so past events stay accurate.
+-- Tables that reference contributor must use `on delete restrict` / `no action`
+-- (never cascade) for this to archive instead of losing history.
+-- Security invoker: row-level security decides which contributors the caller can touch.
+-- Returns 'deleted', 'archived', or null when the caller can't see the contributor.
+create function public.remove_contributor(p_contributor_id uuid)
+returns text
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+begin
+  begin
+    delete from public.contributor where id = p_contributor_id;
+    if found then
+      return 'deleted';
+    end if;
+    return null;
+  exception when foreign_key_violation then
+    update public.contributor
+    set archived_at = coalesce(archived_at, now())
+    where id = p_contributor_id;
+    return 'archived';
+  end;
+end;
+$$;
+
+revoke execute on function public.remove_contributor(uuid) from public, anon;
+grant execute on function public.remove_contributor(uuid) to authenticated;
