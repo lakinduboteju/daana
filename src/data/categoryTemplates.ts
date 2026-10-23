@@ -76,6 +76,18 @@ export function useSwapCategoryTemplates() {
   })
 }
 
+/** Removes a template. Events that already have this category keep it. */
+export function useRemoveCategoryTemplate() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('category_template').delete().eq('id', id)
+      if (error) throw error
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: KEY }),
+  })
+}
+
 export function useRenameCategoryTemplate() {
   const queryClient = useQueryClient()
   return useMutation({

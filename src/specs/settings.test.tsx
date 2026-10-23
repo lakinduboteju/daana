@@ -115,6 +115,26 @@ describe('managing category templates', () => {
     await renderApp('/settings/categories', { signedInAs: organizer })
     expect(await templateNames()).toEqual(['හොදි', 'බත්', 'පලතුරු', 'ව්‍යංජන', ...DEFAULTS.slice(4)])
   })
+
+  it('removes a template after confirming, and keeps it when the organizer changes their mind', async () => {
+    const { organizer } = await seedHousehold()
+    const { user, unmount } = await renderApp('/settings/categories', { signedInAs: organizer })
+
+    await user.click(await screen.findByRole('button', { name: 'පාන ඉවත් කරන්න' }))
+    const dialog = screen.getByRole('dialog', { name: 'පාන ඉවත් කරන්නද?' })
+    expect(dialog).toHaveTextContent('දැනට ඇති දානවල')
+    await user.click(within(dialog).getByRole('button', { name: 'එපා' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(await templateNames()).toEqual(DEFAULTS)
+
+    await user.click(screen.getByRole('button', { name: 'පාන ඉවත් කරන්න' }))
+    await user.click(screen.getByRole('button', { name: 'ඔව්, ඉවත් කරන්න' }))
+    await waitFor(() => expect(screen.queryByText('පාන')).not.toBeInTheDocument())
+
+    unmount()
+    await renderApp('/settings/categories', { signedInAs: organizer })
+    expect(await templateNames()).toEqual(DEFAULTS.filter((name) => name !== 'පාන'))
+  })
 })
 
 async function templateNames() {

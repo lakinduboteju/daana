@@ -3,6 +3,7 @@ import { BackHeader } from '../../components/BackHeader'
 import {
   useAddCategoryTemplate,
   useCategoryTemplates,
+  useRemoveCategoryTemplate,
   useRenameCategoryTemplate,
   useSwapCategoryTemplates,
   type CategoryTemplate,
@@ -14,6 +15,8 @@ export function CategoryTemplatesScreen() {
   const templates = useCategoryTemplates()
   const [editingId, setEditingId] = useState<string | null>(null)
   const swap = useSwapCategoryTemplates()
+  const remove = useRemoveCategoryTemplate()
+  const [removing, setRemoving] = useState<CategoryTemplate | null>(null)
 
   return (
     <main className={styles.screen}>
@@ -56,6 +59,14 @@ export function CategoryTemplatesScreen() {
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z" /></svg>
                   </button>
+                  <button
+                    type="button"
+                    aria-label={`${template.name} ඉවත් කරන්න`}
+                    className={styles.iconButton}
+                    onClick={() => setRemoving(template)}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg>
+                  </button>
                 </>
               )}
             </li>
@@ -63,6 +74,24 @@ export function CategoryTemplatesScreen() {
         </ol>
       )}
       {templates.data && <AddForm />}
+      {removing && (
+        <dialog open aria-labelledby="remove-template-title" className={styles.confirm}>
+          <h2 id="remove-template-title" className={styles.confirmTitle}>{removing.name} ඉවත් කරන්නද?</h2>
+          <p className={styles.hint}>අළුත් දානවලට මෙම කාණ්ඩය එකතු නොවේ. දැනට ඇති දානවල කාණ්ඩ වෙනස් නොවේ.</p>
+          {remove.isError && <p role="alert" className={styles.error}>ඉවත් කිරීමට නොහැකි විය</p>}
+          <div className={styles.confirmButtons}>
+            <button type="button" className={styles.secondary} onClick={() => setRemoving(null)}>එපා</button>
+            <button
+              type="button"
+              className={styles.danger}
+              disabled={remove.isPending}
+              onClick={() => remove.mutate(removing.id, { onSuccess: () => setRemoving(null) })}
+            >
+              ඔව්, ඉවත් කරන්න
+            </button>
+          </div>
+        </dialog>
+      )}
     </main>
   )
 }
