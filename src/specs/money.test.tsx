@@ -140,6 +140,56 @@ describe('money', () => {
     expect(screen.getByRole('region', { name: 'එකතුව' })).toHaveTextContent('දායකයන්ට ලබා දුන් මුදල්Rs 4,700')
   })
 
+  it("item details show that item's transactions, and money recorded from there is linked to it", async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })
+    const rice = await seedItem(eventId, 'බත්', { name: 'සුදු බත්' })
+    const kiribath = await seedItem(eventId, 'බත්', { name: 'කිරිබත්' })
+    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ')
+    await seedTransaction(eventId, { kind: 'expense', amount: 1850, contributorId: sunil, itemId: rice })
+    await seedTransaction(eventId, { kind: 'given', amount: 3000, itemId: kiribath })
+    const { user } = await renderApp(`/events/${eventId}/items/${rice}`, { signedInAs: organizer })
+
+    const money = await screen.findByRole('region', { name: 'මුදල්' })
+    const list = await within(money).findByRole('list', { name: 'ගනුදෙනු' })
+    expect(within(list).getAllByRole('listitem')).toHaveLength(1)
+    expect(list).toHaveTextContent('සුනිල් ජයසිංහ')
+    expect(list).toHaveTextContent('Rs 1,850')
+
+    await user.click(within(money).getByRole('link', { name: '+ වියදමක්' }))
+    expect(currentPath()).toBe(`/events/${eventId}/money/new?type=expense&item=${rice}`)
+    const sheet = await screen.findByRole('dialog', { name: 'වියදමක්' })
+    await waitFor(() => expect(within(sheet).getByLabelText('Item')).toHaveDisplayValue('සුදු බත්'))
+    await user.type(within(sheet).getByLabelText(/^මුදල \(Rs\)/), '400')
+    await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
+
+    // Back on the item's details, with the new expense listed.
+    await waitFor(() => expect(currentPath()).toBe(`/events/${eventId}/items/${rice}`))
+    const after = await screen.findByRole('region', { name: 'මුදල්' })
+    await waitFor(() => expect(within(after).getAllByRole('listitem')).toHaveLength(2))
+    expect(after).toHaveTextContent('Rs 400')
+  })
+
+  it('deleting an item keeps its transactions on the event', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })
+    const rice = await seedItem(eventId, 'බත්', { name: 'සුදු බත්' })
+    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ')
+    await seedTransaction(eventId, { kind: 'expense', amount: 1850, contributorId: sunil, itemId: rice })
+    const { user } = await renderApp(`/events/${eventId}/items/${rice}/edit`, { signedInAs: organizer })
+
+    const sheet = await screen.findByRole('dialog', { name: 'Item සංස්කරණය' })
+    await user.click(await within(sheet).findByRole('button', { name: 'Item එක මකන්න' }))
+    await user.click(within(sheet).getByRole('button', { name: 'ඔව්, මකන්න' }))
+    await waitFor(() => expect(currentPath()).toBe(`/events/${eventId}`))
+
+    await user.click(await screen.findByRole('link', { name: 'මුදල් හා ලේඛන' }))
+    const list = await screen.findByRole('list', { name: 'ගනුදෙනු' })
+    expect(row(list, 'Rs 1,850')).toHaveTextContent('සුනිල් ජයසිංහ')
+    expect(row(list, 'Rs 1,850')).not.toHaveTextContent('සුදු බත්')
+    expect(screen.getByRole('region', { name: 'එකතුව' })).toHaveTextContent('සත්‍ය වියදම්Rs 1,850')
+  })
+
   it('leaving a transaction sheet with unsaved changes asks first', async () => {
     const { householdId, organizer } = await seedHousehold()
     const eventId = await seedEvent(householdId, { date: '2099-11-08' })
