@@ -1,0 +1,26 @@
+:root {
+  --color-bg: #faf7f2;
+  --color-surface: #ffffff;
+  --color-border: #e7e1d8;
+  --color-text: #2a2420;
+  --color-text-muted: #6b625a;
+  --color-accent: #b04e0a;
+  --color-accent-strong: #8a3d08;
+
+  font-family: 'Noto Sans Sinhala', system-ui, sans-serif;
+  line-height: 1.5;
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+}

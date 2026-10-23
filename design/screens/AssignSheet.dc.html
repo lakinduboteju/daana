@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="si">
+<head>
+<meta charset="utf-8">
+<title>දායකයෙකු පවරන්න</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#B04E0A}a:hover{color:#8A3D08}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #5E5650; color: #2A2420; font-family: 'Noto Sans Sinhala', system-ui, sans-serif; line-height: 1.5">
+  <div aria-hidden="true" style="padding: 18px 16px; color: #D8D0C6; font-size: 15px">ව්‍යංජන · බෝංචි</div>
+
+  <div role="dialog" aria-label="බෝංචි සඳහා දායකයෙකු පවරන්න" style="position: absolute; left: 0; right: 0; bottom: 0; top: 56px; background: #FFFFFF; border-radius: 20px 20px 0 0; display: flex; flex-direction: column">
+    <div aria-hidden="true" style="width: 40px; height: 5px; border-radius: 3px; background: #D5CCC0; margin: 8px auto 0"></div>
+    <div style="display: flex; align-items: center; padding: 4px 8px 0 16px">
+      <h1 style="margin: 0; flex: 1; font-size: 19px; font-weight: 700">බෝංචි — දායකයා</h1>
+      <a href="EventDetail.dc.html" aria-label="වසන්න" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #3F3833">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+      </a>
+    </div>
+
+    <div style="flex: 1; overflow: hidden; padding: 8px 16px 0; display: flex; flex-direction: column; gap: 14px">
+      <div style="position: relative">
+        <label for="q" style="position: absolute; width: 1px; height: 1px; overflow: hidden">දායකයා සොයන්න</label>
+        <input id="q" type="search" placeholder="නම හෝ දුරකථන අංකය" style="width: 100%; box-sizing: border-box; height: 48px; padding: 0 14px 0 42px; border: 1px solid #CFC6BA; border-radius: 12px; font-size: 16px; font-family: inherit; background: #FAF7F2">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B625A" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="position: absolute; left: 13px; top: 14px"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+      </div>
+
+      <div>
+        <div style="font-size: 13px; font-weight: 600; color: #6B625A; margin-bottom: 4px">මෑතදී පැවරූ අය</div>
+        <div role="radiogroup" aria-label="දායකයා" style="display: flex; flex-direction: column; border: 1px solid #E7E1D8; border-radius: 12px; overflow: hidden">
+          <sc-for list="{{people}}" as="p" hint-placeholder-count="3">
+            <button type="button" role="radio" aria-checked="{{p.on}}" onClick="{{p.pick}}" style="min-height: 56px; padding: 6px 12px; border: 0; border-top: 1px solid #F0EBE4; background: {{p.bg}}; font-family: inherit; display: flex; align-items: center; gap: 10px; text-align: left; color: #2A2420">
+              <span style="width: 22px; height: 22px; border-radius: 11px; border: 2px solid {{p.ring}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><span style="width: 10px; height: 10px; border-radius: 5px; background: {{p.dot}}"></span></span>
+              <span style="flex: 1; min-width: 0">
+                <span style="display: block; font-size: 16px; font-weight: 600">{{p.name}}</span>
+                <span style="display: block; font-size: 13px; color: #6B625A">{{p.meta}}</span>
+              </span>
+            </button>
+          </sc-for>
+        </div>
+        <button type="button" style="margin-top: 6px; height: 44px; border: 0; background: transparent; padding: 0; font-family: inherit; font-size: 15px; font-weight: 600; color: #B04E0A; display: flex; align-items: center; gap: 6px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+          නව දායකයෙක් එක් කරන්න
+        </button>
+      </div>
+
+      <div style="display: flex; gap: 8px; align-items: flex-end">
+        <div style="width: 110px; display: flex; flex-direction: column; gap: 4px">
+          <label for="qty" style="font-size: 14px; font-weight: 600">ප්‍රමාණය</label>
+          <input id="qty" type="text" inputmode="decimal" value="1.5" style="height: 48px; padding: 0 12px; border: 1px solid #CFC6BA; border-radius: 12px; font-size: 17px; font-family: inherit; box-sizing: border-box; width: 100%">
+        </div>
+        <div style="flex: 1; display: flex; gap: 6px; flex-wrap: wrap">
+          <button type="button" aria-pressed="true" style="height: 40px; padding: 0 12px; border-radius: 20px; border: 1px solid #2A2420; background: #2A2420; color: #FFFFFF; font-family: inherit; font-size: 14px">කි.ග්‍රෑ.</button>
+          <button type="button" style="height: 40px; padding: 0 12px; border-radius: 20px; border: 1px solid #DCD4C9; background: #FFFFFF; font-family: inherit; font-size: 14px; color: #3F3833">තැටි</button>
+          <button type="button" style="height: 40px; padding: 0 12px; border-radius: 20px; border: 1px solid #DCD4C9; background: #FFFFFF; font-family: inherit; font-size: 14px; color: #3F3833">වෙනත්</button>
+        </div>
+      </div>
+
+      <fieldset style="border: 0; margin: 0; padding: 0">
+        <legend style="font-size: 14px; font-weight: 600; padding: 0; margin-bottom: 6px">ඔවුන් එකඟ වුණාද?</legend>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+          <sc-for list="{{statuses}}" as="o" hint-placeholder-count="2">
+            <button type="button" onClick="{{o.pick}}" aria-pressed="{{o.on}}" style="min-height: 52px; padding: 4px 8px; border-radius: 12px; font-family: inherit; border: 2px solid {{o.bd}}; background: {{o.bg}}; color: {{o.fg}}">
+              <span style="display: block; font-size: 15px; font-weight: 700">{{o.label}}</span>
+              <span style="display: block; font-size: 12px">{{o.hint}}</span>
+            </button>
+          </sc-for>
+        </div>
+      </fieldset>
+    </div>
+
+    <div style="padding: 12px 16px 20px; border-top: 1px solid #E7E1D8">
+      <a href="EventDetail.dc.html" style="height: 54px; border-radius: 14px; background: #B04E0A; color: #FFFFFF; text-decoration: none; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600">{{cta}}</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { who: 'anula', status: 'pending' }; }
+  renderVals() {
+    const s = this.state;
+    const ppl = [['anula', 'අනුලා විජේසේකර', 'මෙම දානයට තවත් 1ක් · 077 123 4567'], ['ruwan', 'රුවන් කුමාර', 'මෙම දානයට තවත් 1ක්'], ['malli', 'මල්ලිකා ගුණවර්ධන', 'පසුගිය දානයේ බෝංචි ගෙනාවා']];
+    const st = [['pending', 'තහවුරු කර නැත', 'කතා කළා / යෝජිතයි', ['#FDF0D5', '#7A4A00', '#D9A441']], ['ok', 'තහවුරුයි', 'ඔවුන් එකඟ වුණා', ['#E2F0E6', '#1C5E33', '#2E7D4A']]];
+    const who = ppl.filter((p) => p[0] === s.who)[0];
+    return {
+      people: ppl.map((p) => { const on = s.who === p[0]; return { name: p[1], meta: p[2], on: on ? 'true' : 'false', bg: on ? '#FDF4EC' : '#FFFFFF', ring: on ? '#B04E0A' : '#B5AA9D', dot: on ? '#B04E0A' : 'transparent', pick: () => this.setState({ who: p[0] }) }; }),
+      statuses: st.map((o) => { const on = s.status === o[0]; return { label: o[1], hint: o[2], on: on ? 'true' : 'false', bg: on ? o[3][0] : '#FFFFFF', fg: on ? o[3][1] : '#57504A', bd: on ? o[3][2] : '#DCD4C9', pick: () => this.setState({ status: o[0] }) }; }),
+      cta: (who ? who[1].split(' ')[0] : '') + ' ට පවරන්න'
+    };
+  }
+}
+</script>
+</body>
+</html>

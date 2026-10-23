@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="si">
+<head>
+<meta charset="utf-8">
+<title>මුදල් හා ලේඛන</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#B04E0A}a:hover{color:#8A3D08}
+</style>
+</helmet>
+<div style="width: 390px; height: 1300px; position: relative; overflow: hidden; background: #FAF7F2; color: #2A2420; font-family: 'Noto Sans Sinhala', system-ui, sans-serif; line-height: 1.5">
+  <header style="height: 60px; padding: 0 8px; display: flex; align-items: center; gap: 4px; background: #FFFFFF">
+    <a href="Main.dc.html" aria-label="ආපසු" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #2A2420">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+    </a>
+    <h1 style="margin: 0; flex: 1; font-size: 17px; font-weight: 700">නොවැම්බර් 08 · දහවල් දානය</h1>
+  </header>
+  <nav aria-label="දාන කොටස්" style="display: flex; background: #FFFFFF; border-bottom: 1px solid #E7E1D8">
+    <a href="EventDetail.dc.html" style="flex: 1; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 500; color: #57504A; text-decoration: none">මෙනුව</a>
+    <a href="Money.dc.html" aria-current="page" style="flex: 1; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: #8A3D08; text-decoration: none; border-bottom: 3px solid #B04E0A">මුදල් හා ලේඛන</a>
+    <a href="EventForm.dc.html" style="flex: 1; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 500; color: #57504A; text-decoration: none">විස්තර</a>
+  </nav>
+
+  <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px">
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <div style="background: #FFFFFF; border: 1px solid #E7E1D8; border-radius: 14px; padding: 12px 14px">
+        <div style="font-size: 14px; color: #6B625A">දායකයන්ට ලබා දුන් මුදල්</div>
+        <div style="font-size: 22px; font-weight: 700">රු. 7,500</div>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #E7E1D8; border-radius: 14px; padding: 12px 14px">
+        <div style="font-size: 14px; color: #6B625A">සත්‍ය වියදම් (බිල්පත්)</div>
+        <div style="font-size: 22px; font-weight: 700">රු. 6,200</div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: #FDF0D5; color: #7A4A00">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6M12 16.5v.5"></path></svg>
+      <div style="font-size: 14px"><b>ආපසු ගෙවිය යුතුයි:</b> ශ්‍රියා පෙරේරාට රු. 1,200 (තමන්ගේ මුදලින් වියදම් කළා)</div>
+    </div>
+    <p style="margin: 0; font-size: 13px; color: #6B625A">ලබා දුන් මුදල් සහ වියදම් වෙන වෙනම ගණනය වේ — එකම මුදල දෙවරක් ගණන් නොවේ.</p>
+
+    <div style="display: flex; gap: 8px">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="3">
+        <button type="button" onClick="{{t.pick}}" aria-pressed="{{t.on}}" style="height: 40px; padding: 0 14px; border-radius: 20px; font-family: inherit; font-size: 14px; font-weight: 600; border: 1px solid {{t.bd}}; background: {{t.bg}}; color: {{t.fg}}">{{t.label}}</button>
+      </sc-for>
+    </div>
+
+    <section style="background: #FFFFFF; border: 1px solid #E7E1D8; border-radius: 14px; overflow: hidden">
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
+        <div style="display: flex; gap: 10px; padding: 12px 14px; border-top: 1px solid #F0EBE4">
+          <div style="flex: 1; min-width: 0">
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap">
+              <span style="font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 6px; background: {{r.tbg}}; color: {{r.tfg}}">{{r.type}}</span>
+              <span style="font-size: 15px; font-weight: 600">{{r.who}}</span>
+            </div>
+            <div style="font-size: 13px; color: #6B625A; margin-top: 2px">{{r.meta}}</div>
+            <sc-if value="{{r.file}}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top: 2px; display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: #1E4A85">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 11.5 12.5 20a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"></path></svg>{{r.file}}</div>
+            </sc-if>
+          </div>
+          <b style="font-size: 16px; white-space: nowrap">රු. {{r.amt}}</b>
+        </div>
+      </sc-for>
+    </section>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <button type="button" style="height: 50px; border-radius: 12px; border: 1px solid #B04E0A; background: #FFFFFF; color: #8A3D08; font-family: inherit; font-size: 15px; font-weight: 600">+ ලබා දුන් මුදලක්</button>
+      <button type="button" style="height: 50px; border-radius: 12px; border: 1px solid #B04E0A; background: #FFFFFF; color: #8A3D08; font-family: inherit; font-size: 15px; font-weight: 600">+ වියදමක්</button>
+    </div>
+
+    <h2 style="margin: 10px 0 0; font-size: 17px; font-weight: 700">ලේඛන (5)</h2>
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <sc-for list="{{docs}}" as="d" hint-placeholder-count="3">
+        <div style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: #FFFFFF; border: 1px solid #E7E1D8; border-radius: 12px">
+          <span style="width: 44px; height: 44px; border-radius: 8px; background: #F3EEE7; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #A0410A; flex-shrink: 0">{{d.kind}}</span>
+          <span style="flex: 1; min-width: 0">
+            <span style="display: block; font-size: 15px; font-weight: 600">{{d.name}}</span>
+            <span style="display: block; font-size: 13px; color: #6B625A">{{d.meta}}</span>
+          </span>
+          <button type="button" aria-label="{{d.name}} — විකල්ප" style="width: 44px; height: 44px; border: 0; background: transparent; color: #6B625A; display: flex; align-items: center; justify-content: center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.8"></circle><circle cx="12" cy="12" r="1.8"></circle><circle cx="12" cy="19" r="1.8"></circle></svg>
+          </button>
+        </div>
+      </sc-for>
+      <div role="alert" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: #FCEBE9; border: 1px solid #E8B4AE; border-radius: 12px; color: #7F1D14">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex-shrink: 0"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6M12 16.5v.5"></path></svg>
+        <span style="flex: 1; font-size: 14px"><b>පොල් බිල්පත.jpg</b> උඩුගත කිරීම අසාර්ථකයි. අන්තර්ජාලය පරීක්ෂා කරන්න.</span>
+        <button type="button" style="height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid #7F1D14; background: #FFFFFF; color: #7F1D14; font-family: inherit; font-size: 14px; font-weight: 600">නැවත</button>
+      </div>
+      <button type="button" style="height: 52px; border-radius: 12px; border: 1.5px dashed #B5AA9D; background: transparent; font-family: inherit; font-size: 15px; font-weight: 600; color: #3F3833; display: flex; align-items: center; justify-content: center; gap: 8px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"></path></svg>
+        ඡායාරූපයක් හෝ PDF එකක් උඩුගත කරන්න
+      </button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1300}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { tab: 'all' }; }
+  renderVals() {
+    const G = ['ලබා දුන්', '#FBEADB', '#8A3D08'], E = ['වියදම', '#E3ECF8', '#1E4A85'];
+    const all = [
+      ['give', G, 'සුනිල් ජයසිංහ', 'සුදු බත් · බැංකු මාරුව · ඔක්. 30', '2,500', 'මාරු රිසිට්පත'],
+      ['give', G, 'නිමල් සිල්වා', 'කිරිබත් · මුදල් · නොවැ. 01', '3,000', ''],
+      ['give', G, 'දිල්රුක්ෂි', 'වම්බටු මෝජු · බැංකු මාරුව · නොවැ. 02', '2,000', 'මාරු රිසිට්පත'],
+      ['spend', E, 'සුනිල් ජයසිංහ', 'සහල් කි.ග්‍රෑ. 5 · සුදු බත්', '1,850', 'සහල් බිල්පත'],
+      ['spend', E, 'ශ්‍රියා පෙරේරා', 'පරිප්පු, පොල් · ආපසු ගෙවිය යුතුයි', '1,200', 'කඩ බිල්පත'],
+      ['spend', E, 'සංවිධායක', 'මල් හා පහන් තෙල් · සාමාන්‍ය', '3,150', '']
+    ];
+    const t = this.state.tab;
+    const tab = (k, label) => { const on = t === k; return { label: label, on: on ? 'true' : 'false', bg: on ? '#2A2420' : '#FFFFFF', fg: on ? '#FFFFFF' : '#3F3833', bd: on ? '#2A2420' : '#DCD4C9', pick: () => this.setState({ tab: k }) }; };
+    return {
+      tabs: [tab('all', 'සියල්ල'), tab('give', 'ලබා දුන්'), tab('spend', 'වියදම්')],
+      rows: all.filter((r) => t === 'all' || r[0] === t).map((r) => ({ type: r[1][0], tbg: r[1][1], tfg: r[1][2], who: r[2], meta: r[3], amt: r[4], file: r[5] })),
+      docs: [
+        { kind: 'JPG', name: 'සුනිල් — මාරු රිසිට්පත', meta: 'සුදු බත් · ඔක්. 30' },
+        { kind: 'PDF', name: 'සහල් බිල්පත', meta: 'සුදු බත් · නොවැ. 03' },
+        { kind: 'PDF', name: 'අසපුවේ උපදෙස්', meta: 'දානය සඳහා · සාමාන්‍ය' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

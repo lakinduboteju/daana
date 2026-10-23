@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="si">
+<head>
+<meta charset="utf-8">
+<title>අළුත් දානයක්</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#B04E0A}a:hover{color:#8A3D08}
+</style>
+</helmet>
+<div style="width: 390px; height: 1240px; position: relative; overflow: hidden; background: #FAF7F2; color: #2A2420; font-family: 'Noto Sans Sinhala', system-ui, sans-serif; line-height: 1.5">
+  <header style="height: 60px; padding: 0 8px; display: flex; align-items: center; gap: 4px; background: #FFFFFF; border-bottom: 1px solid #E7E1D8">
+    <a href="Main.dc.html" aria-label="ආපසු" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #2A2420">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+    </a>
+    <h1 style="margin: 0; font-size: 19px; font-weight: 700">අළුත් දානයක්</h1>
+  </header>
+
+  <form style="padding: 16px; display: flex; flex-direction: column; gap: 20px">
+    <a href="#" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid #E9CFB8; background: #FDF4EC; border-radius: 12px; text-decoration: none; color: #2A2420">
+      <span style="width: 36px; height: 36px; border-radius: 18px; background: #FBEADB; color: #B04E0A; display: flex; align-items: center; justify-content: center; flex-shrink: 0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg>
+      </span>
+      <span style="flex: 1">
+        <span style="display: block; font-size: 15px; font-weight: 600">පෙර දානයකින් පිටපත් කරන්න</span>
+        <span style="display: block; font-size: 13px; color: #6B625A">මෙනුව සහ කාණ්ඩ පමණක් · තහවුරු කිරීම් නැවත ආරම්භ වේ</span>
+      </span>
+    </a>
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <label for="date" style="font-size: 15px; font-weight: 600">දිනය <span style="color: #A0410A">*</span></label>
+      <input id="date" type="text" value="2026 නොවැම්බර් 08 · ඉරිදා" style="height: 52px; padding: 0 14px; border: 1px solid #CFC6BA; border-radius: 12px; background: #FFFFFF; font-size: 17px; font-family: inherit; color: #2A2420">
+    </div>
+
+    <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px">
+      <legend style="font-size: 15px; font-weight: 600; padding: 0; margin-bottom: 6px">දානය <span style="color: #A0410A">*</span></legend>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+        <sc-for list="{{meals}}" as="m" hint-placeholder-count="2">
+          <button type="button" onClick="{{m.pick}}" aria-pressed="{{m.on}}" style="height: 52px; border-radius: 12px; font-family: inherit; font-size: 16px; font-weight: 600; border: 2px solid {{m.bd}}; background: {{m.bg}}; color: {{m.fg}}">{{m.label}}</button>
+        </sc-for>
+      </div>
+    </fieldset>
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <label for="mon" style="font-size: 15px; font-weight: 600">අසපුව <span style="color: #A0410A">*</span></label>
+      <input id="mon" type="text" value="මාලබේ අසපුව" style="height: 52px; padding: 0 14px; border: 1px solid #CFC6BA; border-radius: 12px; background: #FFFFFF; font-size: 17px; font-family: inherit; color: #2A2420">
+      <div style="display: flex; gap: 8px; flex-wrap: wrap">
+        <span style="font-size: 13px; color: #6B625A; align-self: center">පෙර භාවිත:</span>
+        <button type="button" style="height: 36px; padding: 0 12px; border-radius: 18px; border: 1px solid #DCD4C9; background: #FFFFFF; font-family: inherit; font-size: 14px; color: #3F3833">පොල්ගහවෙල අසපුව</button>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <label for="name" style="font-size: 15px; font-weight: 600">දානය භාරගත් අය <span style="color: #A0410A">*</span></label>
+      <input id="name" type="text" value="බොතේජු පවුල" style="height: 52px; padding: 0 14px; border: 1px solid #CFC6BA; border-radius: 12px; background: #FFFFFF; font-size: 17px; font-family: inherit; color: #2A2420">
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <sc-for list="{{counts}}" as="c" hint-placeholder-count="2">
+        <div style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: #FFFFFF; border: 1px solid #E7E1D8; border-radius: 12px">
+          <span style="flex: 1; font-size: 16px; font-weight: 600">{{c.label}} <span style="color: #A0410A">*</span></span>
+          <button type="button" onClick="{{c.dec}}" aria-label="අඩු කරන්න" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #CFC6BA; background: #FAF7F2; font-size: 22px; font-family: inherit; color: #2A2420">−</button>
+          <span style="min-width: 36px; text-align: center; font-size: 20px; font-weight: 700">{{c.value}}</span>
+          <button type="button" onClick="{{c.inc}}" aria-label="වැඩි කරන්න" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #CFC6BA; background: #FAF7F2; font-size: 22px; font-family: inherit; color: #2A2420">+</button>
+        </div>
+      </sc-for>
+      <div style="display: flex; justify-content: space-between; padding: 10px 14px; border-radius: 12px; background: #F3EEE7; font-size: 15px">
+        <span style="color: #57504A">මුළු පිරිස (ස්වයංක්‍රීයව)</span>
+        <b style="font-size: 17px">{{total}}</b>
+      </div>
+    </div>
+
+    <details style="border: 1px solid #E7E1D8; border-radius: 12px; background: #FFFFFF">
+      <summary style="min-height: 52px; padding: 0 14px; display: flex; align-items: center; justify-content: space-between; font-size: 15px; font-weight: 600; cursor: pointer">
+        අමතර විස්තර (අවශ්‍ය නම් පමණක්)
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+      </summary>
+      <div style="padding: 0 14px 14px; font-size: 14px; color: #6B625A">සංවිධායකගේ නම හා දුරකථනය · සටහන් · විශේෂ ආහාර අවශ්‍යතා / අසපුවේ උපදෙස්</div>
+    </details>
+  </form>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 16px 20px; background: #FFFFFF; border-top: 1px solid #E7E1D8; display: flex; gap: 10px">
+    <a href="Main.dc.html" style="flex: 1; height: 54px; border-radius: 14px; border: 1px solid #CFC6BA; color: #2A2420; text-decoration: none; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600">අවලංගු</a>
+    <a href="EventDetail.dc.html" style="flex: 2; height: 54px; border-radius: 14px; background: #B04E0A; color: #FFFFFF; text-decoration: none; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600">සුරකින්න, මෙනුවට යන්න</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1240}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { meal: 'lunch', monks: 12, lay: 20 }; }
+  renderVals() {
+    const s = this.state;
+    const meal = (id, label) => {
+      const on = s.meal === id;
+      return { label: label, on: on ? 'true' : 'false', bg: on ? '#FBEADB' : '#FFFFFF', bd: on ? '#B04E0A' : '#DCD4C9', fg: on ? '#8A3D08' : '#3F3833', pick: () => this.setState({ meal: id }) };
+    };
+    const cnt = (key, label) => ({ label: label, value: s[key],
+      dec: () => this.setState({ [key]: Math.max(0, s[key] - 1) }),
+      inc: () => this.setState({ [key]: s[key] + 1 }) });
+    return {
+      meals: [meal('breakfast', 'හීල් දානය'), meal('lunch', 'දහවල් දානය')],
+      counts: [cnt('monks', 'ස්වාමීන් වහන්සේලා'), cnt('lay', 'ගිහි පිරිස')],
+      total: s.monks + s.lay
+    };
+  }
+}
+</script>
+</body>
+</html>

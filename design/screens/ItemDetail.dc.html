@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="si">
+<head>
+<meta charset="utf-8">
+<title>සුදු බත් — Item</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#B04E0A}a:hover{color:#8A3D08}
+</style>
+</helmet>
+<div style="width: 390px; height: 1400px; position: relative; overflow: hidden; background: #FAF7F2; color: #2A2420; font-family: 'Noto Sans Sinhala', system-ui, sans-serif; line-height: 1.5">
+  <header style="height: 60px; padding: 0 8px; display: flex; align-items: center; gap: 4px; background: #FFFFFF; border-bottom: 1px solid #E7E1D8">
+    <a href="EventDetail.dc.html" aria-label="මෙනුවට ආපසු" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #2A2420">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+    </a>
+    <div style="flex: 1; min-width: 0">
+      <div style="font-size: 13px; color: #6B625A">බත් · නොවැම්බර් 08 දහවල් දානය</div>
+      <h1 style="margin: 0; font-size: 19px; font-weight: 700; line-height: 1.3">සුදු බත්</h1>
+    </div>
+    <button aria-label="Item සංස්කරණය" style="width: 44px; height: 44px; border: 0; background: transparent; color: #3F3833; display: flex; align-items: center; justify-content: center">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"></path></svg>
+    </button>
+  </header>
+
+  <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px">
+    <section style="background: #FFFFFF; border: 1px solid #E7E1D8; border-radius: 14px; padding: 14px">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+        <span style="font-size: 14px; color: #6B625A">අයිතමයේ තත්ත්වය</span>
+        <span style="font-size: 14px; font-weight: 600; padding: 3px 12px; border-radius: 999px; background: {{item.bg}}; color: {{item.fg}}; border: 1px solid {{item.bd}}">{{item.sym}} {{item.label}}</span>
+      </div>
+      <div style="margin-top: 10px; display: flex; align-items: baseline; justify-content: space-between">
+        <span style="font-size: 15px">අවශ්‍ය ප්‍රමාණය <b>කි.ග්‍රෑ. 3</b></span>
+        <span style="font-size: 15px">තහවුරු <b>{{covered}}</b> / 3</span>
+      </div>
+      <div style="margin-top: 6px; height: 10px; border-radius: 5px; background: #EFE9E1; overflow: hidden">
+        <div style="height: 10px; width: {{coverPct}}%; background: {{coverBar}}"></div>
+      </div>
+      <sc-if value="{{short}}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top: 8px; font-size: 14px; color: #7A4A00">තවම කි.ග්‍රෑ. {{remaining}}ක් තහවුරු වී නැත</div>
+      </sc-if>
+    </section>
+
+    <section style="background: #FFFFFF; border: 1px solid #E7E1D8; border-radius: 14px; overflow: hidden">
+      <h2 style="margin: 0; padding: 12px 14px 8px; font-size: 16px; font-weight: 700">දායකයන් (2)</h2>
+      <sc-for list="{{people}}" as="p" hint-placeholder-count="2">
+        <div style="padding: 12px 14px; border-top: 1px solid #F0EBE4">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <span style="width: 40px; height: 40px; border-radius: 20px; background: #F3EEE7; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #57504A; flex-shrink: 0">{{p.initial}}</span>
+            <a href="ContributorDetail.dc.html" style="flex: 1; min-width: 0; text-decoration: none; color: inherit">
+              <span style="display: block; font-size: 16px; font-weight: 600">{{p.name}}</span>
+              <span style="display: block; font-size: 14px; color: #6B625A">{{p.qty}}</span>
+            </a>
+            <a href="tel:0771234567" aria-label="{{p.name}} අමතන්න" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCD4C9; display: flex; align-items: center; justify-content: center; color: #2A2420">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg>
+            </a>
+            <a href="#" aria-label="{{p.name}}ට WhatsApp පණිවිඩයක්" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCD4C9; display: flex; align-items: center; justify-content: center; color: #2A2420">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"></path></svg>
+            </a>
+          </div>
+          <div role="group" aria-label="{{p.name}} ගේ තත්ත්වය" style="margin-top: 10px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+            <sc-for list="{{p.opts}}" as="o" hint-placeholder-count="3">
+              <button type="button" onClick="{{o.pick}}" aria-pressed="{{o.on}}" style="height: 44px; border-radius: 10px; font-family: inherit; font-size: 13px; font-weight: 600; border: 1.5px solid {{o.bd}}; background: {{o.bg}}; color: {{o.fg}}">{{o.label}}</button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+      <a href="AssignSheet.dc.html" style="display: flex; align-items: center; gap: 8px; height: 50px; padding: 0 14px; border-top: 1px solid #F0EBE4; font-size: 15px; font-weight: 600; text-decoration: none">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+        තවත් දායකයෙක් එක් කරන්න
+      </a>
+    </section>
+
+    <section style="background: #FFFFFF; border: 1px solid #E7E1D8; border-radius: 14px; padding: 12px 14px">
+      <h2 style="margin: 0 0 6px; font-size: 16px; font-weight: 700">සූදානම් කිරීමේ සටහන්</h2>
+      <p style="margin: 0; font-size: 15px; color: #3F3833">ලුණු අඩුවෙන්. පෙ.ව. 10.30ට පෙර අසපුවට ගෙන එන්න. බත් භාජන අසපුවෙන් ලබා දේ.</p>
+    </section>
+
+    <section style="background: #FFFFFF; border: 1px solid #E7E1D8; border-radius: 14px; overflow: hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px 8px">
+        <h2 style="margin: 0; font-size: 16px; font-weight: 700">මුදල්</h2>
+        <span style="font-size: 13px; color: #6B625A">අවශ්‍ය නම් පමණක්</span>
+      </div>
+      <div style="padding: 10px 14px; border-top: 1px solid #F0EBE4; display: flex; gap: 10px; align-items: flex-start">
+        <div style="flex: 1">
+          <div style="font-size: 15px; font-weight: 600">සුනිල් ජයසිංහට ලබා දුන්නා</div>
+          <div style="font-size: 13px; color: #6B625A">ඔක්. 30 · බැංකු මාරුව · සහල් මිලදී ගැනීමට</div>
+          <div style="margin-top: 4px; display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: #1E4A85">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 11.5 12.5 20a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"></path></svg>
+            මාරු රිසිට්පත
+          </div>
+        </div>
+        <b style="font-size: 16px">රු. 2,500</b>
+      </div>
+      <a href="Money.dc.html" style="display: flex; align-items: center; gap: 8px; height: 50px; padding: 0 14px; border-top: 1px solid #F0EBE4; font-size: 15px; font-weight: 600; text-decoration: none">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+        ගෙවීමක් හෝ වියදමක් එක් කරන්න
+      </a>
+    </section>
+
+    <section style="background: #FFFFFF; border: 1px solid #E7E1D8; border-radius: 14px; padding: 12px 14px">
+      <h2 style="margin: 0 0 10px; font-size: 16px; font-weight: 700">ලේඛන (2)</h2>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+        <div style="aspect-ratio: 1; border-radius: 10px; background: #EDE6DC; display: flex; flex-direction: column; justify-content: flex-end; padding: 6px; box-sizing: border-box; font-size: 12px; color: #3F3833">[රිසිට්පත් රූපය]</div>
+        <div style="aspect-ratio: 1; border-radius: 10px; background: #F3EEE7; border: 1px solid #E7E1D8; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; box-sizing: border-box; font-size: 12px; color: #3F3833">
+          <span style="font-weight: 700; color: #A0410A">PDF</span>සහල් බිල්පත</div>
+        <button type="button" style="aspect-ratio: 1; border-radius: 10px; border: 1.5px dashed #B5AA9D; background: transparent; font-family: inherit; font-size: 13px; color: #57504A; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"></path></svg>
+          උඩුගත කරන්න
+        </button>
+      </div>
+    </section>
+
+    <button type="button" style="height: 48px; border: 0; background: transparent; font-family: inherit; font-size: 15px; font-weight: 600; color: #A3261B">Item මකා දමන්න</button>
+  </div>
+
+  <sc-if value="{{saved}}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position: absolute; left: 16px; right: 16px; bottom: 24px; padding: 14px 16px; border-radius: 12px; background: #2A2420; color: #FFFFFF; font-size: 15px; display: flex; align-items: center; gap: 10px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9FD9B0" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg>
+      {{savedMsg}}
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1400}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { kamala: 'ok', sunil: 'pending', saved: '' }; }
+  renderVals() {
+    const s = this.state;
+    const ON = { pending: ['#FDF0D5', '#7A4A00', '#D9A441'], ok: ['#E2F0E6', '#1C5E33', '#2E7D4A'], recv: ['#E3ECF8', '#1E4A85', '#1E4A85'] };
+    const LBL = { pending: 'තහවුරු කර නැත', ok: 'තහවුරුයි', recv: 'ලැබී ඇත' };
+    const person = (key, name, kg) => ({
+      name: name, initial: name.charAt(0), qty: 'කි.ග්‍රෑ. ' + kg,
+      opts: ['pending', 'ok', 'recv'].map((k) => {
+        const on = s[key] === k;
+        return { label: LBL[k], on: on ? 'true' : 'false', bg: on ? ON[k][0] : '#FFFFFF', fg: on ? ON[k][1] : '#57504A', bd: on ? ON[k][2] : '#DCD4C9',
+          pick: () => this.setState({ [key]: k, saved: name + ' — ' + LBL[k] + ' ලෙස සුරැකිණි' }) };
+      })
+    });
+    const firm = (v) => v === 'ok' || v === 'recv';
+    const covered = (firm(s.kamala) ? 2 : 0) + (firm(s.sunil) ? 1 : 0);
+    const both = firm(s.kamala) && firm(s.sunil);
+    const allRecv = s.kamala === 'recv' && s.sunil === 'recv';
+    const item = allRecv ? { label: 'ලැබී ඇත', sym: '✓✓', bg: '#E3ECF8', fg: '#1E4A85', bd: '#AFC6E6' }
+      : both ? { label: 'තහවුරුයි', sym: '✓', bg: '#E2F0E6', fg: '#1C5E33', bd: '#A9D3B5' }
+      : covered > 0 ? { label: 'අර්ධ වශයෙන් තහවුරුයි', sym: '◑', bg: '#FDF0D5', fg: '#7A4A00', bd: '#EBC27A' }
+      : { label: 'තහවුරු කර නැත', sym: '◔', bg: '#FDF0D5', fg: '#7A4A00', bd: '#EBC27A' };
+    return {
+      people: [person('kamala', 'කමලා රත්නායක', 2), person('sunil', 'සුනිල් ජයසිංහ', 1)],
+      item: item, covered: covered, coverPct: Math.round(covered / 3 * 100), coverBar: covered === 3 ? '#2E7D4A' : '#B04E0A', short: covered < 3, remaining: 3 - covered,
+      saved: !!s.saved, savedMsg: s.saved
+    };
+  }
+}
+</script>
+</body>
+</html>
