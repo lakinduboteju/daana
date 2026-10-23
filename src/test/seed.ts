@@ -56,6 +56,8 @@ type SeedEventOptions = {
   monastery?: string
   monkCount?: number
   laypersonCount?: number
+  /** The event's categories, in order. None by default. */
+  categories?: string[]
 }
 
 /** Adds an event (and a new monastery for it) to a household. Returns the event's id. */
@@ -81,6 +83,13 @@ export async function seedEvent(householdId: string, options: SeedEventOptions):
     .select('id')
     .single()
   if (error) throw error
+
+  if (options.categories?.length) {
+    const { error: categoryError } = await admin
+      .from('category')
+      .insert(options.categories.map((name, i) => ({ event_id: event.id, name, position: i + 1 })))
+    if (categoryError) throw categoryError
+  }
   return event.id
 }
 
@@ -89,4 +98,39 @@ export function colomboDate(offsetDays = 0): string {
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Colombo' }).format(new Date())
   const [year, month, day] = today.split('-').map(Number)
   return new Date(Date.UTC(year, month - 1, day + offsetDays)).toISOString().slice(0, 10)
+}
+
+type SeedItemOptions = {
+  name: string
+  requiredQuantity?: number | null
+  unit?: 'kg' | 'l' | 'pieces' | 'other'
+  customUnit?: string | null
+  notes?: string | null
+}
+
+/** Adds an item to the event's category with this name. Returns the item's id. */
+export async function seedItem(eventId: string, categoryName: string, options: SeedItemOptions): Promise<string> {
+  const { data: category, error: categoryError } = await admin
+    .from('category')
+    .select('id')
+    .eq('event_id', eventId)
+    .eq('name', categoryName)
+    .single()
+  if (categoryError) throw categoryError
+
+  const { data: item, error } = await admin
+    .from('item')
+    .insert({
+      event_id: eventId,
+      category_id: category.id,
+      name: options.name,
+      required_quantity: options.requiredQuantity ?? null,
+      unit: options.unit ?? 'pieces',
+      custom_unit: options.customUnit ?? null,
+      notes: options.notes ?? null,
+    })
+    .select('id')
+    .single()
+  if (error) throw error
+  return item.id
 }

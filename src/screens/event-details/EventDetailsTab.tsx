@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import { BackHeader } from '../../components/BackHeader'
 import { useToast } from '../../components/useToast'
 import {
   useEventDetails,
@@ -11,32 +10,20 @@ import {
 } from '../../data/events'
 import { EventForm } from '../event-form/EventForm'
 import { eventFormValues } from '../event-form/eventFormValues'
-import formStyles from '../event-form/EventFormScreen.module.css'
-import { NotFoundScreen } from '../not-found/NotFoundScreen'
 import { DeleteEventDialog } from './DeleteEventDialog'
-import styles from './EventDetailsScreen.module.css'
+import styles from './EventDetailsTab.module.css'
 
 /**
- * /events/:eventId/edit on its own, with a back header. When the event screen
- * gets its tabs, `EventDetailsTab` is the "විස්තර" tab's content.
+ * /events/:eventId/edit, the "විස්තර" tab: the event form prefilled with this
+ * event's details, plus cancel and delete. The event screen shows not found.
  */
-export function EventDetailsScreen() {
+export function EventDetailsTab() {
   const { eventId = '' } = useParams()
-  return (
-    <main className={formStyles.screen}>
-      <BackHeader title="දානයේ විස්තර" backTo={`/events/${eventId}`} />
-      <EventDetailsTab eventId={eventId} />
-    </main>
-  )
-}
-
-/** The event form prefilled with this event's details, plus cancel and delete. */
-export function EventDetailsTab({ eventId }: { eventId: string }) {
   const event = useEventDetails(eventId)
 
   if (event.isPending) return <p className={styles.status}>…</p>
   if (event.isError) return <p role="alert" className={styles.status}>පූරණය කිරීමට නොහැකි විය</p>
-  if (!event.data) return <NotFoundScreen />
+  if (!event.data) return null
   // Keyed by id so another event's details never start from this one's.
   return <EditEvent key={event.data.id} event={event.data} />
 }

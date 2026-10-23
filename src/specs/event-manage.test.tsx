@@ -53,7 +53,7 @@ describe('editing an event', () => {
     const { user } = await renderApp(`/events/${eventId}/edit`, { signedInAs: organizer })
 
     await user.type(await screen.findByLabelText(/දානය භාරගත් අය/), ' සහ දරුවන්')
-    await user.click(screen.getByRole('link', { name: 'ආපසු' }))
+    await user.click(screen.getByRole('link', { name: 'මෙනුව' }))
     const prompt = await screen.findByRole('dialog', { name: 'වෙනස්කම් ඉවත දමන්නද?' })
     expect(currentPath()).toBe(`/events/${eventId}/edit`)
 
@@ -70,7 +70,7 @@ describe('editing an event', () => {
     await user.type(screen.getByLabelText(/දානය භාරගත් අය/), ' සහ දරුවන්')
     await user.click(screen.getByRole('button', { name: 'සුරකින්න' }))
     await screen.findByRole('status')
-    await user.click(screen.getByRole('link', { name: 'ආපසු' }))
+    await user.click(screen.getByRole('link', { name: 'මෙනුව' }))
     expect(currentPath()).toBe(`/events/${eventId}`)
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
