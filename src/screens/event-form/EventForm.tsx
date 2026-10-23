@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { UnsavedChangesGuard } from '../../components/UnsavedChangesGuard'
 import type { EventFields } from '../../data/events'
@@ -16,10 +16,12 @@ type Props = {
   onSave: (fields: EventFields) => Promise<string | void>
   /** Disables saving, e.g. while the household is still loading. */
   disabled?: boolean
+  /** Shown below the fields, e.g. the edit form's cancel and delete actions. */
+  children?: ReactNode
 }
 
 /** The create and edit event form (same fields, same layout). */
-export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled }: Props) {
+export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled, children }: Props) {
   const navigate = useNavigate()
   const monasteries = useRecentMonasteries()
   const [values, setValues] = useState(initial)
@@ -168,6 +170,8 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled }: 
       </details>
 
       {error && <p role="alert" className={styles.error}>{error}</p>}
+
+      {children}
 
       <div className={styles.actions}>
         <Link to={cancelTo} className={styles.cancel}>අවලංගු</Link>

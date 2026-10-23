@@ -1,7 +1,7 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
-import { seedEvent, seedHousehold } from '../test/seed'
+import { colomboDate, seedEvent, seedHousehold } from '../test/seed'
 
 function goTo(path: string) {
   window.history.pushState(null, '', `${import.meta.env.BASE_URL.replace(/\/$/, '')}${path}`)
@@ -73,6 +73,43 @@ describe('editing an event', () => {
     await user.click(screen.getByRole('link', { name: 'ආපසු' }))
     expect(currentPath()).toBe(`/events/${eventId}`)
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('cancels an event, marks it cancelled on its card and screen, and undoes the cancellation', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: colomboDate(4), host: 'බොතේජු පවුල' })
+    const { user } = await renderApp(`/events/${eventId}/edit`, { signedInAs: organizer })
+
+    await user.click(await screen.findByRole('button', { name: 'දානය අවලංගු කරන්න' }))
+    expect(await screen.findByRole('status')).toHaveTextContent('දානය අවලංගු කළා')
+    expect(await screen.findByRole('button', { name: 'අවලංගු කිරීම ඉවත් කරන්න' })).toBeInTheDocument()
+
+    goTo(`/events/${eventId}`)
+    expect(await screen.findByText('අවලංගුයි')).toBeInTheDocument()
+
+    goTo('/events')
+    const upcoming = await screen.findByRole('region', { name: 'ඉදිරි දාන' })
+    expect(within(upcoming).getByRole('link', { name: /බොතේජු පවුල/ })).toHaveTextContent('අවලංගුයි')
+
+    goTo(`/events/${eventId}/edit`)
+    await user.click(await screen.findByRole('button', { name: 'අවලංගු කිරීම ඉවත් කරන්න' }))
+    expect(await screen.findByRole('button', { name: 'දානය අවලංගු කරන්න' })).toBeInTheDocument()
+
+    goTo('/events')
+    const card = within(await screen.findByRole('region', { name: 'ඉදිරි දාන' })).getByRole('link', { name: /බොතේජු පවුල/ })
+    await waitFor(() => expect(card).not.toHaveTextContent('අවලංගුයි'))
+  })
+
+  it('marks a cancelled past event in the past list', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: colomboDate(-4), host: 'බොතේජු පවුල' })
+    const { user } = await renderApp(`/events/${eventId}/edit`, { signedInAs: organizer })
+    await user.click(await screen.findByRole('button', { name: 'දානය අවලංගු කරන්න' }))
+    await screen.findByRole('button', { name: 'අවලංගු කිරීම ඉවත් කරන්න' })
+
+    goTo('/events')
+    const past = await screen.findByRole('region', { name: 'පසුගිය දාන' })
+    expect(within(past).getByRole('link', { name: /බොතේජු පවුල/ })).toHaveTextContent('අවලංගුයි')
   })
 
   it('asks before leaving a half-filled new event', async () => {

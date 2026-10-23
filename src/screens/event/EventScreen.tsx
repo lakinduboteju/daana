@@ -1,5 +1,6 @@
 import { useParams } from 'react-router'
 import { BackHeader } from '../../components/BackHeader'
+import { CancelledBadge } from '../../components/CancelledBadge'
 import { useEventSummary } from '../../data/events'
 import { MEAL_LABEL } from '../../data/meal'
 import { formatDayMonth, formatWeekday } from '../../lib/dates'
@@ -25,6 +26,7 @@ export function EventScreen() {
       <div className={styles.body}>
         <p className={styles.date}>{formatDayMonth(e.date)} · {formatWeekday(e.date)}</p>
         {e.host && <p className={styles.host}>{e.host}</p>}
+        {e.cancelled_at && <CancelledBadge />}
       </div>
     </main>
   )

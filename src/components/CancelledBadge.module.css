@@ -1,0 +1,13 @@
+.badge {
+  display: inline-block;
+  flex: none;
+  align-self: flex-start;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px dashed var(--color-border-strong);
+  background: var(--status-unassigned-bg);
+  color: var(--status-unassigned-fg);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}

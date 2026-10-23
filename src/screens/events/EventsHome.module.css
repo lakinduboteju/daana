@@ -122,6 +122,13 @@
   border-color: var(--color-border-strong);
 }
 
+.cardTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
 .meal {
   font-size: 13px;
   font-weight: 600;

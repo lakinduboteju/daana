@@ -1,0 +1,49 @@
+.status {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.manage {
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.note {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--status-unassigned-bg);
+  color: var(--status-unassigned-fg);
+  font-size: 14px;
+}
+
+.action,
+.delete {
+  min-height: 50px;
+  border-radius: 14px;
+  background: var(--color-surface);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.action {
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text);
+}
+
+.delete {
+  border: 1px solid var(--color-error-fg);
+  color: var(--color-error-fg);
+}
+
+.action:disabled,
+.delete:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

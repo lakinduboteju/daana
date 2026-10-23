@@ -170,6 +170,21 @@ export function useUpdateEvent() {
   })
 }
 
+/** Cancels an event (keeping everything in it) or undoes the cancellation. */
+export function useSetEventCancelled() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ eventId, cancelled }: { eventId: string; cancelled: boolean }) => {
+      const { error } = await supabase
+        .from('event')
+        .update({ cancelled_at: cancelled ? new Date().toISOString() : null })
+        .eq('id', eventId)
+      if (error) throw error
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }),
+  })
+}
+
 function blankToNull(value: string): string | null {
   return value.trim() || null
 }
