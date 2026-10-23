@@ -100,22 +100,6 @@
   color: var(--color-text-muted);
 }
 
-.contact {
-  width: var(--touch-target);
-  height: var(--touch-target);
-  border-radius: 22px;
-  border: 1px solid var(--color-border-strong);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text);
-  flex-shrink: 0;
-}
-
-.contact:hover {
-  color: var(--color-accent);
-}
-
 .fab {
   position: fixed;
   right: max(16px, calc((100vw - var(--content-max-width)) / 2 + 16px));

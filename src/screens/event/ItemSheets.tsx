@@ -1,5 +1,5 @@
 import { useId, useState, type FormEvent } from 'react'
-import { useParams, useSearchParams } from 'react-router'
+import { useNavigate, useParams, useSearchParams } from 'react-router'
 import { Sheet } from '../../components/Sheet'
 import { useCloseSheet } from '../../components/sheetNavigation'
 import { findItem, useAddItem, useDeleteItem, useMenu, useUpdateItem, type Category, type ItemFields, type Unit } from '../../data/menu'
@@ -36,7 +36,7 @@ export function AddItemSheet() {
   )
 }
 
-/** /events/:eventId/items/:itemId/edit: edit an item (or move it to another category), over the menu. */
+/** /events/:eventId/items/:itemId/edit: edit an item (or move it to another category), over its details. */
 export function EditItemSheet() {
   const { eventId = '', itemId = '' } = useParams()
   const menu = useMenu(eventId)
@@ -44,7 +44,15 @@ export function EditItemSheet() {
   const deleteItem = useDeleteItem(eventId)
   const [confirming, setConfirming] = useState(false)
   const confirmTitleId = useId()
-  const close = useCloseSheet(`/events/${eventId}`)
+  const close = useCloseSheet(`/events/${eventId}/items/${itemId}`)
+  const navigate = useNavigate()
+  // A deleted item has no details to go back to, so it's back to the menu.
+  // mutateAsync, because the sheet unmounts once the menu no longer has the item.
+  const remove = () =>
+    deleteItem.mutateAsync(itemId).then(
+      () => navigate(`/events/${eventId}`, { replace: true }),
+      () => {},
+    )
   const item = menu.data ? findItem(menu.data, itemId) : null
 
   return (
@@ -83,7 +91,7 @@ export function EditItemSheet() {
                   type="button"
                   className={styles.dangerSolid}
                   disabled={deleteItem.isPending}
-                  onClick={() => deleteItem.mutate(item.id, { onSuccess: close })}
+                  onClick={() => void remove()}
                 >
                   ඔව්, මකන්න
                 </button>

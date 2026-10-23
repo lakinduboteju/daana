@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, Outlet, useParams } from 'react-router'
 import { OVER_PARENT } from '../../components/sheetNavigation'
+import { StatusBadge } from '../../components/StatusBadge'
 import { useMenu, type Category, type Item } from '../../data/menu'
 import { formatQuantity } from '../../data/units'
 import styles from './MenuTab.module.css'
@@ -54,9 +55,13 @@ function CategorySection({ category }: { category: Category }) {
       </button>
       {open && (
         <div id={bodyId}>
-          {category.items.map((item) => (
-            <ItemRow key={item.id} item={item} />
-          ))}
+          {category.items.length > 0 && (
+            <ul className={styles.items}>
+              {category.items.map((item) => (
+                <ItemRow key={item.id} item={item} />
+              ))}
+            </ul>
+          )}
           <Link to={`items/new?category=${category.id}`} state={OVER_PARENT} className={styles.addRow}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
             Item එකක් එක් කරන්න
@@ -67,14 +72,32 @@ function CategorySection({ category }: { category: Category }) {
   )
 }
 
+/** Name, who's bringing it and how much, and the item status. Unassigned items get a "පවරන්න" button. */
 function ItemRow({ item }: { item: Item }) {
   const quantity = formatQuantity(item)
+  const unassigned = item.assignments.length === 0
   return (
-    <Link to={`items/${item.id}/edit`} state={OVER_PARENT} className={styles.item}>
-      <span className={styles.itemName}>{item.name}</span>
-      <span className={styles.itemSub}>
-        {quantity ? `${quantity} · ` : ''}දායකයෙකු තවම නැත
-      </span>
-    </Link>
+    <li className={styles.item}>
+      <Link to={`items/${item.id}`} className={styles.itemLink}>
+        <span className={styles.itemName}>{item.name}</span>
+        <span className={unassigned ? styles.itemSubMissing : styles.itemSub}>
+          {unassigned ? 'දායකයෙකු තවම නැත' : contributorNames(item)}
+          {quantity && ` · ${quantity}`}
+        </span>
+        <StatusBadge status={item.status} className={styles.badge} />
+      </Link>
+      {unassigned && (
+        <Link to={`items/${item.id}/assign`} state={OVER_PARENT} className={styles.assign}>
+          පවරන්න
+        </Link>
+      )}
+    </li>
   )
+}
+
+/** One contributor by full name; several by first names. */
+function contributorNames(item: Item): string {
+  const names = item.assignments.map((a) => a.contributor.name)
+  if (names.length === 1) return names[0]
+  return names.map((n) => n.split(' ')[0]).join(', ')
 }

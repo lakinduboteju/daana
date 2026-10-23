@@ -1,9 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
+import type { AssignmentStatus, ItemStatus } from './status'
 
 export type Unit = 'kg' | 'l' | 'pieces' | 'other'
 
-export type Item = {
+/** One contributor's part of an item. */
+export type Assignment = {
+  id: string
+  item_id: string
+  quantity: number | null
+  status: AssignmentStatus
+  contributor: {
+    id: string
+    name: string
+    phone: string | null
+    whatsapp: string | null
+  }
+}
+
+type ItemRow = {
   id: string
   category_id: string
   name: string
@@ -13,6 +28,17 @@ export type Item = {
   notes: string | null
 }
 
+export type Item = ItemRow & {
+  /** From the database's item_status view. */
+  status: ItemStatus
+  /** Sum of the confirmed and received quantities. */
+  confirmed_quantity: number
+  /** Required minus confirmed quantity, or null when either isn't known. */
+  shortfall: number | null
+  /** Oldest first. */
+  assignments: Assignment[]
+}
+
 export type Category = {
   id: string
   name: string
@@ -20,22 +46,53 @@ export type Category = {
 }
 
 const ITEM_COLUMNS = 'id, category_id, name, required_quantity, unit, custom_unit, notes'
+const ASSIGNMENT_COLUMNS = 'id, item_id, quantity, status, contributor(id, name, phone, whatsapp)'
 
-/** The event's categories in order, each with its items. */
+type StatusRow = { item_id: string; status: ItemStatus; confirmed_quantity: number; shortfall: number | null }
+
+export function menuKey(eventId: string) {
+  return ['events', eventId, 'menu']
+}
+
+/** The event's categories in order, each with its items, their statuses and assignments. */
 export function useMenu(eventId: string) {
   return useQuery({
-    queryKey: ['events', eventId, 'menu'],
+    queryKey: menuKey(eventId),
     queryFn: async (): Promise<Category[]> => {
-      const { data, error } = await supabase
-        .from('category')
-        .select(`id, name, items:item(${ITEM_COLUMNS})`)
-        .eq('event_id', eventId)
-        .order('position')
-        .order('created_at')
-        .order('position', { referencedTable: 'item' })
-        .order('created_at', { referencedTable: 'item' })
-      if (error) throw error
-      return data as Category[]
+      const [categories, statuses, assignments] = await Promise.all([
+        supabase
+          .from('category')
+          .select(`id, name, items:item(${ITEM_COLUMNS})`)
+          .eq('event_id', eventId)
+          .order('position')
+          .order('created_at')
+          .order('position', { referencedTable: 'item' })
+          .order('created_at', { referencedTable: 'item' }),
+        supabase.from('item_status').select('item_id, status, confirmed_quantity, shortfall').eq('event_id', eventId),
+        supabase.from('assignment').select(ASSIGNMENT_COLUMNS).eq('event_id', eventId).order('created_at'),
+      ])
+      if (categories.error) throw categories.error
+      if (statuses.error) throw statuses.error
+      if (assignments.error) throw assignments.error
+
+      const statusOf = new Map((statuses.data as StatusRow[]).map((s) => [s.item_id, s]))
+      const assignmentsOf = new Map<string, Assignment[]>()
+      for (const a of assignments.data as unknown as Assignment[]) {
+        assignmentsOf.set(a.item_id, [...(assignmentsOf.get(a.item_id) ?? []), a])
+      }
+      return (categories.data as { id: string; name: string; items: ItemRow[] }[]).map((category) => ({
+        ...category,
+        items: category.items.map((item) => {
+          const status = statusOf.get(item.id)
+          return {
+            ...item,
+            status: status?.status ?? 'unassigned',
+            confirmed_quantity: status?.confirmed_quantity ?? 0,
+            shortfall: status?.shortfall ?? null,
+            assignments: assignmentsOf.get(item.id) ?? [],
+          }
+        }),
+      }))
     },
   })
 }

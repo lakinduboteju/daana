@@ -3,6 +3,9 @@ import { RequireAuth } from './auth/RequireAuth'
 import { ContributorEditScreen } from './screens/contributors/ContributorEditScreen'
 import { ContributorNewScreen } from './screens/contributors/ContributorNewScreen'
 import { ContributorsScreen } from './screens/contributors/ContributorsScreen'
+import { AssignSheet } from './screens/item/AssignSheet'
+import { EditAssignmentSheet } from './screens/item/EditAssignmentSheet'
+import { ItemDetailScreen } from './screens/item/ItemDetailScreen'
 import { EventScreen } from './screens/event/EventScreen'
 import { AddItemSheet, EditItemSheet } from './screens/event/ItemSheets'
 import { MenuTab } from './screens/event/MenuTab'
@@ -42,7 +45,16 @@ export const routes: RouteObject[] = [
             element: <MenuTab />,
             children: [
               { path: 'items/new', element: <AddItemSheet /> },
-              { path: 'items/:itemId/edit', element: <EditItemSheet /> },
+              {
+                // Item details cover the menu, which stays mounted; its sheets open over it.
+                path: 'items/:itemId',
+                element: <ItemDetailScreen />,
+                children: [
+                  { path: 'edit', element: <EditItemSheet /> },
+                  { path: 'assign', element: <AssignSheet /> },
+                  { path: 'assignments/:assignmentId', element: <EditAssignmentSheet /> },
+                ],
+              },
             ],
           },
           { path: 'money', element: <TabPlaceholder title="මුදල් හා ලේඛන" /> },

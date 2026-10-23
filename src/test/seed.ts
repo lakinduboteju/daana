@@ -134,3 +134,58 @@ export async function seedItem(eventId: string, categoryName: string, options: S
   if (error) throw error
   return item.id
 }
+
+type SeedContributorOptions = {
+  phone?: string | null
+  whatsapp?: string | null
+  archived?: boolean
+}
+
+/** Adds a contributor to a household. Returns the contributor's id. */
+export async function seedContributor(
+  householdId: string,
+  name: string,
+  options: SeedContributorOptions = {},
+): Promise<string> {
+  const { data, error } = await admin
+    .from('contributor')
+    .insert({
+      household_id: householdId,
+      name,
+      phone: options.phone ?? null,
+      whatsapp: options.whatsapp ?? null,
+      archived_at: options.archived ? new Date().toISOString() : null,
+    })
+    .select('id')
+    .single()
+  if (error) throw error
+  return data.id
+}
+
+type SeedAssignmentOptions = {
+  quantity?: number | null
+  status?: 'pending' | 'confirmed' | 'received'
+}
+
+/** Assigns a contributor to an item. Returns the assignment's id. */
+export async function seedAssignment(
+  itemId: string,
+  contributorId: string,
+  options: SeedAssignmentOptions = {},
+): Promise<string> {
+  const { data: item, error: itemError } = await admin.from('item').select('event_id').eq('id', itemId).single()
+  if (itemError) throw itemError
+  const { data, error } = await admin
+    .from('assignment')
+    .insert({
+      event_id: item.event_id,
+      item_id: itemId,
+      contributor_id: contributorId,
+      quantity: options.quantity ?? null,
+      status: options.status ?? 'pending',
+    })
+    .select('id')
+    .single()
+  if (error) throw error
+  return data.id
+}

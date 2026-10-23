@@ -1,0 +1,79 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.label {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.statusOptions {
+  display: flex;
+  gap: 6px;
+}
+
+.statusOption {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--touch-target);
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border: 1px solid #dcd4c9;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--status-unassigned-fg);
+  cursor: pointer;
+}
+
+.statusOption:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.statusLabel {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.statusHint {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.pending {
+  background: var(--status-pending-bg);
+  color: var(--status-pending-fg);
+  border-color: #d9a441;
+}
+
+.confirmed {
+  background: var(--status-confirmed-bg);
+  color: var(--status-confirmed-fg);
+  border-color: #2e7d4a;
+}
+
+.received {
+  background: var(--status-received-bg);
+  color: var(--status-received-fg);
+  border-color: #1e4a85;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

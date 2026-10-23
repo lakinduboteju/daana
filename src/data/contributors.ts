@@ -52,23 +52,55 @@ export function useContributor(contributorId: string) {
   })
 }
 
-/** Adds a contributor to the organizer's household. */
+/** Adds a contributor to the organizer's household. Resolves to the new contributor. */
 export function useAddContributor() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (input: ContributorInput) => {
-      const { data: household, error: householdError } = await supabase
-        .from('household')
-        .select('id')
-        .limit(1)
-        .single()
-      if (householdError) throw householdError
-      const { error } = await supabase
-        .from('contributor')
-        .insert({ ...input, household_id: household.id })
-      if (error) throw error
-    },
+    mutationFn: (input: ContributorInput) => addContributor(input),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['contributors'] }),
+  })
+}
+
+export async function addContributor(input: ContributorInput): Promise<Contributor> {
+  const { data: household, error: householdError } = await supabase
+    .from('household')
+    .select('id')
+    .limit(1)
+    .single()
+  if (householdError) throw householdError
+  const { data, error } = await supabase
+    .from('contributor')
+    .insert({ ...input, household_id: household.id })
+    .select(COLUMNS)
+    .single()
+  if (error) throw error
+  return data
+}
+
+/**
+ * Active contributors most recently assigned to anything, newest first, with
+ * what they were last assigned. For the assign sheet's "recent" list.
+ */
+export function useRecentContributors() {
+  return useQuery({
+    queryKey: ['contributors', 'recent'],
+    queryFn: async (): Promise<(Contributor & { lastItem: string })[]> => {
+      const { data, error } = await supabase
+        .from('assignment')
+        .select(`created_at, item(name), contributor!inner(${COLUMNS}, archived_at)`)
+        .is('contributor.archived_at', null)
+        .order('created_at', { ascending: false })
+        .limit(50)
+      if (error) throw error
+      const rows = data as unknown as { item: { name: string }; contributor: Contributor }[]
+      const seen = new Map<string, Contributor & { lastItem: string }>()
+      for (const row of rows) {
+        if (seen.has(row.contributor.id)) continue
+        const { id, name, phone, whatsapp, notes } = row.contributor
+        seen.set(id, { id, name, phone, whatsapp, notes, lastItem: row.item.name })
+      }
+      return [...seen.values()].slice(0, 5)
+    },
   })
 }
 
