@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router'
 import { BackHeader } from '../../components/BackHeader'
+import { AttentionBox } from '../../components/AttentionBox'
 import { CancelledBadge } from '../../components/CancelledBadge'
 import { StackedProgress } from '../../components/Progress'
 import type { EventSummary } from '../../data/events'
@@ -38,6 +39,7 @@ export function EventHeader({ event }: { event: EventSummary }) {
             <StackedProgress progress={event} />
           </div>
         )}
+        <AttentionBox progress={event} />
       </section>
       <nav aria-label="දාන කොටස්" className={styles.tabs}>
         <NavLink to={base} end className={tabClass}>මෙනුව</NavLink>

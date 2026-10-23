@@ -41,4 +41,16 @@ describe('event progress', () => {
       'සූදානම: ලැබී ඇත 1, තහවුරුයි 2, අර්ධ වශයෙන් තහවුරුයි 1, තහවුරු කර නැත 1, පවරා නැත 2',
     )
   })
+
+  it('an upcoming event lists what needs attention, with short items on a softer line', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: colomboDate(0), categories: ['බත්', 'ව්‍යංජන'] })
+    await seedMixedMenu(householdId, eventId)
+    await renderApp(`/events/${eventId}`, { signedInAs: organizer })
+
+    const attention = await screen.findByRole('region', { name: 'අවධානය අවශ්‍යයි' })
+    expect(attention).toHaveTextContent('අයිතම 2කට දායකයන් නැත')
+    expect(attention).toHaveTextContent('1ක් තවම තහවුරු කර නැත')
+    expect(within(attention).getByText('අයිතම 1ක් අර්ධ වශයෙන් පමණක් තහවුරුයි')).toBeInTheDocument()
+  })
 })
