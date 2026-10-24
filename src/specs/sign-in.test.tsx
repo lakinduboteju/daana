@@ -57,6 +57,23 @@ describe('signing in', () => {
     expect(screen.queryByRole('heading', { name: 'දාන' })).not.toBeInTheDocument()
   })
 
+  it('hides the password again when the organizer presses Hide password', async () => {
+    const { user } = await renderApp('/login')
+
+    const password = await screen.findByLabelText('Password')
+    await user.type(password, 'secret-pass')
+    await user.click(screen.getByRole('button', { name: 'Show password' }))
+
+    const hide = screen.getByRole('button', { name: 'Hide password' })
+    expect(hide).toHaveAttribute('type', 'button')
+    await user.click(hide)
+
+    expect(password).toHaveAttribute('type', 'password')
+    expect(password).toHaveValue('secret-pass')
+    expect(screen.getByRole('button', { name: 'Show password' })).toBeInTheDocument()
+    expect(currentPath()).toBe('/login')
+  })
+
   it('shows a Sinhala error when the password is wrong', async () => {
     const { organizer } = await seedHousehold()
     const { user } = await renderApp('/login')
