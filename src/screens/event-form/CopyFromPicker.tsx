@@ -41,9 +41,10 @@ function Picker({ onClose }: { onClose: () => void }) {
           {choices.map((event) => (
             <li key={event.id}>
               <Link to={`/events/new?from=${event.id}`} replace className={styles.choice}>
-                <span className={styles.choiceTitle}>{event.host ?? event.monastery_name}</span>
+                <span className={styles.choiceTitle}>{event.monastery_name}</span>
                 <span className={styles.choiceMeta}>
-                  {formatDayMonth(event.date)} · {MEAL_LABEL[event.meal]} · {event.monastery_name}
+                  {formatDayMonth(event.date)} · {MEAL_LABEL[event.meal]}
+                  {event.host && ` · ${event.host}`}
                 </span>
               </Link>
             </li>

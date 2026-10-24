@@ -73,10 +73,8 @@ describe('copying a previous event', () => {
     await user.click(await screen.findByRole('button', { name: /පෙර දානයකින් පිටපත් කරන්න/ }))
     const picker = screen.getByRole('dialog', { name: 'පෙර දානයකින් පිටපත් කරන්න' })
     const choices = await within(picker).findAllByRole('link')
-    expect(choices.map((c) => c.textContent)).toEqual([
-      expect.stringContaining('බොතේජු පවුල'),
-      expect.stringContaining('සිල්වා පවුල'),
-    ])
+    expect(choices[0]).toHaveTextContent(/මාලබේ අසපුව.*දහවල් දානය · බොතේජු පවුල/)
+    expect(choices[1]).toHaveTextContent(/පොල්ගහවෙල අසපුව.*දහවල් දානය · සිල්වා පවුල/)
     await user.click(choices[0])
 
     expect(currentPath()).toBe(`/events/new?from=${eventId}`)
