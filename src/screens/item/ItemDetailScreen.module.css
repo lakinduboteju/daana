@@ -1,0 +1,188 @@
+/* Covers the event screen (the menu stays mounted underneath). */
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  overflow-y: auto;
+  background: var(--color-bg);
+  padding-bottom: calc(32px + env(safe-area-inset-bottom));
+}
+
+.screen > * {
+  max-width: var(--content-max-width);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.loading {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.category {
+  margin: 0 auto;
+  padding: 4px 16px 0;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.card {
+  margin: 12px 16px 0;
+  padding: 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+}
+
+@media (min-width: 512px) {
+  .card {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.coverage {
+  margin-top: 12px;
+}
+
+.coverageText {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 15px;
+}
+
+.coverageCount {
+  font-weight: 600;
+}
+
+.bar {
+  height: 8px;
+  margin-top: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-track);
+  overflow: hidden;
+}
+
+.barFill,
+.barFillDone {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+}
+
+.barFillDone {
+  background: var(--color-ready);
+}
+
+.shortfall {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-warning-fg);
+}
+
+.contributors {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.contributor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-divider);
+}
+
+.contributorHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contributorName {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--touch-target);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: inherit;
+  text-decoration: none;
+}
+
+.name {
+  font-size: 16px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.quantity {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.addContributor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  margin-top: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.notes {
+  margin: 6px 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.edit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin: 16px 16px 0;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+@media (min-width: 512px) {
+  .edit {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.moneyActions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}

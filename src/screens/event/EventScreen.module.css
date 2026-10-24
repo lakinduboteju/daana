@@ -1,0 +1,12 @@
+.screen {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  min-height: 100dvh;
+}
+
+.status {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+

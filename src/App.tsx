@@ -1,19 +1,25 @@
-function App() {
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useState } from 'react'
+import { createBrowserRouter } from 'react-router'
+import { RouterProvider } from 'react-router/dom'
+import { AuthProvider } from './auth/AuthProvider'
+import { ToastProvider } from './components/Toast'
+import { routes } from './routes'
+
+/** The whole app. Each mount gets its own router and query cache. */
+export default function App() {
+  const [queryClient] = useState(() => new QueryClient())
+  const [router] = useState(() =>
+    createBrowserRouter(routes, { basename: import.meta.env.BASE_URL }),
+  )
+
   return (
-    <main
-      style={{
-        maxWidth: 480,
-        margin: '0 auto',
-        padding: '72px 24px',
-        textAlign: 'center',
-      }}
-    >
-      <h1 style={{ margin: 0, fontSize: 32 }}>දාන</h1>
-      <p style={{ color: 'var(--color-text-muted)' }}>
-        දාන සංවිධාන යෙදුම — development in progress
-      </p>
-    </main>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ToastProvider>
+          <RouterProvider router={router} />
+        </ToastProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   )
 }
-
-export default App

@@ -1,0 +1,156 @@
+import { Link, useLocation, useOutlet, useParams } from 'react-router'
+import { ProgressBar } from '../../components/Progress'
+import { OVER_PARENT } from '../../components/sheetNavigation'
+import { StatusBadge } from '../../components/StatusBadge'
+import { useSaveFailed } from '../../components/useToast'
+import { useMenu, useSetCategoryCollapsed, type Category, type Item } from '../../data/menu'
+import { formatQuantity } from '../../data/units'
+import { MenuFilterBar } from './MenuFilterBar'
+import { filterMenu, fromMenu, isFiltered, useMenuFilters } from './menuFilters'
+import styles from './MenuTab.module.css'
+
+/** /events/:eventId: the menu tab. Item sheets open over it through the outlet. */
+export function MenuTab() {
+  const { eventId = '' } = useParams()
+  const menu = useMenu(eventId)
+  const outlet = useOutlet()
+  const menuFilters = useMenuFilters(outlet === null)
+  const filtered = isFiltered(menuFilters.filters)
+  const shown = menu.data ? filterMenu(menu.data, menuFilters.filters) : undefined
+
+  return (
+    <>
+      {menu.data && shown && menu.data.some((c) => c.items.length > 0) && (
+        <MenuFilterBar menu={menu.data} shown={shown.reduce((n, c) => n + c.items.length, 0)} filters={menuFilters} />
+      )}
+      <div className={styles.titleRow}>
+        <h2 className={styles.title}>මෙනුව</h2>
+        <Link to="categories" className={styles.editCategories}>Edit Categories</Link>
+      </div>
+      {menu.isPending && <p className={styles.status}>…</p>}
+      {menu.isError && <p role="alert" className={styles.status}>මෙනුව පූරණය කිරීමට නොහැකි විය</p>}
+      {shown && filtered && shown.length === 0 && <p className={styles.status}>ගැළපෙන Item නැත</p>}
+      {shown && (
+        <div className={styles.categories}>
+          {shown.map((category) => (
+            <CategorySection
+              key={category.id}
+              eventId={eventId}
+              category={category}
+              forceOpen={filtered}
+            />
+          ))}
+        </div>
+      )}
+
+      <Link to="items/new" state={OVER_PARENT} className={styles.fab}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+        Item
+      </Link>
+
+      {outlet}
+    </>
+  )
+}
+
+/**
+ * While the menu is filtered, every shown category is open (forceOpen).
+ * Its progress (from the database) always counts all its items, not just the shown ones.
+ */
+function CategorySection({
+  eventId,
+  category,
+  forceOpen = false,
+}: {
+  eventId: string
+  category: Category
+  forceOpen?: boolean
+}) {
+  const setCollapsed = useSetCategoryCollapsed(eventId)
+  const saveFailed = useSaveFailed()
+  const open = forceOpen || !category.collapsed
+  const toggle = () => {
+    const change = { categoryId: category.id, collapsed: open }
+    const save = () =>
+      setCollapsed.mutate(change, {
+        onError: () => saveFailed(`${category.name} — සුරැකීමට නොහැකි විය`, save),
+      })
+    save()
+  }
+  const nameId = `category-name-${category.id}`
+  const bodyId = `category-body-${category.id}`
+  return (
+    <section aria-labelledby={nameId} className={styles.category}>
+      <button
+        type="button"
+        className={styles.categoryToggle}
+        aria-expanded={open}
+        aria-controls={bodyId}
+        onClick={toggle}
+      >
+        <span id={nameId} className={styles.categoryName}>{category.name}</span>
+        {category.progress.item_count > 0 && <CategoryProgress category={category} />}
+        <svg className={open ? styles.chevronOpen : styles.chevron} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+      </button>
+      {open && (
+        <div id={bodyId}>
+          {category.items.length > 0 && (
+            <ul className={styles.items}>
+              {category.items.map((item) => (
+                <ItemRow key={item.id} item={item} />
+              ))}
+            </ul>
+          )}
+          <Link to={`items/new?category=${category.id}`} state={OVER_PARENT} className={styles.addRow}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+            Item එකක් එක් කරන්න
+          </Link>
+        </div>
+      )}
+    </section>
+  )
+}
+
+/** Ready items (confirmed or received) out of the category's items, as "2/3" and a small bar. */
+function CategoryProgress({ category }: { category: Category }) {
+  const { item_count: total, ready_count: ready } = category.progress
+  return (
+    <>
+      <span className={ready === total ? `${styles.count} ${styles.countDone}` : styles.count}>
+        {ready}/{total}
+      </span>
+      <ProgressBar value={ready} max={total} label={`${category.name} සූදානම`} small />
+    </>
+  )
+}
+
+/** Name, who's bringing it and how much, and the item status. Unassigned items get a "පවරන්න" button. */
+function ItemRow({ item }: { item: Item }) {
+  const quantity = formatQuantity(item)
+  const unassigned = item.assignments.length === 0
+  const { search } = useLocation()
+  return (
+    <li className={styles.item}>
+      <Link to={`items/${item.id}`} state={fromMenu(search)} className={styles.itemLink}>
+        <span className={styles.itemName}>{item.name}</span>
+        <span className={unassigned ? styles.itemSubMissing : styles.itemSub}>
+          {unassigned ? 'දායකයෙකු තවම නැත' : contributorNames(item)}
+          {quantity && ` · ${quantity}`}
+        </span>
+        <StatusBadge status={item.status} className={styles.badge} />
+      </Link>
+      {unassigned && (
+        <Link to={`items/${item.id}/assign`} state={OVER_PARENT} className={styles.assign}>
+          පවරන්න
+        </Link>
+      )}
+    </li>
+  )
+}
+
+/** One contributor by full name; several by first names. */
+function contributorNames(item: Item): string {
+  const names = item.assignments.map((a) => a.contributor.name)
+  if (names.length === 1) return names[0]
+  return names.map((n) => n.split(' ')[0]).join(', ')
+}
