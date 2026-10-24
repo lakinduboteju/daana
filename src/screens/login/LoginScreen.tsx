@@ -51,7 +51,7 @@ export function LoginScreen() {
       <form className={styles.form} onSubmit={handleSubmit}>
         <div className={styles.field}>
           <label htmlFor="username" className={styles.label}>නම</label>
-          <input id="username" name="username" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} placeholder="username" required className={styles.input} />
+          <input id="username" name="username" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} placeholder="Username" required className={styles.input} />
         </div>
         <div className={styles.field}>
           <label htmlFor="password" className={styles.label}>මුරපදය</label>
