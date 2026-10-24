@@ -105,6 +105,42 @@ export function useCreateEvent() {
   })
 }
 
+export type CopiedEvent = NewEvent & { sourceEventId: string }
+
+/**
+ * Creates an event from the form's fields with a copy of another event's menu:
+ * categories, items and contributors, every assignment pending again. Money and
+ * documents aren't copied. Resolves to the new event's id.
+ */
+export function useCopyEvent() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (event: CopiedEvent): Promise<string> => {
+      const monasteryId = await resolveMonastery(event.householdId, event.monastery)
+      const { data, error } = await supabase.rpc('copy_event', {
+        p_source_event_id: event.sourceEventId,
+        p_date: event.date,
+        p_meal: event.meal,
+        p_monastery_id: monasteryId,
+        p_host: event.host,
+        p_monk_count: event.monkCount,
+        p_layperson_count: event.laypersonCount,
+        p_organizer_name: event.organizerName,
+        p_organizer_phone: event.organizerPhone,
+        p_notes: event.notes,
+        p_instructions: event.instructions,
+      })
+      if (error) throw error
+      return data as string
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['events'] })
+      void queryClient.invalidateQueries({ queryKey: ['monasteries'] })
+      void queryClient.invalidateQueries({ queryKey: ['contributors'] })
+    },
+  })
+}
+
 /** Everything the event form shows, for editing. */
 export type EventDetails = {
   id: string

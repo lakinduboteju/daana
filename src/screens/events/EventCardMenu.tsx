@@ -4,7 +4,7 @@ import type { EventSummary } from '../../data/events'
 import { DeleteEventDialog } from '../event-details/DeleteEventDialog'
 import styles from './EventCardMenu.module.css'
 
-/** The ⋮ button on an event card: Edit and Delete (Copy joins them with the copy-event ticket). */
+/** The ⋮ button on an event card: Edit, Copy and Delete. */
 export function EventCardMenu({ event }: { event: EventSummary }) {
   const [open, setOpen] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
@@ -41,6 +41,9 @@ export function EventCardMenu({ event }: { event: EventSummary }) {
         <ul className={styles.menu}>
           <li>
             <Link to={`/events/${event.id}/edit`} className={styles.item}>සංස්කරණය</Link>
+          </li>
+          <li>
+            <Link to={`/events/new?from=${event.id}`} className={styles.item}>පිටපත් කරන්න</Link>
           </li>
           <li>
             <button
