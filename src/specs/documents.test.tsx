@@ -88,6 +88,26 @@ describe('documents', () => {
     expect(within(list).getByRole('button', { name: 'අසපුවේ උපදෙස් — විකල්ප' })).toHaveTextContent('සාමාන්‍ය')
   })
 
+  it("deleting an event deletes its documents' files", async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', host: 'බොතේජු පවුල' })
+    await seedDocument(eventId, { name: 'සහල් බිල්පත' })
+    const { user } = await renderApp(`/events/${eventId}/money`, { signedInAs: organizer })
+
+    await user.click(await screen.findByRole('button', { name: 'සහල් බිල්පත — විකල්ප' }))
+    const sheet = await screen.findByRole('dialog', { name: 'සහල් බිල්පත' })
+    const download = within(sheet).getByRole('link', { name: 'බාගන්න' }).getAttribute('href')!
+    expect((await fetch(download)).ok).toBe(true)
+    await user.click(within(sheet).getByRole('button', { name: 'වසන්න' }))
+
+    await user.click(screen.getByRole('link', { name: 'විස්තර' }))
+    await user.click(await screen.findByRole('button', { name: 'දානය මකන්න' }))
+    await user.click(await screen.findByRole('button', { name: 'ඔව්, මකන්න' }))
+    expect(await screen.findByText('තවම දාන කිසිවක් නැත')).toBeInTheDocument()
+
+    expect((await fetch(download)).ok).toBe(false)
+  })
+
   it('files that are not images or PDFs, or are over 10 MB, are refused with a message', async () => {
     const { householdId, organizer } = await seedHousehold()
     const eventId = await seedEvent(householdId, { date: '2099-11-08' })

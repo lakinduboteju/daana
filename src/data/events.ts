@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
+import { eventDocumentPaths, removeDocumentFiles } from './documents'
 import type { Meal } from './meal'
 import { createMonastery } from './monasteries'
 
@@ -244,8 +245,11 @@ export function useDeleteEvent() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (eventId: string) => {
+      const files = await eventDocumentPaths(eventId)
       const { error } = await supabase.from('event').delete().eq('id', eventId)
       if (error) throw error
+      // The delete cascades to the document records; their files go after.
+      await removeDocumentFiles(files)
     },
     onSuccess: (_, eventId) => {
       queryClient.removeQueries({ queryKey: ['events', eventId] })

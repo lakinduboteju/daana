@@ -77,6 +77,22 @@ export function downloadUrl(doc: EventDocument): string | null {
   return `${doc.url}&download=${encodeURIComponent(`${doc.name}.${extension(doc.mimeType)}`)}`
 }
 
+/** Storage paths of the event's documents. */
+export async function eventDocumentPaths(eventId: string): Promise<string[]> {
+  const { data, error } = await supabase.from('document').select('storage_path').eq('event_id', eventId)
+  if (error) throw error
+  return data.map((d) => d.storage_path as string)
+}
+
+/**
+ * Removes stored files whose records are already gone (e.g. after deleting
+ * their event). Best effort: a leftover file is private and harmless.
+ */
+export async function removeDocumentFiles(paths: string[]): Promise<void> {
+  if (paths.length === 0) return
+  await supabase.storage.from(BUCKET).remove(paths)
+}
+
 export type NewDocument = {
   file: File
   name: string

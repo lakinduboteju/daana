@@ -2,7 +2,8 @@
 --
 -- Files live in the private Storage bucket `documents` at
 -- `<household_id>/<event_id>/<file>`. Storage policies let an organizer read
--- and write only under their own household's events. The `document` table
+-- and delete only under their own household's folder, and upload only into
+-- folders of their own household's events. The `document` table
 -- holds each file's name and what it's linked to.
 
 -- Lets a document link to a transaction in its own event.
@@ -82,10 +83,32 @@ $$;
 revoke execute on function public.is_document_path_member(text) from public, anon;
 grant execute on function public.is_document_path_member(text) to authenticated;
 
-create policy "Members read their events' document files"
+-- True when an object path starts with a household the current organizer
+-- belongs to. Reading and deleting only need this, so an event's files can
+-- still be removed right after the event itself is deleted (Storage reads an
+-- object before deleting it). Uploads must also name one of its events.
+create function public.is_document_household_member(p_name text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1
+    from public.household_member m
+    where m.household_id::text = (storage.foldername(p_name))[1]
+      and m.user_id = (select auth.uid())
+  );
+$$;
+
+revoke execute on function public.is_document_household_member(text) from public, anon;
+grant execute on function public.is_document_household_member(text) to authenticated;
+
+create policy "Members read their household's document files"
   on storage.objects for select
   to authenticated
-  using (bucket_id = 'documents' and (select public.is_document_path_member(name)));
+  using (bucket_id = 'documents' and (select public.is_document_household_member(name)));
 
 create policy "Members upload their events' document files"
   on storage.objects for insert
@@ -98,7 +121,7 @@ create policy "Members update their events' document files"
   using (bucket_id = 'documents' and (select public.is_document_path_member(name)))
   with check (bucket_id = 'documents' and (select public.is_document_path_member(name)));
 
-create policy "Members delete their events' document files"
+create policy "Members delete their household's document files"
   on storage.objects for delete
   to authenticated
-  using (bucket_id = 'documents' and (select public.is_document_path_member(name)));
+  using (bucket_id = 'documents' and (select public.is_document_household_member(name)));
