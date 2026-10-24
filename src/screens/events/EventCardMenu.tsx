@@ -31,7 +31,7 @@ export function EventCardMenu({ event }: { event: EventSummary }) {
       <button
         type="button"
         className={styles.trigger}
-        aria-label={`${event.host ?? event.monastery_name}: තවත් විකල්ප`}
+        aria-label={`${event.monastery_name}: තවත් විකල්ප`}
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
       >

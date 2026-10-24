@@ -8,6 +8,13 @@ function goTo(path: string) {
   window.dispatchEvent(new PopStateEvent('popstate'))
 }
 
+/** The ⋮ button on the card whose link names this event. Two events can share a monastery. */
+async function moreMenu(event: RegExp) {
+  const card = (await screen.findByRole('link', { name: event })).parentElement
+  if (!card) throw new Error('event card')
+  return within(card).getByRole('button', { name: /තවත් විකල්ප/ })
+}
+
 describe('editing an event', () => {
   it('opens the form prefilled and keeps the saved changes', async () => {
     const organizer = await seedOrganizer()
@@ -126,12 +133,20 @@ describe('editing an event', () => {
 })
 
 describe('event card more-menu', () => {
+  it('names the monastery on the more-menu', async () => {
+    const organizer = await seedOrganizer()
+    await seedEvent(organizer, { date: colomboDate(3), host: 'බොතේජු පවුල', monastery: 'මාලබේ අසපුව' })
+    await renderApp('/events', { signedInAs: organizer })
+
+    expect(await screen.findByRole('button', { name: 'මාලබේ අසපුව: තවත් විකල්ප' })).toBeInTheDocument()
+  })
+
   it('opens the edit form from a card', async () => {
     const organizer = await seedOrganizer()
     const eventId = await seedEvent(organizer, { date: colomboDate(3), host: 'බොතේජු පවුල' })
     const { user } = await renderApp('/events', { signedInAs: organizer })
 
-    await user.click(await screen.findByRole('button', { name: 'බොතේජු පවුල: තවත් විකල්ප' }))
+    await user.click(await screen.findByRole('button', { name: 'මාලබේ අසපුව: තවත් විකල්ප' }))
     await user.click(screen.getByRole('link', { name: 'Edit' }))
     expect(currentPath()).toBe(`/events/${eventId}/edit`)
     expect(await screen.findByDisplayValue('බොතේජු පවුල')).toBeInTheDocument()
@@ -143,7 +158,7 @@ describe('event card more-menu', () => {
     await seedEvent(organizer, { date: colomboDate(3), host: 'සිල්වා පවුල' })
     const { user } = await renderApp('/events', { signedInAs: organizer })
 
-    await user.click(await screen.findByRole('button', { name: 'බොතේජු පවුල: තවත් විකල්ප' }))
+    await user.click(await moreMenu(/බොතේජු පවුල/))
     await user.click(screen.getByRole('button', { name: 'මකන්න' }))
     const confirm = screen.getByRole('dialog', { name: /බොතේජු පවුල.*මකන්නද\?/ })
     expect(confirm).toHaveTextContent('මෙනුව')
@@ -156,7 +171,7 @@ describe('event card more-menu', () => {
     await user.click(within(confirm).getByRole('button', { name: 'එපා' }))
     expect(screen.getByRole('link', { name: /බොතේජු පවුල/ })).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'බොතේජු පවුල: තවත් විකල්ප' }))
+    await user.click(await moreMenu(/බොතේජු පවුල/))
     await user.click(screen.getByRole('button', { name: 'මකන්න' }))
     await user.click(screen.getByRole('button', { name: 'ඔව්, මකන්න' }))
 
@@ -172,7 +187,7 @@ describe('event card more-menu', () => {
     const { user } = await renderApp('/events', { signedInAs: organizer })
 
     const past = await screen.findByRole('region', { name: 'පසුගිය දාන' })
-    await user.click(await within(past).findByRole('button', { name: 'බොතේජු පවුල: තවත් විකල්ප' }))
+    await user.click(await moreMenu(/බොතේජු පවුල/))
     expect(within(past).getByRole('link', { name: 'Edit' })).toHaveAttribute('href', expect.stringMatching(new RegExp(`/events/${eventId}/edit$`)))
     expect(within(past).getByRole('link', { name: 'පිටපත් කරන්න' })).toHaveAttribute('href', expect.stringMatching(new RegExp(`/events/new\\?from=${eventId}$`)))
 

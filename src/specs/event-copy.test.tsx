@@ -36,7 +36,7 @@ describe('copying a previous event', () => {
     const { organizer, eventId } = await seedPreviousEvent()
     const { user } = await renderApp('/events', { signedInAs: organizer })
 
-    await user.click(await screen.findByRole('button', { name: 'බොතේජු පවුල: තවත් විකල්ප' }))
+    await user.click(await screen.findByRole('button', { name: 'මාලබේ අසපුව: තවත් විකල්ප' }))
     await user.click(screen.getByRole('link', { name: 'පිටපත් කරන්න' }))
     expect(currentPath()).toBe(`/events/new?from=${eventId}`)
 
