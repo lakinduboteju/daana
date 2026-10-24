@@ -30,6 +30,7 @@ export default mergeConfig(
       env: localSupabaseEnv(),
       setupFiles: ['./src/test/setup.ts'],
       include: ['src/**/*.test.{ts,tsx}'],
+      exclude: ['**/node_modules/**', '.claude/**'],
       testTimeout: 15000,
     },
   }),
