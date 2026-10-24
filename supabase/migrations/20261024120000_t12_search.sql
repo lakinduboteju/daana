@@ -3,14 +3,17 @@
 -- Items whose name, contributors' names, monastery or host contain `p_q`
 -- (ignoring English capital letters; Sinhala matches as typed), in events
 -- dated `p_from`..`p_to` (inclusive), whose status from item_status is one of
--- `p_statuses`. A null criterion matches everything. In event order, then
+-- `p_statuses`, at `p_monastery_id`, assigned to `p_contributor_id`. A null
+-- criterion matches everything. In event order, then
 -- menu order.
 -- Security invoker: row-level security keeps it to the caller's household.
 create function public.search_items(
   p_q text default null,
   p_from date default null,
   p_to date default null,
-  p_statuses text[] default null
+  p_statuses text[] default null,
+  p_monastery_id uuid default null,
+  p_contributor_id uuid default null
 )
 returns table (
   item_id uuid,
@@ -66,6 +69,11 @@ as $$
   where (p_from is null or e.date >= p_from)
     and (p_to is null or e.date <= p_to)
     and (p_statuses is null or s.status = any (p_statuses))
+    and (p_monastery_id is null or e.monastery_id = p_monastery_id)
+    and (
+      p_contributor_id is null
+      or exists (select 1 from public.assignment a where a.item_id = i.id and a.contributor_id = p_contributor_id)
+    )
     and (
       not exists (select 1 from term)
       or exists (

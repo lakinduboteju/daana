@@ -18,8 +18,11 @@ export function SearchScreen() {
   const to = validDate(searchParams.get('to'))
   const status = searchParams.get('status') ?? ''
   const statuses = parseStatuses(status)
-  const hasCriteria = q.trim() !== '' || from !== null || to !== null || statuses !== null
-  const search = useSearch({ q, from, to, statuses }, hasCriteria)
+  const monasteryId = validId(searchParams.get('monastery'))
+  const contributorId = validId(searchParams.get('contributor'))
+  const hasCriteria =
+    q.trim() !== '' || from !== null || to !== null || statuses !== null || monasteryId !== null || contributorId !== null
+  const search = useSearch({ q, from, to, statuses, monasteryId, contributorId }, hasCriteria)
 
   /** Sets (or, when empty, removes) query params; typing replaces history, choosing a filter pushes. */
   function setParams(changes: Record<string, string | null>, replace = false) {
@@ -50,7 +53,7 @@ export function SearchScreen() {
       </div>
 
       <SearchFilters
-        filters={{ from, to, status }}
+        filters={{ from, to, status, monasteryId, contributorId }}
         onChange={(changes) => setParams(changes)}
       />
 
@@ -60,11 +63,17 @@ export function SearchScreen() {
       {hasCriteria && search.isPending && <p className={styles.message}>පූරණය වෙමින්…</p>}
       {hasCriteria && search.isError && <p role="alert" className={styles.message}>සෙවීමට නොහැකි විය.</p>}
 
+      {searchParams.size > 0 && (
+        <div className={styles.countRow}>
+          <span className={styles.count}>{results && `ප්‍රතිඵල ${results.length}`}</span>
+          <button type="button" className={styles.clear} onClick={() => setSearchParams({})}>
+            Clear
+          </button>
+        </div>
+      )}
+
       {results && (
         <>
-          <div className={styles.countRow}>
-            <span className={styles.count}>ප්‍රතිඵල {results.length}</span>
-          </div>
           {results.length === 0 && <p className={styles.message}>ගැළපෙන අයිතම නැත.</p>}
           <div className={styles.groups}>
             {groupByEvent(results).map((group) => (
@@ -75,6 +84,12 @@ export function SearchScreen() {
       )}
     </>
   )
+}
+
+const ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function validId(value: string | null): string | null {
+  return value && ID_PATTERN.test(value) ? value : null
 }
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/

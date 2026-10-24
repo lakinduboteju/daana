@@ -91,4 +91,37 @@ describe('global search', () => {
     expect(screen.getByRole('region', { name: /පොල්ගහවෙල අසපුව/ })).toHaveTextContent('අන්නාසිදායකයෙකු තවම නැත○පවරා නැත')
     expect(screen.queryByText(/පරණ බත්|අල තෙම්පරාදුව|වතුර බෝතල්/)).not.toBeInTheDocument()
   })
+
+  it('filters by contributor and monastery, offers a preset for the latest contributor, and Clear removes everything', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const malabe = await seedEvent(householdId, { date: '2099-11-08', monastery: 'මාලබේ අසපුව', categories: ['බත්'] })
+    const polgahawela = await seedEvent(householdId, { date: '2099-11-21', monastery: 'පොල්ගහවෙල අසපුව', categories: ['බත්'] })
+    const rice = await seedItem(malabe, 'බත්', { name: 'සුදු බත්' })
+    const curry = await seedItem(malabe, 'බත්', { name: 'පරිප්පු' })
+    const kiribath = await seedItem(polgahawela, 'බත්', { name: 'කිරිබත්' })
+    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ')
+    const anula = await seedContributor(householdId, 'අනුලා විජේසේකර')
+    await seedAssignment(curry, anula, { status: 'confirmed' })
+    await seedAssignment(rice, sunil)
+    await seedAssignment(kiribath, sunil, { status: 'confirmed' })
+    const { user } = await renderApp('/search', { signedInAs: organizer })
+
+    // Sunil was assigned most recently.
+    await user.click(await screen.findByRole('button', { name: 'සුනිල්ගේ අයිතම' }))
+    expect(currentPath()).toBe(`/search?contributor=${sunil}`)
+    expect(await screen.findByText('ප්‍රතිඵල 2')).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'දායකයා' })).toHaveDisplayValue('සුනිල් ජයසිංහ')
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'අසපුව' }), 'පොල්ගහවෙල අසපුව')
+    await waitFor(() => expect(screen.getByText('ප්‍රතිඵල 1')).toBeInTheDocument())
+    expect(screen.getByRole('link', { name: /^කිරිබත්/ })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'තහවුරු නොවූ' }))
+    await waitFor(() => expect(screen.getByText('ප්‍රතිඵල 0')).toBeInTheDocument())
+
+    await user.click(screen.getByRole('button', { name: 'Clear' }))
+    expect(currentPath()).toBe('/search')
+    expect(screen.queryByText(/ප්‍රතිඵල/)).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'සුනිල්ගේ අයිතම' })).toHaveAttribute('aria-pressed', 'false')
+  })
 })
