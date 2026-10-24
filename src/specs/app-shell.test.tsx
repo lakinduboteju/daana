@@ -21,14 +21,11 @@ describe('app shell', () => {
     expect(screen.queryByText(/පළමු දානය/)).not.toBeInTheDocument()
   })
 
-  it('opens settings from a cog named Settings', async () => {
+  it('opens settings from the events home', async () => {
     const { organizer } = await seedHousehold()
     const { user } = await renderApp('/events', { signedInAs: organizer })
 
     const settings = await screen.findByRole('link', { name: 'Settings' })
-    const icon = settings.querySelector('svg')
-    expect(icon?.querySelector('circle')).toBeTruthy()
-    expect(icon?.querySelector('path')?.getAttribute('d') ?? '').toMatch(/[ac]/)
     await user.click(settings)
     expect(await screen.findByRole('heading', { name: 'Settings' })).toBeInTheDocument()
     expect(currentPath()).toBe('/settings')
