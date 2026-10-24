@@ -168,13 +168,16 @@ function CardProgress({ event }: { event: EventSummary }) {
 
 function PastRow({ event }: { event: EventSummary }) {
   return (
-    <Link to={`/events/${event.id}`} className={styles.pastRow}>
-      <span className={styles.pastTitle}>{event.host ?? event.monastery_name}</span>
-      <span className={styles.pastMeta}>
-        {formatDayMonth(event.date)} {formatWeekday(event.date)} · {MEAL_LABEL[event.meal]} · {event.monastery_name}
-      </span>
-      {event.cancelled_at && <CancelledBadge />}
-    </Link>
+    <div className={styles.cardWrap}>
+      <Link to={`/events/${event.id}`} className={styles.pastRow}>
+        <span className={styles.pastTitle}>{event.host ?? event.monastery_name}</span>
+        <span className={styles.pastMeta}>
+          {formatDayMonth(event.date)} {formatWeekday(event.date)} · {MEAL_LABEL[event.meal]} · {event.monastery_name}
+        </span>
+        {event.cancelled_at && <CancelledBadge />}
+      </Link>
+      <EventCardMenu event={event} />
+    </div>
   )
 }
 

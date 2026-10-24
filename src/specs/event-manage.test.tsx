@@ -161,6 +161,24 @@ describe('event card more-menu', () => {
     expect(screen.getByRole('link', { name: /සිල්වා පවුල/ })).toBeInTheDocument()
   })
 
+  it('past events have the same more-menu: edit, copy and delete', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: colomboDate(-30), host: 'බොතේජු පවුල' })
+    await seedEvent(householdId, { date: colomboDate(-60), host: 'සිල්වා පවුල' })
+    const { user } = await renderApp('/events', { signedInAs: organizer })
+
+    const past = await screen.findByRole('region', { name: 'පසුගිය දාන' })
+    await user.click(await within(past).findByRole('button', { name: 'බොතේජු පවුල: තවත් විකල්ප' }))
+    expect(within(past).getByRole('link', { name: 'සංස්කරණය' })).toHaveAttribute('href', expect.stringMatching(new RegExp(`/events/${eventId}/edit$`)))
+    expect(within(past).getByRole('link', { name: 'පිටපත් කරන්න' })).toHaveAttribute('href', expect.stringMatching(new RegExp(`/events/new\\?from=${eventId}$`)))
+
+    await user.click(within(past).getByRole('button', { name: 'මකන්න' }))
+    await user.click(within(screen.getByRole('dialog', { name: /බොතේජු පවුල.*මකන්නද\?/ })).getByRole('button', { name: 'ඔව්, මකන්න' }))
+    expect(await screen.findByRole('status')).toHaveTextContent('දානය මකා දැමුවා')
+    await waitFor(() => expect(within(past).queryByRole('link', { name: /බොතේජු පවුල/ })).not.toBeInTheDocument())
+    expect(within(past).getByRole('link', { name: /සිල්වා පවුල/ })).toBeInTheDocument()
+  })
+
   it('deletes an event from its details screen and returns to the events home', async () => {
     const { householdId, organizer } = await seedHousehold()
     const eventId = await seedEvent(householdId, { date: colomboDate(3), host: 'බොතේජු පවුල' })
