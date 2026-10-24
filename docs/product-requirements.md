@@ -371,7 +371,7 @@ The UI/UX designer should produce complete designs for these experiences.
 | Documents              | View and manage attachments                                     |
 | Category management    | Create and customize categories                                 |
 | Event settings         | Modify event information and preferences                        |
-| Application settings   | Manage language, account, and global defaults                   |
+| Application settings   | Account, password, and default categories                       |
 
 The designer should also cover important interaction states, including empty screens, partially completed events, fully confirmed menus, items with multiple contributors, missing quantities, failed uploads, and confirmation before destructive actions.
 

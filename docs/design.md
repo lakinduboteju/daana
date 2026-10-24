@@ -46,3 +46,4 @@ Sri Lankan users are used to apps that mix Sinhala and English, and a fully Sinh
 | Clear filters/search | Clear |
 | Assign to someone | `<name>` ට පවරන්න |
 | Login field | නම (Username) + Password |
+| Sign in | Login |

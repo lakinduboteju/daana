@@ -27,7 +27,7 @@ Path segments are English (ASCII). The UI text is mixed Sinhala and English.
 | `/contributors/new` | Add contributor | — | |
 | `/contributors/:contributorId` | Contributor details | `ContributorDetail` | Assignments across all events. |
 | `/contributors/:contributorId/edit` | Edit contributor | — | |
-| `/settings` | App settings | — | Account, language, defaults. Opened from the gear icon on `/events`. |
+| `/settings` | App settings | — | Account, password, and default categories. Opened from the gear icon on `/events`. |
 | `/settings/categories` | Global category templates | — | The default categories used for new events. |
 | `*` | Not found | — | Links back to `/events`. |
 
