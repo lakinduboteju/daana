@@ -126,7 +126,7 @@ function EventGroup({ results }: { results: SearchResult[] }) {
           {formatDayMonth(event.event_date)} · {MEAL_LABEL[event.meal]}
         </span>
         <span id={subtitleId} className={styles.groupSubtitle}>
-          {event.host ? `${event.host} · ${event.monastery_name}` : event.monastery_name}
+          {event.host ? `${event.monastery_name} · ${event.host}` : event.monastery_name}
         </span>
         {event.cancelled_at && <CancelledBadge />}
       </Link>

@@ -18,7 +18,7 @@ describe('global search', () => {
     await user.type(await screen.findByRole('searchbox', { name: 'සියලු දාන තුළ සොයන්න' }), 'කිරිබත්')
     expect(currentPath()).toBe(`/search?q=${encodeURIComponent('කිරිබත්')}`)
 
-    const malabe = await screen.findByRole('region', { name: /නොවැම්බර් 08 · දහවල් දානය.*බොතේජු පවුල · මාලබේ අසපුව/ })
+    const malabe = await screen.findByRole('region', { name: /නොවැම්බර් 08 · දහවල් දානය.*මාලබේ අසපුව · බොතේජු පවුල/ })
     const polgahawela = screen.getByRole('region', { name: /නොවැම්බර් 21 · හීල් දානය.*පොල්ගහවෙල අසපුව/ })
     expect(screen.getByText('ප්‍රතිඵල 2')).toBeInTheDocument()
     expect(screen.queryByText('සුදු බත්')).not.toBeInTheDocument()
