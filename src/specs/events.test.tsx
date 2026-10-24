@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
 import { colomboDate, seedEvent, seedHousehold } from '../test/seed'
@@ -36,8 +36,11 @@ describe('events', () => {
     expect(screen.queryByText(/අවශ්‍ය නම් පමණක්/)).not.toBeInTheDocument()
     expect(screen.queryByText('මෙනුව සහ කාණ්ඩ පමණක් · තහවුරු කිරීම් නැවත ආරම්භ වේ')).not.toBeInTheDocument()
     await user.click(screen.getByRole('radio', { name: 'දහවල් දානය' }))
-    await user.type(await screen.findByLabelText('අසපුවේ නම'), 'මාලබේ අසපුව')
-    await user.type(screen.getByLabelText(/ස්ථානය/), 'මාලබේ')
+    const monastery = screen.getByLabelText(/^අසපුව/)
+    expect(monastery).not.toHaveAttribute('placeholder')
+    expect(screen.queryByLabelText(/ස්ථානය/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/උදා:/)).not.toBeInTheDocument()
+    await user.type(monastery, 'මාලබේ අසපුව')
     await user.type(screen.getByLabelText(/දානය භාරගත් අය/), 'බොතේජු පවුල')
     await user.click(screen.getByText('අමතර විස්තර (optional)'))
     const more = screen.getByText('අමතර විස්තර (optional)').closest('details')
@@ -96,7 +99,7 @@ describe('events', () => {
     expect(screen.queryByText(/A පවුල/)).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('link', { name: 'අළුත් දානයක්' }))
-    expect(await screen.findByLabelText('අසපුවේ නම')).toBeInTheDocument()
+    expect(await screen.findByLabelText(/^අසපුව/)).toHaveValue('')
     expect(screen.queryByText('A අසපුව')).not.toBeInTheDocument()
 
     window.history.pushState(null, '', `${import.meta.env.BASE_URL}events/${aEventId}`)
@@ -105,26 +108,34 @@ describe('events', () => {
     expect(screen.queryByText(/A අසපුව/)).not.toBeInTheDocument()
   })
 
-  it('creates an event at a recently used monastery without a host', async () => {
+  it('reuses a monastery with the same trimmed name', async () => {
     const { householdId, organizer } = await seedHousehold()
     await seedEvent(householdId, { date: colomboDate(-30), monastery: 'පොල්ගහවෙල අසපුව' })
     const { user } = await renderApp('/events/new', { signedInAs: organizer })
 
-    await user.type(await screen.findByLabelText(/දිනය/), '07/11/2099')
+    const monastery = await screen.findByLabelText(/^අසපුව/)
+    expect(screen.queryByRole('radio', { name: 'පොල්ගහවෙල අසපුව' })).not.toBeInTheDocument()
+    await user.type(monastery, '   ')
+    await user.type(screen.getByLabelText(/දිනය/), '07/11/2099')
+    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('අසපුව ඇතුළත් කරන්න.')
+    expect(currentPath()).toBe('/events/new')
+
+    await user.clear(monastery)
+    await user.type(monastery, '  පොල්ගහවෙල අසපුව  ')
     await user.click(screen.getByRole('radio', { name: 'හීල් දානය' }))
-    await user.click(await screen.findByRole('radio', { name: 'පොල්ගහවෙල අසපුව' }))
-    expect(screen.queryByLabelText('අසපුවේ නම')).not.toBeInTheDocument()
-    await user.click(screen.getByText('අමතර විස්තර (optional)'))
-    await user.click(screen.getByRole('button', { name: 'ස්වාමීන් වහන්සේලා වැඩි කරන්න' }))
     await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
     expect(await screen.findByRole('heading', { name: /පොල්ගහවෙල අසපුව/ })).toBeInTheDocument()
 
     await user.click(screen.getByRole('link', { name: 'ආපසු' }))
-    const day = await screen.findByRole('region', { name: 'නොවැම්බර් 07 සෙනසුරාදා' })
-    const card = within(day).getByRole('link')
-    expect(card).toHaveTextContent('හීල් දානය')
-    expect(card).toHaveTextContent('පොල්ගහවෙල අසපුව')
-    expect(card).toHaveTextContent('ස්වාමීන් වහන්සේලා 1')
+    await user.click(await screen.findByRole('link', { name: 'Search' }))
+    const filter = await screen.findByRole('combobox', { name: 'අසපුව' })
+    await waitFor(() => {
+      expect(within(filter).getAllByRole('option').map((option) => option.textContent)).toEqual([
+        'සියලු අසපු',
+        'පොල්ගහවෙල අසපුව',
+      ])
+    })
   })
 
   it('shows two events on the same date as separate cards under that date', async () => {

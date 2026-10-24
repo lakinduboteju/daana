@@ -49,9 +49,9 @@ select public.setup_household('සිල්වා පවුල', 'other');
 with h as (
   select id from public.household where name = 'බොතේජු පවුල'
 ), m as (
-  insert into public.monastery (household_id, name, location)
-  select h.id, v.name, v.location
-  from h, (values ('මාලබේ අසපුව', 'මාලබේ'), ('පොල්ගහවෙල අසපුව', 'පොල්ගහවෙල')) as v (name, location)
+  insert into public.monastery (household_id, name)
+  select h.id, v.name
+  from h, (values ('මාලබේ අසපුව'), ('පොල්ගහවෙල අසපුව')) as v (name)
   returning id, household_id, name
 )
 select public.create_event(

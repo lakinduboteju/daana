@@ -24,7 +24,7 @@ describe('editing an event', () => {
     expect(await screen.findByDisplayValue('බොතේජු පවුල')).toBeInTheDocument()
     expect(screen.getByLabelText(/දිනය/)).toHaveValue('08/11/2099')
     expect(screen.getByRole('radio', { name: 'දහවල් දානය' })).toBeChecked()
-    expect(await screen.findByRole('radio', { name: 'මාලබේ අසපුව' })).toBeChecked()
+    expect(await screen.findByLabelText(/^අසපුව/)).toHaveValue('මාලබේ අසපුව')
     await user.click(screen.getByText('අමතර විස්තර (optional)'))
     expect(screen.getByLabelText('ස්වාමීන් වහන්සේලා')).toHaveValue('12')
     expect(screen.getByLabelText('ගිහි පිරිස')).toHaveValue('20')

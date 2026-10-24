@@ -70,7 +70,7 @@ Each card should contain:
 | ------------------- | ------------------------------------------------------------------ |
 | Date (දිනය)               | Date of the almsgiving                                             |
 | Meal of the day           | Breakfast (හීල් දානය) and lunch (දහවල් දානය)                |
-| Monastery           | Name and optionally location (E.g: මාලබේ අසපුව)                                       |
+| Monastery           | Name only (e.g. මාලබේ අසපුව). A household reuses a monastery with the same name. |
 | Almsgiving name     | Name, dedication, or person/family on whose behalf it is organized (දානය භාරගත් අය) |
 | Number of monks     | Expected number of Buddhist monks (ස්වාමීන් වහන්සේලා ගණන)                                 |
 | Number of laypeople | Expected number of lay attendees (ගිහි පිරිස)                                  |

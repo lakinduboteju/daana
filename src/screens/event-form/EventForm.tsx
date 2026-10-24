@@ -3,10 +3,9 @@ import { Link, useNavigate } from 'react-router'
 import { UnsavedChangesGuard } from '../../components/UnsavedChangesGuard'
 import type { EventFields } from '../../data/events'
 import { MEAL_LABEL, type Meal } from '../../data/meal'
-import { useRecentMonasteries } from '../../data/monasteries'
 import { toIsoDate } from '../../lib/dates'
 import styles from './EventFormScreen.module.css'
-import { NEW_MONASTERY, type EventFormValues } from './eventFormValues'
+import { type EventFormValues } from './eventFormValues'
 
 type Props = {
   initial: EventFormValues
@@ -24,7 +23,6 @@ type Props = {
 /** The create and edit event form (same fields, same layout). */
 export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled, children }: Props) {
   const navigate = useNavigate()
-  const monasteries = useRecentMonasteries()
   const [values, setValues] = useState(initial)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -39,17 +37,12 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled, ch
     setValues((v) => ({ ...v, [key]: value }))
   }
 
-  const recent = monasteries.data ?? []
-  // With no monasteries yet, the new-monastery fields show straight away.
-  const monasteryChoice = values.monastery ?? (monasteries.isSuccess && recent.length === 0 ? NEW_MONASTERY : null)
-
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     const isoDate = toIsoDate(values.date)
     if (!values.date.trim()) return setError('දිනය ඇතුළත් කරන්න.')
     if (!isoDate) return setError('වලංගු දිනයක් ඇතුළත් කරන්න.')
-    if (!monasteryChoice) return setError('අසපුවක් තෝරන්න.')
-    if (monasteryChoice === NEW_MONASTERY && !values.monasteryName.trim()) return setError('අසපුවේ නම ඇතුළත් කරන්න.')
+    if (!values.monasteryName.trim()) return setError('අසපුව ඇතුළත් කරන්න.')
     setError(null)
     setSaving(true)
     const submitted = values
@@ -58,10 +51,7 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled, ch
       const next = await onSave({
         date: isoDate,
         meal: values.meal,
-        monastery:
-          monasteryChoice === NEW_MONASTERY
-            ? { name: values.monasteryName, location: values.monasteryLocation }
-            : { id: monasteryChoice },
+        monasteryName: values.monasteryName,
         host: values.host,
         monkCount: toCount(values.monkCount),
         laypersonCount: toCount(values.laypersonCount),
@@ -103,46 +93,12 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled, ch
         </div>
       </fieldset>
 
-      <fieldset className={styles.fieldset}>
-        <legend className={styles.label}>
+      <div className={styles.field}>
+        <label htmlFor="event-monastery" className={styles.label}>
           අසපුව <span className={styles.required}>*</span>
-        </legend>
-        {recent.length > 0 && (
-          <div className={styles.chips}>
-            <span className={styles.hint}>පෙර භාවිත:</span>
-            {recent.map((monastery) => (
-              <label key={monastery.id} className={styles.chip}>
-                <input
-                  type="radio"
-                  name="monastery"
-                  value={monastery.id}
-                  checked={monasteryChoice === monastery.id}
-                  onChange={() => set('monastery', monastery.id)}
-                />
-                {monastery.name}
-              </label>
-            ))}
-            <label className={styles.chip}>
-              <input
-                type="radio"
-                name="monastery"
-                value={NEW_MONASTERY}
-                checked={monasteryChoice === NEW_MONASTERY}
-                onChange={() => set('monastery', NEW_MONASTERY)}
-              />
-              + අළුත් අසපුවක්
-            </label>
-          </div>
-        )}
-        {monasteryChoice === NEW_MONASTERY && (
-          <div className={styles.newMonastery}>
-            <label htmlFor="monastery-name" className={styles.subLabel}>අසපුවේ නම</label>
-            <input id="monastery-name" className={styles.input} value={values.monasteryName} onChange={(e) => set('monasteryName', e.target.value)} placeholder="උදා: මාලබේ අසපුව" />
-            <label htmlFor="monastery-location" className={styles.subLabel}>ස්ථානය (optional)</label>
-            <input id="monastery-location" className={styles.input} value={values.monasteryLocation} onChange={(e) => set('monasteryLocation', e.target.value)} />
-          </div>
-        )}
-      </fieldset>
+        </label>
+        <input id="event-monastery" className={styles.input} value={values.monasteryName} onChange={(e) => set('monasteryName', e.target.value)} required />
+      </div>
 
       <div className={styles.field}>
         <label htmlFor="event-host" className={styles.label}>දානය භාරගත් අය (optional)</label>

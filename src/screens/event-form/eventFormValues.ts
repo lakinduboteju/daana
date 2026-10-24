@@ -2,16 +2,11 @@ import type { EventDetails } from '../../data/events'
 import type { Meal } from '../../data/meal'
 import { toDisplayDate } from '../../lib/dates'
 
-export const NEW_MONASTERY = 'new'
-
 /** The event form's own state: what the organizer has typed, as typed. */
 export type EventFormValues = {
   date: string
   meal: Meal
-  /** A monastery id, NEW_MONASTERY, or null before one is picked. */
-  monastery: string | null
   monasteryName: string
-  monasteryLocation: string
   host: string
   monkCount: string
   laypersonCount: string
@@ -24,9 +19,7 @@ export type EventFormValues = {
 export const EMPTY_EVENT_FORM: EventFormValues = {
   date: '',
   meal: 'lunch',
-  monastery: null,
   monasteryName: '',
-  monasteryLocation: '',
   host: '',
   monkCount: '0',
   laypersonCount: '0',
@@ -41,7 +34,7 @@ export function eventFormValues(event: EventDetails): EventFormValues {
     ...EMPTY_EVENT_FORM,
     date: toDisplayDate(event.date),
     meal: event.meal,
-    monastery: event.monastery_id,
+    monasteryName: event.monastery_name,
     host: event.host ?? '',
     monkCount: String(event.monk_count),
     laypersonCount: String(event.layperson_count),

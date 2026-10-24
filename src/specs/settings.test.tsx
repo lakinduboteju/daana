@@ -58,7 +58,7 @@ describe('category templates', () => {
     const { user } = await renderApp('/events/new', { signedInAs: organizer })
 
     await user.type(await screen.findByLabelText(/දිනය/), '08/11/2099')
-    await user.type(await screen.findByLabelText('අසපුවේ නම'), 'මාලබේ අසපුව')
+    await user.type(await screen.findByLabelText(/^අසපුව/), 'මාලබේ අසපුව')
     await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
     expect(await screen.findByText('බත්')).toBeInTheDocument()
     const existingEventPath = currentPath()
@@ -77,7 +77,7 @@ describe('category templates', () => {
 
     goTo('/events/new')
     await user.type(await screen.findByLabelText(/දිනය/), '15/11/2099')
-    await user.click(await screen.findByRole('radio', { name: /මාලබේ අසපුව/ }))
+    await user.type(await screen.findByLabelText(/^අසපුව/), 'මාලබේ අසපුව')
     await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
     expect(await screen.findByText('බත් වර්ග')).toBeInTheDocument()
     expect(screen.queryByText('බත්')).not.toBeInTheDocument()

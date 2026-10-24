@@ -78,8 +78,8 @@ export function useEventSummary(eventId: string) {
 export type EventFields = {
   date: string
   meal: Meal
-  /** An existing monastery, or a new one to create first. */
-  monastery: { id: string } | { name: string; location: string }
+  /** The monastery name as typed. An existing household monastery with the same trimmed name is reused. */
+  monasteryName: string
   host: string
   monkCount: number
   laypersonCount: number
@@ -91,8 +91,14 @@ export type EventFields = {
 
 export type NewEvent = EventFields & { householdId: string }
 
-async function resolveMonastery(householdId: string, monastery: EventFields['monastery']): Promise<string> {
-  return 'id' in monastery ? monastery.id : createMonastery(householdId, monastery.name, monastery.location)
+/** The household's monastery with this trimmed name, or a new one. */
+async function resolveMonastery(householdId: string, name: string): Promise<string> {
+  const trimmed = name.trim()
+  const { data, error } = await supabase.from('monastery').select('id, name')
+  if (error) throw error
+  const existing = (data ?? []).find((monastery) => monastery.name.trim() === trimmed)
+  if (existing) return existing.id
+  return createMonastery(householdId, trimmed)
 }
 
 /** Creates an event with the household's category templates as its categories. Resolves to its id. */
@@ -100,7 +106,7 @@ export function useCreateEvent() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (event: NewEvent): Promise<string> => {
-      const monasteryId = await resolveMonastery(event.householdId, event.monastery)
+      const monasteryId = await resolveMonastery(event.householdId, event.monasteryName)
       const { data, error } = await supabase.rpc('create_event', {
         p_household_id: event.householdId,
         p_date: event.date,
@@ -135,7 +141,7 @@ export function useCopyEvent() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (event: CopiedEvent): Promise<string> => {
-      const monasteryId = await resolveMonastery(event.householdId, event.monastery)
+      const monasteryId = await resolveMonastery(event.householdId, event.monasteryName)
       const { data, error } = await supabase.rpc('copy_event', {
         p_source_event_id: event.sourceEventId,
         p_date: event.date,
@@ -167,6 +173,7 @@ export type EventDetails = {
   date: string
   meal: Meal
   monastery_id: string
+  monastery_name: string
   host: string | null
   monk_count: number
   layperson_count: number
@@ -190,7 +197,14 @@ export function useEventDetails(eventId: string) {
         if (error.code === '22P02') return null
         throw error
       }
-      return data as EventDetails | null
+      if (!data) return null
+      const { data: monastery, error: monasteryError } = await supabase
+        .from('monastery')
+        .select('name')
+        .eq('id', data.monastery_id)
+        .single()
+      if (monasteryError) throw monasteryError
+      return { ...data, monastery_name: monastery.name } as EventDetails
     },
   })
 }
@@ -200,7 +214,7 @@ export function useUpdateEvent() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async ({ eventId, householdId, fields }: { eventId: string; householdId: string; fields: EventFields }) => {
-      const monasteryId = await resolveMonastery(householdId, fields.monastery)
+      const monasteryId = await resolveMonastery(householdId, fields.monasteryName)
       const { error } = await supabase
         .from('event')
         .update({
