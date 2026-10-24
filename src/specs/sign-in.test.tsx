@@ -38,6 +38,25 @@ describe('signing in', () => {
     expect(currentPath()).toBe('/events')
   })
 
+  it('shows the password when the organizer presses Show password, without signing in', async () => {
+    const { organizer } = await seedHousehold()
+    const { user } = await renderApp('/login')
+
+    const password = await screen.findByLabelText('Password')
+    expect(password).toHaveAttribute('type', 'password')
+    await user.type(await screen.findByLabelText('නම'), organizer.username)
+    await user.type(password, organizer.password)
+
+    const show = screen.getByRole('button', { name: 'Show password' })
+    expect(show).toHaveAttribute('type', 'button')
+    await user.click(show)
+
+    expect(password).toHaveAttribute('type', 'text')
+    expect(password).toHaveValue(organizer.password)
+    expect(currentPath()).toBe('/login')
+    expect(screen.queryByRole('heading', { name: 'දාන' })).not.toBeInTheDocument()
+  })
+
   it('shows a Sinhala error when the password is wrong', async () => {
     const { organizer } = await seedHousehold()
     const { user } = await renderApp('/login')

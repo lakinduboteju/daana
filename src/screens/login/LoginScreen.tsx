@@ -10,6 +10,7 @@ export function LoginScreen() {
   const [searchParams] = useSearchParams()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [passwordVisible, setPasswordVisible] = useState(false)
 
   if (auth.status === 'loading') return null
   // Signed in (just now, or already): go where the organizer was heading.
@@ -55,7 +56,15 @@ export function LoginScreen() {
         </div>
         <div className={styles.field}>
           <label htmlFor="password" className={styles.label}>Password</label>
-          <input id="password" name="password" type="password" autoComplete="current-password" required className={styles.input} />
+          <div className={styles.password}>
+            <input id="password" name="password" type={passwordVisible ? 'text' : 'password'} autoComplete="current-password" required className={styles.input} />
+            <button type="button" className={styles.reveal} aria-label="Show password" onClick={() => setPasswordVisible(true)}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
         </div>
         {error && <p role="alert" className={styles.error}>{error}</p>}
         <button type="submit" className={styles.submit} disabled={submitting}>Login</button>

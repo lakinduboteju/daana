@@ -71,6 +71,33 @@
   outline-offset: 1px;
 }
 
+.password {
+  position: relative;
+}
+
+.password .input {
+  width: 100%;
+  padding-right: calc(var(--touch-target) + 8px);
+}
+
+.reveal {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border: 0;
+  border-radius: 22px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+
 .error {
   margin: 0;
   padding: 10px 14px;
