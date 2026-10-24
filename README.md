@@ -47,7 +47,7 @@ There is one test seam ([ADR 0003](docs/adr/0003-ci-deploys-only-tests-run-local
 ```tsx
 const { organizer } = await seedHousehold()
 const { user } = await renderApp('/events', { signedInAs: organizer })
-await user.click(await screen.findByRole('link', { name: 'සොයන්න' }))
+await user.click(await screen.findByRole('link', { name: 'Search' }))
 expect(currentPath()).toBe('/search')
 ```
 

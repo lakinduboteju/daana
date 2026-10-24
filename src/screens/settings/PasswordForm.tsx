@@ -40,7 +40,7 @@ export function PasswordForm() {
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
       <UnsavedChangesGuard isDirty={() => password !== '' || repeat !== ''} />
       <div className={styles.field}>
-        <label htmlFor="new-password" className={styles.label}>අළුත් මුරපදය</label>
+        <label htmlFor="new-password" className={styles.label}>New Password</label>
         <input
           id="new-password"
           type="password"
@@ -53,7 +53,7 @@ export function PasswordForm() {
         <span id="new-password-hint" className={styles.hint}>අවම වශයෙන් අකුරු {MIN_LENGTH}ක්.</span>
       </div>
       <div className={styles.field}>
-        <label htmlFor="repeat-password" className={styles.label}>අළුත් මුරපදය නැවත</label>
+        <label htmlFor="repeat-password" className={styles.label}>New Password Again</label>
         <input
           id="repeat-password"
           type="password"
@@ -65,7 +65,7 @@ export function PasswordForm() {
       </div>
       {error && <p role="alert" className={styles.error}>{error}</p>}
       <button type="submit" className={styles.primary} disabled={saving || !password}>
-        මුරපදය වෙනස් කරන්න
+        වෙනස් කරන්න
       </button>
     </form>
   )

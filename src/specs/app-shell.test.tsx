@@ -18,6 +18,20 @@ describe('app shell', () => {
 
     expect(await screen.findByText('නමෝ බුද්ධාය!')).toBeInTheDocument()
     expect(await screen.findByText('තවම දාන කිසිවක් නැත')).toBeInTheDocument()
+    expect(screen.queryByText(/පළමු දානය/)).not.toBeInTheDocument()
+  })
+
+  it('opens settings from a cog named Settings', async () => {
+    const { organizer } = await seedHousehold()
+    const { user } = await renderApp('/events', { signedInAs: organizer })
+
+    const settings = await screen.findByRole('link', { name: 'Settings' })
+    const icon = settings.querySelector('svg')
+    expect(icon?.querySelector('circle')).toBeTruthy()
+    expect(icon?.querySelector('path')?.getAttribute('d') ?? '').toMatch(/[ac]/)
+    await user.click(settings)
+    expect(await screen.findByRole('heading', { name: 'Settings' })).toBeInTheDocument()
+    expect(currentPath()).toBe('/settings')
   })
 
   it('moves between events, search and contributors with the bottom tab bar', async () => {
@@ -27,10 +41,12 @@ describe('app shell', () => {
 
     expect(tabs.getByRole('link', { name: 'දාන' })).toHaveAttribute('aria-current', 'page')
 
-    await user.click(tabs.getByRole('link', { name: 'සොයන්න' }))
-    expect(await screen.findByRole('heading', { name: 'සොයන්න' })).toBeInTheDocument()
+    await user.click(tabs.getByRole('link', { name: 'Search' }))
+    expect(await screen.findByRole('heading', { name: 'Search' })).toBeInTheDocument()
+    expect(screen.getByText('සොයන්න හෝ filter කරන්න')).toBeInTheDocument()
+    expect(screen.queryByText(/අයිතමයක්, දායකයෙක්/)).not.toBeInTheDocument()
     expect(currentPath()).toBe('/search')
-    expect(tabs.getByRole('link', { name: 'සොයන්න' })).toHaveAttribute('aria-current', 'page')
+    expect(tabs.getByRole('link', { name: 'Search' })).toHaveAttribute('aria-current', 'page')
 
     await user.click(tabs.getByRole('link', { name: 'දායකයන්' }))
     expect(await screen.findByRole('heading', { name: 'දායකයන්' })).toBeInTheDocument()

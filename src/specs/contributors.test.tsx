@@ -8,7 +8,8 @@ describe('contributors directory', () => {
     const { organizer } = await seedHousehold()
     const { user } = await renderApp('/contributors', { signedInAs: organizer })
 
-    await user.click(await screen.findByRole('link', { name: 'නව දායකයා' }))
+    expect(await screen.findByText('තවම දායකයන් නැත.')).toBeInTheDocument()
+    await user.click(screen.getByRole('link', { name: 'අළුත් දායකයෙක්' }))
     expect(currentPath()).toBe('/contributors/new')
     await user.type(await screen.findByLabelText('නම'), 'සුනිල් ජයසිංහ')
     await user.type(screen.getByLabelText('දුරකථන අංකය'), '0771234567')
@@ -18,7 +19,7 @@ describe('contributors directory', () => {
     expect(screen.getByRole('status')).toHaveTextContent('සුරැකිණි')
     expect(currentPath()).toBe('/contributors')
 
-    await user.click(screen.getByRole('link', { name: 'නව දායකයා' }))
+    await user.click(screen.getByRole('link', { name: 'අළුත් දායකයෙක්' }))
     await user.type(await screen.findByLabelText('නම'), 'Anula Wijesekara')
     await user.click(screen.getByRole('button', { name: 'සුරකින්න' }))
     expect(await screen.findByText('Anula Wijesekara')).toBeInTheDocument()

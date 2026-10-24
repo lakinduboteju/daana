@@ -38,7 +38,7 @@ export function ContributorsScreen() {
       )}
       {contributors.data?.length === 0 && (
         <p className={styles.message}>
-          {q.trim() ? `"${q.trim()}" ට ගැළපෙන දායකයන් නැත.` : 'තවම දායකයන් නැත. නව දායකයා එක් කරන්න.'}
+          {q.trim() ? `"${q.trim()}" ට ගැළපෙන දායකයන් නැත.` : 'තවම දායකයන් නැත.'}
         </p>
       )}
 
@@ -58,7 +58,7 @@ export function ContributorsScreen() {
 
       <Link to="/contributors/new" className={styles.fab}>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
-        නව දායකයා
+        අළුත් දායකයෙක්
       </Link>
     </>
   )

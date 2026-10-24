@@ -95,7 +95,7 @@ describe('signing in', () => {
     unmount()
     await renderApp('/search')
 
-    expect(await screen.findByRole('heading', { name: 'සොයන්න' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Search' })).toBeInTheDocument()
     expect(currentPath()).toBe('/search')
   })
 })
@@ -105,8 +105,8 @@ describe('signing out', () => {
     const { organizer } = await seedHousehold()
     const { user, unmount } = await renderApp('/events', { signedInAs: organizer })
 
-    await user.click(await screen.findByRole('link', { name: 'සැකසුම්' }))
-    await user.click(await screen.findByRole('button', { name: 'ඉවත් වන්න' }))
+    await user.click(await screen.findByRole('link', { name: 'Settings' }))
+    await user.click(await screen.findByRole('button', { name: 'Logout' }))
 
     expect(await screen.findByLabelText('නම')).toBeInTheDocument()
     expect(currentPath()).toBe('/login')

@@ -119,10 +119,10 @@ describe('unsaved changes', () => {
     const { organizer } = await seedHousehold()
     const { user } = await renderApp('/settings', { signedInAs: organizer })
 
-    await user.type(await screen.findByLabelText('අළුත් මුරපදය'), 'new-pass')
+    await user.type(await screen.findByLabelText('New Password'), 'new-pass')
     await user.click(screen.getByRole('link', { name: 'ආපසු' }))
     await answer(user, 'එපා')
     expect(currentPath()).toBe('/settings')
-    expect(screen.getByLabelText('අළුත් මුරපදය')).toHaveValue('new-pass')
+    expect(screen.getByLabelText('New Password')).toHaveValue('new-pass')
   })
 })

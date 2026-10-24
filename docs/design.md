@@ -33,7 +33,7 @@ Every status shows its text label as well as its colour and symbol. A new assign
 
 ## Language: mixed Sinhala and English
 
-Sri Lankan users are used to apps that mix Sinhala and English, and a fully Sinhala UI feels unfamiliar. The rule: keep Sinhala for domain and Buddhist terms and for most labels, and use English where it's the everyday word (for example "Item", "Clear", "Edit Categories", "WhatsApp").
+Sri Lankan users are used to apps that mix Sinhala and English, and a fully Sinhala UI feels unfamiliar. The rule: keep Sinhala for domain and Buddhist terms and for most labels, and use English where it's the everyday word (for example "Item", "Clear", "Edit", "Edit Categories", "Search", "Settings", "Logout", "Password", "WhatsApp").
 
 | Concept | UI text |
 | --- | --- |
@@ -42,8 +42,14 @@ Sri Lankan users are used to apps that mix Sinhala and English, and a fully Sinh
 | Create event | අළුත් දානයක් |
 | Food item | Item |
 | Add item | Item එකක් එක් කරන්න |
-| Edit categories | Edit Categories |
+| Edit categories (event menu and that screen's title) | Edit Categories |
+| Category templates on Settings | Edit |
 | Clear filters/search | Clear |
+| Search tab and screen | Search |
+| Settings | Settings |
+| Sign out | Logout |
+| Password section | Password |
+| New password fields | New Password / New Password Again |
 | Assign to someone | `<name>` ට පවරන්න |
 | Login field | නම (Username) + Password |
 | Sign in | Login |

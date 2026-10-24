@@ -38,7 +38,7 @@ export function SearchScreen() {
 
   return (
     <>
-      <PageHeader title="සොයන්න" />
+      <PageHeader title="Search" />
       <div className={styles.search}>
         <label htmlFor="search-q" className={styles.visuallyHidden}>සියලු දාන තුළ සොයන්න</label>
         <input
@@ -58,7 +58,7 @@ export function SearchScreen() {
       />
 
       {!hasCriteria && (
-        <p className={styles.message}>අයිතමයක්, දායකයෙක්, අසපුවක් හෝ දානය භාරගත් අය සොයන්න, නැත්නම් පෙරහනක් තෝරන්න.</p>
+        <p className={styles.message}>සොයන්න හෝ filter කරන්න</p>
       )}
       {hasCriteria && search.isPending && <p className={styles.message}>පූරණය වෙමින්…</p>}
       {hasCriteria && search.isError && <p role="alert" className={styles.message}>සෙවීමට නොහැකි විය.</p>}
