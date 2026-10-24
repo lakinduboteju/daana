@@ -160,7 +160,7 @@ describe('event card more-menu', () => {
 
     await user.click(await moreMenu(/බොතේජු පවුල/))
     await user.click(screen.getByRole('button', { name: 'මකන්න' }))
-    const confirm = screen.getByRole('dialog', { name: /බොතේජු පවුල.*මකන්නද\?/ })
+    const confirm = screen.getByRole('dialog', { name: /^මාලබේ අසපුව · බොතේජු පවුල · .+ දහවල් දානය මකන්නද\?$/ })
     expect(confirm).toHaveTextContent('මෙනුව')
     expect(confirm).toHaveTextContent('පැවරීම්')
     expect(confirm).toHaveTextContent('ගෙවීම්')
@@ -192,7 +192,7 @@ describe('event card more-menu', () => {
     expect(within(past).getByRole('link', { name: 'පිටපත් කරන්න' })).toHaveAttribute('href', expect.stringMatching(new RegExp(`/events/new\\?from=${eventId}$`)))
 
     await user.click(within(past).getByRole('button', { name: 'මකන්න' }))
-    await user.click(within(screen.getByRole('dialog', { name: /බොතේජු පවුල.*මකන්නද\?/ })).getByRole('button', { name: 'ඔව්, මකන්න' }))
+    await user.click(within(screen.getByRole('dialog', { name: /^මාලබේ අසපුව · බොතේජු පවුල · .+ දහවල් දානය මකන්නද\?$/ })).getByRole('button', { name: 'ඔව්, මකන්න' }))
     expect(await screen.findByRole('status')).toHaveTextContent('දානය මකා දැමුවා')
     await waitFor(() => expect(within(past).queryByRole('link', { name: /බොතේජු පවුල/ })).not.toBeInTheDocument())
     expect(within(past).getByRole('link', { name: /සිල්වා පවුල/ })).toBeInTheDocument()

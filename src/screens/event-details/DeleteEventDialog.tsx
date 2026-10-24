@@ -11,12 +11,12 @@ type Props = {
   onCancel: () => void
 }
 
-/** "<event> මකන්නද?", naming everything that goes with it. */
+/** "<monastery> · <host> · <date> <meal> මකන්නද?", naming everything that goes with it. */
 export function DeleteEventDialog({ event, onDeleted, onCancel }: Props) {
   const deleteEvent = useDeleteEvent()
   const toast = useToast()
   const [failed, setFailed] = useState(false)
-  const name = event.host ?? event.monastery_name
+  const name = event.host ? `${event.monastery_name} · ${event.host}` : event.monastery_name
 
   async function onConfirm() {
     try {
