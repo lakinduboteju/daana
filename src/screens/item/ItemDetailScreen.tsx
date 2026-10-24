@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { Link, Outlet, useParams } from 'react-router'
+import { Link, Outlet, useLocation, useParams } from 'react-router'
 import { BackHeader } from '../../components/BackHeader'
 import { ContactLinks } from '../../components/ContactLinks'
 import { OVER_PARENT } from '../../components/sheetNavigation'
@@ -11,6 +11,7 @@ import { useSetAssignmentStatus } from '../../data/assignments'
 import { useMenu, type Assignment, type Category, type Item } from '../../data/menu'
 import { STATUS_LABEL, type AssignmentStatus } from '../../data/status'
 import { formatAmount, formatQuantity } from '../../data/units'
+import { menuPath } from '../event/menuFilters'
 import { NotFoundScreen } from '../not-found/NotFoundScreen'
 import styles from './ItemDetailScreen.module.css'
 
@@ -23,6 +24,7 @@ import styles from './ItemDetailScreen.module.css'
 export function ItemDetailScreen() {
   const { eventId = '', itemId = '' } = useParams()
   const menu = useMenu(eventId)
+  const location = useLocation()
   const found = menu.data ? findWithCategory(menu.data, itemId) : null
 
   // A portal, so the covered event screen can be made inert without this.
@@ -34,7 +36,7 @@ export function ItemDetailScreen() {
   const { item, category } = found
   return cover(
     <>
-      <BackHeader title={item.name} backTo={`/events/${eventId}`} />
+      <BackHeader title={item.name} backTo={menuPath(eventId, location.state)} />
       <p className={styles.category}>{category.name}</p>
       <StatusSection item={item} />
       <ContributorsSection eventId={eventId} item={item} />

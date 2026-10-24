@@ -1,28 +1,38 @@
 import { useState } from 'react'
-import { Link, Outlet, useParams } from 'react-router'
+import { Link, useLocation, useOutlet, useParams } from 'react-router'
 import { OVER_PARENT } from '../../components/sheetNavigation'
 import { StatusBadge } from '../../components/StatusBadge'
 import { useMenu, type Category, type Item } from '../../data/menu'
 import { formatQuantity } from '../../data/units'
+import { MenuFilterBar } from './MenuFilterBar'
+import { filterMenu, fromMenu, isFiltered, useMenuFilters } from './menuFilters'
 import styles from './MenuTab.module.css'
 
 /** /events/:eventId: the menu tab. Item sheets open over it through the outlet. */
 export function MenuTab() {
   const { eventId = '' } = useParams()
   const menu = useMenu(eventId)
+  const outlet = useOutlet()
+  const menuFilters = useMenuFilters(outlet === null)
+  const filtered = isFiltered(menuFilters.filters)
+  const shown = menu.data ? filterMenu(menu.data, menuFilters.filters) : undefined
 
   return (
     <>
+      {menu.data && shown && menu.data.some((c) => c.items.length > 0) && (
+        <MenuFilterBar menu={menu.data} shown={shown.reduce((n, c) => n + c.items.length, 0)} filters={menuFilters} />
+      )}
       <div className={styles.titleRow}>
         <h2 className={styles.title}>මෙනුව</h2>
         <Link to="categories" className={styles.editCategories}>Edit Categories</Link>
       </div>
       {menu.isPending && <p className={styles.status}>…</p>}
       {menu.isError && <p role="alert" className={styles.status}>මෙනුව පූරණය කිරීමට නොහැකි විය</p>}
-      {menu.data && (
+      {shown && filtered && shown.length === 0 && <p className={styles.status}>ගැළපෙන Item නැත</p>}
+      {shown && (
         <div className={styles.categories}>
-          {menu.data.map((category) => (
-            <CategorySection key={category.id} category={category} />
+          {shown.map((category) => (
+            <CategorySection key={category.id} category={category} forceOpen={filtered} />
           ))}
         </div>
       )}
@@ -32,13 +42,15 @@ export function MenuTab() {
         Item
       </Link>
 
-      <Outlet />
+      {outlet}
     </>
   )
 }
 
-function CategorySection({ category }: { category: Category }) {
-  const [open, setOpen] = useState(true)
+/** While the menu is filtered, every shown category is open (forceOpen). */
+function CategorySection({ category, forceOpen = false }: { category: Category; forceOpen?: boolean }) {
+  const [openState, setOpen] = useState(true)
+  const open = forceOpen || openState
   const nameId = `category-name-${category.id}`
   const bodyId = `category-body-${category.id}`
   return (
@@ -77,9 +89,10 @@ function CategorySection({ category }: { category: Category }) {
 function ItemRow({ item }: { item: Item }) {
   const quantity = formatQuantity(item)
   const unassigned = item.assignments.length === 0
+  const { search } = useLocation()
   return (
     <li className={styles.item}>
-      <Link to={`items/${item.id}`} className={styles.itemLink}>
+      <Link to={`items/${item.id}`} state={fromMenu(search)} className={styles.itemLink}>
         <span className={styles.itemName}>{item.name}</span>
         <span className={unassigned ? styles.itemSubMissing : styles.itemSub}>
           {unassigned ? 'දායකයෙකු තවම නැත' : contributorNames(item)}
