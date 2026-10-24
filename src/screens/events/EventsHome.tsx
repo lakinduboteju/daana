@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { useEventSummaries, type EventSummary } from '../../data/events'
 import { CancelledBadge } from '../../components/CancelledBadge'
+import { ProgressBar } from '../../components/Progress'
 import { MEAL_LABEL } from '../../data/meal'
 import { formatDayMonth, formatDaysAway, formatWeekday } from '../../lib/dates'
 import { EventCardMenu } from './EventCardMenu'
@@ -118,11 +119,50 @@ function EventCard({ event }: { event: EventSummary }) {
           <span>ස්වාමීන් වහන්සේලා <b>{event.monk_count}</b></span>{' '}
           <span>ගිහි පිරිස <b>{event.layperson_count}</b></span>
         </span>
-        {/* Items arrive with the menu ticket; until then no event has any. */}
-        <span className={styles.noMenu}>මෙනුවක් නැත</span>
+        <CardProgress event={event} />
       </Link>
       <EventCardMenu event={event} />
     </div>
+  )
+}
+
+/** Ready out of all items, what to chase (upcoming, non-cancelled only), or that there's no menu yet. */
+function CardProgress({ event }: { event: EventSummary }) {
+  if (event.item_count === 0) return <span className={styles.noMenu}>මෙනුවක් නැත</span>
+
+  const attention = [
+    event.attention_count > 0 && event.unassigned_count > 0 && `පවරා නැති ${event.unassigned_count}`,
+    event.attention_count > 0 && event.pending_count > 0 && `තහවුරු නොවූ ${event.pending_count}`,
+  ].filter(Boolean)
+  return (
+    <>
+      <span className={styles.progress}>
+        <span className={styles.progressRow}>
+          <span className={styles.progressTitle}>සූදානම</span>
+          <span className={styles.progressCount}>
+            {event.ready_count} / {event.item_count} තහවුරුයි
+          </span>
+        </span>
+        <ProgressBar value={event.ready_count} max={event.item_count} label="සූදානම" />
+      </span>
+      {(attention.length > 0 || event.short_count > 0) && (
+        <span className={styles.attention}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v6M12 16.5v.5" /></svg>
+          <span>
+            {attention.length > 0 && <span className={styles.attentionLine}>{attention.join(' · ')}</span>}
+            {event.short_count > 0 && (
+              <span className={styles.shortLine}>අර්ධ වශයෙන් තහවුරු {event.short_count}</span>
+            )}
+          </span>
+        </span>
+      )}
+      {event.ready_count === event.item_count && (
+        <span className={styles.allReady}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>
+          සියලු අයිතම තහවුරුයි
+        </span>
+      )}
+    </>
   )
 }
 

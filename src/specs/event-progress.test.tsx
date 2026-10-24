@@ -93,4 +93,33 @@ describe('event progress', () => {
     const fruit = screen.getByRole('region', { name: 'පලතුරු' })
     expect(within(fruit).queryByRole('progressbar')).not.toBeInTheDocument()
   })
+
+  it('home cards show progress, what needs attention and short items, all-ready, and no menu', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const mixed = await seedEvent(householdId, { date: colomboDate(4), host: 'බොතේජු පවුල', categories: ['බත්', 'ව්‍යංජන'] })
+    await seedMixedMenu(householdId, mixed)
+    const ready = await seedEvent(householdId, { date: colomboDate(5), host: 'ගුරු මණ්ඩලය', categories: ['බත්'] })
+    const kamala = await seedContributor(householdId, 'කමලා')
+    await seedAssignment(await seedItem(ready, 'බත්', { name: 'කිරිබත්' }), kamala, { status: 'confirmed' })
+    await seedAssignment(await seedItem(ready, 'බත්', { name: 'කෙසෙල්' }), kamala, { status: 'received' })
+    await seedEvent(householdId, { date: colomboDate(6), host: 'සිල්වා පවුල', categories: ['බත්'] })
+    await renderApp('/events', { signedInAs: organizer })
+
+    const upcoming = await screen.findByRole('region', { name: 'ඉදිරි දාන' })
+    const mixedCard = within(upcoming).getByRole('link', { name: /බොතේජු පවුල/ })
+    expect(mixedCard).toHaveTextContent('3 / 7 තහවුරුයි')
+    expect(within(mixedCard).getByRole('progressbar', { name: 'සූදානම' })).toHaveAttribute('aria-valuenow', '3')
+    expect(mixedCard).toHaveTextContent('පවරා නැති 2 · තහවුරු නොවූ 1')
+    expect(mixedCard).toHaveTextContent('අර්ධ වශයෙන් තහවුරු 1')
+    expect(mixedCard).not.toHaveTextContent('සියලු අයිතම තහවුරුයි')
+
+    const readyCard = within(upcoming).getByRole('link', { name: /ගුරු මණ්ඩලය/ })
+    expect(readyCard).toHaveTextContent('2 / 2 තහවුරුයි')
+    expect(readyCard).toHaveTextContent('සියලු අයිතම තහවුරුයි')
+    expect(readyCard).not.toHaveTextContent('පවරා නැති')
+
+    const emptyCard = within(upcoming).getByRole('link', { name: /සිල්වා පවුල/ })
+    expect(emptyCard).toHaveTextContent('මෙනුවක් නැත')
+    expect(within(emptyCard).queryByRole('progressbar')).not.toBeInTheDocument()
+  })
 })
