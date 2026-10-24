@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, Outlet, useParams } from 'react-router'
+import { ProgressBar } from '../../components/Progress'
 import { OVER_PARENT } from '../../components/sheetNavigation'
 import { StatusBadge } from '../../components/StatusBadge'
 import { useMenu, type Category, type Item } from '../../data/menu'
@@ -51,7 +52,7 @@ function CategorySection({ category }: { category: Category }) {
         onClick={() => setOpen(!open)}
       >
         <span id={nameId} className={styles.categoryName}>{category.name}</span>
-        <span className={styles.count}>{category.items.length}</span>
+        {category.items.length > 0 && <CategoryProgress category={category} />}
         <svg className={open ? styles.chevronOpen : styles.chevron} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
       </button>
       {open && (
@@ -70,6 +71,20 @@ function CategorySection({ category }: { category: Category }) {
         </div>
       )}
     </section>
+  )
+}
+
+/** Ready items (confirmed or received) out of the category's items, as "2/3" and a small bar. */
+function CategoryProgress({ category }: { category: Category }) {
+  const total = category.items.length
+  const ready = category.items.filter((i) => i.status === 'confirmed' || i.status === 'received').length
+  return (
+    <>
+      <span className={ready === total ? `${styles.count} ${styles.countDone}` : styles.count}>
+        {ready}/{total}
+      </span>
+      <ProgressBar value={ready} max={total} label={`${category.name} සූදානම`} small />
+    </>
   )
 }
 

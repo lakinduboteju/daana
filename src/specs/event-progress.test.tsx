@@ -74,4 +74,23 @@ describe('event progress', () => {
     await waitFor(() => expect(pastSummary).toHaveTextContent('3 / 7 අයිතම තහවුරුයි'))
     expect(screen.queryByRole('region', { name: 'අවධානය අවශ්‍යයි' })).not.toBeInTheDocument()
   })
+
+  it('each category header shows how many of its items are ready', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: colomboDate(10), categories: ['බත්', 'ව්‍යංජන', 'පලතුරු'] })
+    await seedMixedMenu(householdId, eventId)
+    await renderApp(`/events/${eventId}`, { signedInAs: organizer })
+
+    const rice = await screen.findByRole('region', { name: 'බත්' })
+    await waitFor(() => expect(within(rice).getByRole('button', { expanded: true })).toHaveTextContent('2/3'))
+    expect(within(rice).getByRole('progressbar', { name: 'බත් සූදානම' })).toHaveAttribute('aria-valuenow', '2')
+    expect(within(rice).getByRole('progressbar', { name: 'බත් සූදානම' })).toHaveAttribute('aria-valuemax', '3')
+
+    const curries = screen.getByRole('region', { name: 'ව්‍යංජන' })
+    expect(within(curries).getByRole('button', { expanded: true })).toHaveTextContent('1/4')
+    expect(within(curries).getByRole('progressbar', { name: 'ව්‍යංජන සූදානම' })).toHaveAttribute('aria-valuenow', '1')
+
+    const fruit = screen.getByRole('region', { name: 'පලතුරු' })
+    expect(within(fruit).queryByRole('progressbar')).not.toBeInTheDocument()
+  })
 })
