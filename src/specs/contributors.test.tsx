@@ -15,6 +15,7 @@ describe('contributors directory', () => {
     await user.click(screen.getByRole('button', { name: 'සුරකින්න' }))
 
     expect(await screen.findByText('සුනිල් ජයසිංහ')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('සුරැකිණි')
     expect(currentPath()).toBe('/contributors')
 
     await user.click(screen.getByRole('link', { name: 'නව දායකයා' }))
@@ -54,6 +55,7 @@ describe('contributors directory', () => {
     await user.click(screen.getByRole('button', { name: 'සුරකින්න' }))
 
     expect(await screen.findByText('සුනිල් ජයසිංහ')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('සුරැකිණි')
     expect(screen.queryByText(longName)).not.toBeInTheDocument()
     expect(currentPath()).toBe('/contributors')
   })
@@ -85,6 +87,7 @@ describe('contributors directory', () => {
     await user.click(await screen.findByRole('button', { name: 'Archive කරන්න' }))
 
     expect(await screen.findByText('නිමල් සිල්වා')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('රුවන් කුමාර Archive කළා')
     expect(currentPath()).toBe('/contributors')
     expect(screen.queryByText('රුවන් කුමාර')).not.toBeInTheDocument()
 
@@ -104,6 +107,7 @@ describe('contributors directory', () => {
     await user.click(within(confirm).getByRole('button', { name: 'ඔව්, මකන්න' }))
 
     expect(await screen.findByText('නිමල් සිල්වා')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('ගුණපාල මකා දැමුවා')
     expect(screen.queryByText('ගුණපාල')).not.toBeInTheDocument()
 
     unmount()

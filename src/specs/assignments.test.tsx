@@ -216,6 +216,7 @@ describe('assigning several contributors and changing plans', () => {
     await user.click(within(screen.getByRole('dialog', { name: 'නිමල් සිල්වා මකන්නද?' })).getByRole('button', { name: 'ඔව්, මකන්න' }))
     await waitFor(() => expect(currentPath()).toBe('/contributors'))
     expect(await screen.findByText('නිමාලි පෙරේරා')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('නිමල් සිල්වා Archive කළා')
     expect(screen.queryByText('නිමල් සිල්වා')).not.toBeInTheDocument()
 
     // Still reachable, and still on the item they were assigned.

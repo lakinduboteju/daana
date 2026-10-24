@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router'
 import { BackHeader } from '../../components/BackHeader'
+import { useToast } from '../../components/useToast'
 import { useAddContributor } from '../../data/contributors'
 import { ContributorForm } from './ContributorForm'
 import styles from './ContributorForm.module.css'
@@ -7,6 +8,7 @@ import styles from './ContributorForm.module.css'
 export function ContributorNewScreen() {
   const navigate = useNavigate()
   const add = useAddContributor()
+  const toast = useToast()
 
   return (
     <main className={styles.screen}>
@@ -14,7 +16,14 @@ export function ContributorNewScreen() {
       <ContributorForm
         saving={add.isPending}
         error={add.isError ? 'සුරැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න.' : null}
-        onSave={(input) => add.mutate(input, { onSuccess: () => navigate('/contributors') })}
+        onSave={(input) =>
+          add.mutate(input, {
+            onSuccess: () => {
+              toast('සුරැකිණි')
+              navigate('/contributors')
+            },
+          })
+        }
       />
     </main>
   )
