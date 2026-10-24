@@ -35,7 +35,7 @@ describe('editing an event', () => {
     await user.type(screen.getByLabelText(/දිනය/), '07/11/2099')
     await user.click(screen.getByRole('radio', { name: 'හීල් දානය' }))
     await user.click(screen.getByRole('button', { name: 'ස්වාමීන් වහන්සේලා වැඩි කරන්න' }))
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(await screen.findByRole('status')).toHaveTextContent('සුරැකිණි')
 
@@ -69,7 +69,7 @@ describe('editing an event', () => {
     goTo(`/events/${eventId}/edit`)
     expect(await screen.findByLabelText(/දානය භාරගත් අය/)).toHaveValue('බොතේජු පවුල')
     await user.type(screen.getByLabelText(/දානය භාරගත් අය/), ' සහ දරුවන්')
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
     await screen.findByRole('status')
     await user.click(screen.getByRole('link', { name: 'මෙනුව' }))
     expect(currentPath()).toBe(`/events/${eventId}`)

@@ -59,7 +59,7 @@ describe('category templates', () => {
 
     await user.type(await screen.findByLabelText(/දිනය/), '08/11/2099')
     await user.type(await screen.findByLabelText(/^අසපුව/), 'මාලබේ අසපුව')
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByText('බත්')).toBeInTheDocument()
     const existingEventPath = currentPath()
 
@@ -72,13 +72,13 @@ describe('category templates', () => {
     const name = screen.getByLabelText('කාණ්ඩයේ නම')
     await user.clear(name)
     await user.type(name, 'බත් වර්ග')
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByText('බත් වර්ග')).toBeInTheDocument()
 
     goTo('/events/new')
     await user.type(await screen.findByLabelText(/දිනය/), '15/11/2099')
     await user.type(await screen.findByLabelText(/^අසපුව/), 'මාලබේ අසපුව')
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByText('බත් වර්ග')).toBeInTheDocument()
     expect(screen.queryByText('බත්')).not.toBeInTheDocument()
 

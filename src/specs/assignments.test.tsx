@@ -185,7 +185,7 @@ describe('assigning several contributors and changing plans', () => {
     await user.clear(quantity)
     await user.type(quantity, '3')
     await user.click(within(sheet).getByRole('radio', { name: /තහවුරුයි/ }))
-    await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }))
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(await screen.findByRole('status')).toHaveTextContent('නිමල් සිල්වාගේ පැවරුම සුරැකිණි')

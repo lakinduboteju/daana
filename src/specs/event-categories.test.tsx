@@ -17,7 +17,7 @@ describe('editing an event’s categories', () => {
     const name = screen.getByLabelText('කාණ්ඩයේ නම')
     await user.clear(name)
     await user.type(name, 'හොදි වර්ග')
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
     await waitFor(async () => expect(await categoryNames()).toEqual(['බත්', 'හොදි වර්ග', 'පිරිකර']))
 
     await user.click(screen.getByRole('link', { name: 'ආපසු' }))
@@ -109,7 +109,7 @@ describe('editing an event’s categories', () => {
     await user.click(await screen.findByRole('button', { name: 'බත් නම වෙනස් කරන්න' }))
     await user.clear(screen.getByLabelText('කාණ්ඩයේ නම'))
     await user.type(screen.getByLabelText('කාණ්ඩයේ නම'), 'බත් වර්ග')
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
     await waitFor(async () => expect(await categoryNames()).toEqual(['බත් වර්ග', 'හොදි', 'පිරිකර']))
     await user.click(screen.getByRole('button', { name: 'පිරිකර ඉහළට' }))
     await waitFor(async () => expect(await categoryNames()).toEqual(['බත් වර්ග', 'පිරිකර', 'හොදි']))

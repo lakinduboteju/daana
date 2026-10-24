@@ -208,7 +208,7 @@ describe('documents', () => {
     const name = within(sheet).getByLabelText('ලේඛනයේ නම')
     await user.clear(name)
     await user.type(name, 'අසපුවේ උපදෙස්')
-    await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }))
 
     expect(await screen.findByRole('status')).toHaveTextContent('සුරැකිණි')
     sheet = await screen.findByRole('dialog', { name: 'අසපුවේ උපදෙස්' })

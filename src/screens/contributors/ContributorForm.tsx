@@ -72,7 +72,7 @@ export function ContributorForm({ initial, saving, error, onSave, done, children
         <textarea id="contributor-notes" name="notes" rows={3} defaultValue={initial?.notes ?? ''} className={styles.textarea} />
       </div>
       {error && <p role="alert" className={styles.error}>{error}</p>}
-      <button type="submit" className={styles.submit} disabled={saving || !name.trim()}>සුරකින්න</button>
+      <button type="submit" className={styles.submit} disabled={saving || !name.trim()}>Save</button>
       {children}
     </form>
   )

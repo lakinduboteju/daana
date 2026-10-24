@@ -215,7 +215,7 @@ function ItemForm({ categories, initial, saving, failed, done, onSubmit }: ItemF
 
       {failed && <p role="alert" className={styles.error}>සුරැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න.</p>}
 
-      <button type="submit" className={styles.submit} disabled={saving}>සුරකින්න</button>
+      <button type="submit" className={styles.submit} disabled={saving}>Save</button>
     </form>
   )
 }

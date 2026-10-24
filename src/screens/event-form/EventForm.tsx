@@ -14,14 +14,12 @@ type Props = {
   cancelTo: string
   /** Saves the event. Resolves to where to go next, or nothing to stay on the form. */
   onSave: (fields: EventFields) => Promise<string | void>
-  /** Disables saving, e.g. while the household is still loading. */
-  disabled?: boolean
   /** Shown below the fields, e.g. the edit form's cancel and delete actions. */
   children?: ReactNode
 }
 
 /** The create and edit event form (same fields, same layout). */
-export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled, children }: Props) {
+export function EventForm({ initial, submitLabel, cancelTo, onSave, children }: Props) {
   const navigate = useNavigate()
   const [values, setValues] = useState(initial)
   const [saving, setSaving] = useState(false)
@@ -133,7 +131,7 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled, ch
 
       <div className={styles.actions}>
         <Link to={cancelTo} className={styles.cancel}>අවලංගු</Link>
-        <button type="submit" className={styles.save} disabled={saving || disabled}>
+        <button type="submit" className={styles.save} disabled={saving}>
           {submitLabel}
         </button>
       </div>

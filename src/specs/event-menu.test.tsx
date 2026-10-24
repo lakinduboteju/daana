@@ -57,7 +57,7 @@ describe('event menu', () => {
     await user.type(within(sheet).getByLabelText('අවශ්‍ය ප්‍රමාණය (optional)'), '3')
     await user.selectOptions(within(sheet).getByLabelText('ඒකකය'), 'kg')
     await user.type(within(sheet).getByLabelText('සටහන් (optional)'), 'කිරි වැඩිපුර')
-    await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }))
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(await screen.findByRole('status')).toHaveTextContent('සුරැකිණි')
@@ -73,12 +73,12 @@ describe('event menu', () => {
 
     await user.click(await screen.findByRole('link', { name: 'Item' }))
     const sheet = await screen.findByRole('dialog', { name: 'අළුත් Item' })
-    await user.selectOptions(within(sheet).getByLabelText(/කාණ්ඩය/), 'පිරිකර')
+    await user.selectOptions(await within(sheet).findByLabelText(/කාණ්ඩය/), 'පිරිකර')
     await user.type(within(sheet).getByLabelText(/^නම/), 'සිවුරු')
     await user.type(within(sheet).getByLabelText(/අවශ්‍ය ප්‍රමාණය/), '12')
     await user.selectOptions(within(sheet).getByLabelText('ඒකකය'), 'other')
     await user.type(within(sheet).getByLabelText('ඒකකයේ නම'), 'කට්ටල')
-    await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }))
 
     const requisites = screen.getByRole('region', { name: 'පිරිකර' })
     expect(await within(requisites).findByRole('link', { name: /සිවුරු/ })).toHaveTextContent('කට්ටල 12')
@@ -109,7 +109,7 @@ describe('event menu', () => {
     await user.type(within(sheet).getByLabelText(/අවශ්‍ය ප්‍රමාණය/), '1.5')
     await user.selectOptions(within(sheet).getByLabelText('ඒකකය'), 'l')
     await user.selectOptions(within(sheet).getByLabelText(/කාණ්ඩය/), 'හොදි')
-    await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }))
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(await screen.findByRole('status')).toHaveTextContent('සුරැකිණි')

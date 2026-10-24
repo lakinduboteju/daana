@@ -159,7 +159,7 @@ function RenameForm({ category, rename, onDone }: { category: Named; rename: Mut
       {rename.isError && <p role="alert" className={styles.error}>සුරැකීමට නොහැකි විය</p>}
       <div className={styles.editActions}>
         <button type="button" className={styles.secondary} onClick={onDone}>එපා</button>
-        <button type="submit" className={styles.primary} disabled={rename.isPending || !name.trim()}>සුරකින්න</button>
+        <button type="submit" className={styles.primary} disabled={rename.isPending || !name.trim()}>Save</button>
       </div>
     </form>
   )

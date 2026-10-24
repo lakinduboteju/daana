@@ -68,7 +68,7 @@ describe('money', () => {
     await user.selectOptions(contributor, 'නිමල් සිල්වා')
     await user.selectOptions(within(sheet).getByLabelText('Item'), 'කිරිබත්')
     await user.click(within(sheet).getByRole('radio', { name: 'මුදල්' }))
-    await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }))
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(await screen.findByRole('status')).toHaveTextContent('සුරැකිණි')
@@ -94,7 +94,7 @@ describe('money', () => {
     const amount = within(sheet).getByLabelText(/^මුදල \(Rs\)/)
     await user.clear(amount)
     await user.type(amount, '2200')
-    await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }))
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     const totals = screen.getByRole('region', { name: 'එකතුව' })
@@ -135,7 +135,7 @@ describe('money', () => {
     const sheet = await screen.findByRole('dialog', { name: 'ලබා දුන් මුදලක්' })
     expect(within(sheet).getByLabelText(/^මුදල \(Rs\)/)).toHaveValue(1200)
     await waitFor(() => expect(within(sheet).getByLabelText('දායකයා')).toHaveDisplayValue('ශ්‍රියා පෙරේරා'))
-    await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }))
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     await waitFor(() => expect(screen.queryByRole('list', { name: 'ආපසු ගෙවිය යුතුයි' })).not.toBeInTheDocument())
@@ -163,7 +163,7 @@ describe('money', () => {
     const sheet = await screen.findByRole('dialog', { name: 'වියදමක්' })
     await waitFor(() => expect(within(sheet).getByLabelText('Item')).toHaveDisplayValue('සුදු බත්'))
     await user.type(within(sheet).getByLabelText(/^මුදල \(Rs\)/), '400')
-    await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }))
 
     // Back on the item's details, with the new expense listed.
     await waitFor(() => expect(currentPath()).toBe(`/events/${eventId}/items/${rice}`))

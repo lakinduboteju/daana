@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
-import { colomboDate, seedEvent, seedHousehold } from '../test/seed'
+import { colomboDate, seedEvent, seedHousehold, seedOrganizer } from '../test/seed'
 
 describe('events', () => {
   it('keeps the organizer on the form when the date is not a real dd/mm/yyyy date', async () => {
@@ -10,14 +10,46 @@ describe('events', () => {
     const date = await screen.findByLabelText(/දිනය/)
 
     await user.type(date, '2099-11-08')
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('වලංගු දිනයක් ඇතුළත් කරන්න.')
     expect(currentPath()).toBe('/events/new')
 
     await user.clear(date)
     await user.type(date, '31/02/2099')
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(screen.getByRole('alert')).toHaveTextContent('වලංගු දිනයක් ඇතුළත් කරන්න.')
+    expect(currentPath()).toBe('/events/new')
+  })
+
+  it('creates the event and opens its menu once the date, meal and monastery are filled', async () => {
+    const { organizer } = await seedHousehold()
+    const { user } = await renderApp('/events/new', { signedInAs: organizer })
+
+    await user.type(await screen.findByLabelText(/දිනය/), '08/11/2099')
+    await user.click(screen.getByRole('radio', { name: 'දහවල් දානය' }))
+    await user.type(screen.getByLabelText(/^අසපුව/), 'මාලබේ අසපුව')
+
+    const save = screen.getByRole('button', { name: 'Save' })
+    expect(save).toBeEnabled()
+    await user.click(save)
+
+    expect(await screen.findByRole('heading', { name: /මාලබේ අසපුව/ })).toBeInTheDocument()
+    expect(currentPath()).toMatch(/^\/events\/[0-9a-f-]{36}$/)
+  })
+
+  it('shows an error when Save is pressed and the household is not available', async () => {
+    const organizer = await seedOrganizer()
+    const { user } = await renderApp('/events/new', { signedInAs: organizer })
+
+    await user.type(await screen.findByLabelText(/දිනය/), '08/11/2099')
+    await user.click(screen.getByRole('radio', { name: 'දහවල් දානය' }))
+    await user.type(screen.getByLabelText(/^අසපුව/), 'මාලබේ අසපුව')
+
+    const save = screen.getByRole('button', { name: 'Save' })
+    expect(save).toBeEnabled()
+    await user.click(save)
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('සුරැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න.')
     expect(currentPath()).toBe('/events/new')
   })
 
@@ -52,7 +84,7 @@ describe('events', () => {
     expect(within(more).getByText('මුළු පිරිස').parentElement).toHaveTextContent('14')
     expect(screen.queryByText(/ස්වයංක්‍රීයව/)).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByRole('heading', { name: /මාලබේ අසපුව/ })).toBeInTheDocument()
     expect(currentPath()).toMatch(/^\/events\/[0-9a-f-]{36}$/)
 
@@ -117,14 +149,14 @@ describe('events', () => {
     expect(screen.queryByRole('radio', { name: 'පොල්ගහවෙල අසපුව' })).not.toBeInTheDocument()
     await user.type(monastery, '   ')
     await user.type(screen.getByLabelText(/දිනය/), '07/11/2099')
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('අසපුව ඇතුළත් කරන්න.')
     expect(currentPath()).toBe('/events/new')
 
     await user.clear(monastery)
     await user.type(monastery, '  පොල්ගහවෙල අසපුව  ')
     await user.click(screen.getByRole('radio', { name: 'හීල් දානය' }))
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByRole('heading', { name: /පොල්ගහවෙල අසපුව/ })).toBeInTheDocument()
 
     await user.click(screen.getByRole('link', { name: 'ආපසු' }))
@@ -213,7 +245,7 @@ describe('events', () => {
 
     await user.type(await screen.findByLabelText(/දිනය/), '08/11/2099')
     await user.type(screen.getByLabelText(/^අසපුව/), 'මාලබේ අසපුව')
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByRole('heading', { name: /මාලබේ අසපුව/ })).toBeInTheDocument()
     expect(screen.queryByText('ස්වාමීන් වහන්සේලා')).not.toBeInTheDocument()
     expect(screen.queryByText('ගිහි')).not.toBeInTheDocument()

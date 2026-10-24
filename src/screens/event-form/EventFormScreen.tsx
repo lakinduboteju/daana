@@ -31,11 +31,10 @@ function NewEvent() {
       <CopyFromPicker />
       <EventForm
         initial={EMPTY_EVENT_FORM}
-        submitLabel="සුරකින්න, මෙනුවට යන්න"
+        submitLabel="Save"
         cancelTo="/events"
-        disabled={!householdId}
         onSave={async (fields) => {
-          if (!householdId) return
+          if (!householdId) throw new Error('Household is not available')
           const eventId = await createEvent.mutateAsync({ ...fields, householdId })
           toast('දානය සුරැකිණි')
           return `/events/${eventId}`
@@ -67,7 +66,7 @@ function CopyEventForm({ source }: { source: EventDetails }) {
     <EventForm
       // Everything but the date: a copy is for another day.
       initial={{ ...eventFormValues(source), date: '' }}
-      submitLabel="සුරකින්න, මෙනුවට යන්න"
+      submitLabel="Save"
       cancelTo="/events"
       onSave={async (fields) => {
         const eventId = await copyEvent.mutateAsync({

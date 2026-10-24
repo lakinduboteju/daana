@@ -49,11 +49,11 @@ describe('copying a previous event', () => {
     expect(screen.getByLabelText('ස්වාමීන් වහන්සේලා')).toHaveValue('12')
     expect(screen.getByLabelText('ගිහි පිරිස')).toHaveValue('20')
 
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByText('දිනය ඇතුළත් කරන්න.')).toBeInTheDocument()
 
     await user.type(screen.getByLabelText(/දිනය/), '08/11/2099')
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(await screen.findByRole('heading', { name: 'නොවැම්බර් 08 · දහවල් දානය' })).toBeInTheDocument()
     expect(currentPath()).not.toBe(`/events/${eventId}`)
@@ -93,7 +93,7 @@ describe('copying a previous event', () => {
     const { user, unmount } = await renderApp(`/events/new?from=${eventId}`, { signedInAs: organizer })
 
     await user.type(await screen.findByLabelText(/දිනය/), '08/11/2099')
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByRole('heading', { name: 'නොවැම්බර් 08 · දහවල් දානය' })).toBeInTheDocument()
     unmount()
 
@@ -113,7 +113,7 @@ describe('copying a previous event', () => {
     const { user } = await renderApp(`/events/new?from=${eventId}`, { signedInAs: organizer })
 
     await user.type(await screen.findByLabelText(/දිනය/), '08/11/2099')
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
 
     const copied = await screen.findByRole('region', { name: 'බත්' })
     expect(itemRow(copied, 'කහ බත්')).toHaveTextContent('දායකයෙකු තවම නැත')
@@ -128,7 +128,7 @@ describe('copying a previous event', () => {
     const { user } = await renderApp(`/events/new?from=${eventId}`, { signedInAs: organizer })
 
     await user.type(await screen.findByLabelText(/දිනය/), '08/11/2099')
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByRole('heading', { name: 'නොවැම්බර් 08 · දහවල් දානය' })).toBeInTheDocument()
 
     await user.click(screen.getByRole('link', { name: 'මුදල් හා ලේඛන' }))

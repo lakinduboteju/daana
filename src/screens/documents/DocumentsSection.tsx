@@ -216,7 +216,7 @@ function DocumentSheet({ eventId, doc, onClose }: { eventId: string; doc: EventD
           {rename.isError && <p role="alert" className={styles.error}>සුරැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න.</p>}
           <div className={styles.actions}>
             <button type="button" className={styles.action} onClick={() => { setRenaming(false); setName(doc.name) }}>එපා</button>
-            <button type="submit" className={styles.primary} disabled={rename.isPending}>සුරකින්න</button>
+            <button type="submit" className={styles.primary} disabled={rename.isPending}>Save</button>
           </div>
         </form>
       ) : (

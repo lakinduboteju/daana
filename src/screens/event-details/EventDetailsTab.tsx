@@ -49,7 +49,7 @@ function EditEvent({ event }: { event: EventDetails }) {
   return (
     <EventForm
       initial={eventFormValues(event)}
-      submitLabel="සුරකින්න"
+      submitLabel="Save"
       cancelTo={`/events/${event.id}`}
       onSave={async (fields) => {
         await updateEvent.mutateAsync({ eventId: event.id, householdId: event.household_id, fields })

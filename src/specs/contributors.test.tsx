@@ -13,7 +13,7 @@ describe('contributors directory', () => {
     expect(currentPath()).toBe('/contributors/new')
     await user.type(await screen.findByLabelText('නම'), 'සුනිල් ජයසිංහ')
     await user.type(screen.getByLabelText('දුරකථන අංකය'), '0771234567')
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(await screen.findByText('සුනිල් ජයසිංහ')).toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent('සුරැකිණි')
@@ -21,7 +21,7 @@ describe('contributors directory', () => {
 
     await user.click(screen.getByRole('link', { name: 'අළුත් දායකයෙක්' }))
     await user.type(await screen.findByLabelText('නම'), 'Anula Wijesekara')
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByText('Anula Wijesekara')).toBeInTheDocument()
 
     const search = screen.getByRole('searchbox', { name: 'දායකයන් සොයන්න' })
@@ -53,7 +53,7 @@ describe('contributors directory', () => {
     await user.clear(name)
     await user.type(name, 'සුනිල් ජයසිංහ')
     await user.type(screen.getByLabelText('සටහන්'), 'සෙනසුරාදා උදේට කතා කරන්න.')
-    await user.click(screen.getByRole('button', { name: 'සුරකින්න' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(await screen.findByText('සුනිල් ජයසිංහ')).toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent('සුරැකිණි')

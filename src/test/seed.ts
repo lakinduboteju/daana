@@ -20,12 +20,8 @@ export type SeededHousehold = {
   organizer: Organizer
 }
 
-/**
- * Creates a fresh organizer and their household, the same way the household
- * setup script does in production. Every test seeds its own household, so
- * tests never see each other's data.
- */
-export async function seedHousehold(name = 'බොතේජු පවුල'): Promise<SeededHousehold> {
+/** An organizer who can sign in, with no household yet. */
+export async function seedOrganizer(): Promise<Organizer> {
   const username = `organizer-${crypto.randomUUID().slice(0, 8)}`
   const password = 'password123'
 
@@ -35,16 +31,28 @@ export async function seedHousehold(name = 'බොතේජු පවුල'): P
     email_confirm: true,
   })
   if (error) throw error
+  if (!data.user) throw new Error('createUser returned no user')
+
+  return { username, password, userId: data.user.id }
+}
+
+/**
+ * Creates a fresh organizer and their household, the same way the household
+ * setup script does in production. Every test seeds its own household, so
+ * tests never see each other's data.
+ */
+export async function seedHousehold(name = 'බොතේජු පවුල'): Promise<SeededHousehold> {
+  const organizer = await seedOrganizer()
 
   const { data: householdId, error: setupError } = await admin.rpc('setup_household', {
     p_name: name,
-    p_username: username,
+    p_username: organizer.username,
   })
   if (setupError) throw setupError
 
   return {
     householdId: householdId as string,
-    organizer: { username, password, userId: data.user.id },
+    organizer,
   }
 }
 
