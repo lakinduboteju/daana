@@ -3,6 +3,7 @@ import { OVER_PARENT } from '../../components/sheetNavigation'
 import { KIND_LABEL, METHOD_LABEL, useEventMoney, type Transaction, type TransactionKind } from '../../data/money'
 import { formatDayMonth } from '../../lib/dates'
 import { formatRupees } from '../../lib/money'
+import { DocumentsSection } from '../documents/DocumentsSection'
 import styles from './MoneyTab.module.css'
 
 const FILTERS: { type: TransactionKind | null; label: string }[] = [
@@ -90,6 +91,8 @@ export function MoneyTab() {
             <Link to="new?type=given" state={OVER_PARENT} className={styles.add}>+ ලබා දුන් මුදලක්</Link>
             <Link to="new?type=expense" state={OVER_PARENT} className={styles.add}>+ වියදමක්</Link>
           </div>
+
+          <DocumentsSection eventId={eventId} className={styles.documents} />
         </div>
       )}
       <Outlet />
