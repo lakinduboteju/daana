@@ -180,7 +180,7 @@ function ItemForm({ categories, initial, saving, failed, done, onSubmit }: ItemF
 
       <div className={styles.row}>
         <label className={styles.field}>
-          <span className={styles.label}>අවශ්‍ය ප්‍රමාණය (අවශ්‍ය නම් පමණක්)</span>
+          <span className={styles.label}>අවශ්‍ය ප්‍රමාණය (optional)</span>
           <input
             className={styles.input}
             type="number"
@@ -209,7 +209,7 @@ function ItemForm({ categories, initial, saving, failed, done, onSubmit }: ItemF
       )}
 
       <label className={styles.field}>
-        <span className={styles.label}>සටහන් (අවශ්‍ය නම් පමණක්)</span>
+        <span className={styles.label}>සටහන් (optional)</span>
         <textarea className={styles.textarea} value={notes} onChange={(e) => setNotes(e.target.value)} />
       </label>
 

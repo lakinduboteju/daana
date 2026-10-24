@@ -19,7 +19,6 @@ export function CopyFromPicker() {
         </span>
         <span className={styles.text}>
           <span className={styles.title}>{TITLE}</span>
-          <span className={styles.hint}>මෙනුව සහ කාණ්ඩ පමණක් · තහවුරු කිරීම් නැවත ආරම්භ වේ</span>
         </span>
       </button>
       {open && <Picker onClose={() => setOpen(false)} />}

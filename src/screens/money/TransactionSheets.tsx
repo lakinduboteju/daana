@@ -272,7 +272,7 @@ function TransactionForm({ title, initial, knownItem, knownContributor, saving, 
 
         {kind === 'given' && (
           <fieldset className={sheetStyles.choice}>
-            <legend className={styles.label}>ක්‍රමය (අවශ්‍ය නම් පමණක්)</legend>
+            <legend className={styles.label}>ක්‍රමය (optional)</legend>
             <div className={sheetStyles.options}>
               {(['cash', 'bank_transfer'] as const).map((m) => (
                 <label key={m} className={sheetStyles.option}>
@@ -285,7 +285,7 @@ function TransactionForm({ title, initial, knownItem, knownContributor, saving, 
         )}
 
         <label className={styles.field}>
-          <span className={styles.label}>සටහන් (අවශ්‍ය නම් පමණක්)</span>
+          <span className={styles.label}>සටහන් (optional)</span>
           <textarea className={styles.textarea} value={notes} onChange={(e) => setNotes(e.target.value)} />
         </label>
 

@@ -127,7 +127,7 @@ function AssignForm({ eventId, itemId, itemName, unit, onDone }: { eventId: stri
             <input className={styles.input} value={newName} onChange={(e) => setNewName(e.target.value)} required />
           </label>
           <label className={styles.field}>
-            <span className={styles.label}>දුරකථන අංකය (අවශ්‍ය නම් පමණක්)</span>
+            <span className={styles.label}>දුරකථන අංකය (optional)</span>
             <input className={styles.input} type="tel" value={newPhone} onChange={(e) => setNewPhone(e.target.value)} />
           </label>
         </div>

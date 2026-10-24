@@ -54,9 +54,9 @@ describe('event menu', () => {
     const sheet = await screen.findByRole('dialog', { name: 'අළුත් Item' })
     expect(within(sheet).getByLabelText(/කාණ්ඩය/)).toHaveDisplayValue('බත්')
     await user.type(within(sheet).getByLabelText(/^නම/), 'කිරිබත්')
-    await user.type(within(sheet).getByLabelText(/අවශ්‍ය ප්‍රමාණය/), '3')
+    await user.type(within(sheet).getByLabelText('අවශ්‍ය ප්‍රමාණය (optional)'), '3')
     await user.selectOptions(within(sheet).getByLabelText('ඒකකය'), 'kg')
-    await user.type(within(sheet).getByLabelText(/සටහන්/), 'කිරි වැඩිපුර')
+    await user.type(within(sheet).getByLabelText('සටහන් (optional)'), 'කිරි වැඩිපුර')
     await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())

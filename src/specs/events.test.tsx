@@ -12,6 +12,10 @@ describe('events', () => {
     expect(currentPath()).toBe('/events/new')
 
     await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
+    expect(screen.getByLabelText('දානය භාරගත් අය (optional)')).not.toHaveAttribute('placeholder')
+    expect(screen.getByText('අමතර විස්තර (optional)')).toBeInTheDocument()
+    expect(screen.queryByText(/අවශ්‍ය නම් පමණක්/)).not.toBeInTheDocument()
+    expect(screen.queryByText('මෙනුව සහ කාණ්ඩ පමණක් · තහවුරු කිරීම් නැවත ආරම්භ වේ')).not.toBeInTheDocument()
     await user.click(screen.getByRole('radio', { name: 'දහවල් දානය' }))
     await user.type(await screen.findByLabelText('අසපුවේ නම'), 'මාලබේ අසපුව')
     await user.type(screen.getByLabelText(/ස්ථානය/), 'මාලබේ')
@@ -20,7 +24,8 @@ describe('events', () => {
     await user.type(screen.getByLabelText('ස්වාමීන් වහන්සේලා'), '12')
     await user.click(screen.getByRole('button', { name: 'ගිහි පිරිස වැඩි කරන්න' }))
     await user.click(screen.getByRole('button', { name: 'ගිහි පිරිස වැඩි කරන්න' }))
-    expect(screen.getByText('මුළු පිරිස (ස්වයංක්‍රීයව)').parentElement).toHaveTextContent('14')
+    expect(screen.getByText('මුළු පිරිස').parentElement).toHaveTextContent('14')
+    expect(screen.queryByText(/ස්වයංක්‍රීයව/)).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
     expect(await screen.findByRole('heading', { name: /මාලබේ අසපුව/ })).toBeInTheDocument()

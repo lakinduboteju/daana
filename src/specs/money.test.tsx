@@ -59,6 +59,8 @@ describe('money', () => {
     expect(currentPath()).toBe(`/events/${eventId}/money/new?type=given`)
 
     const sheet = await screen.findByRole('dialog', { name: 'ලබා දුන් මුදලක්' })
+    expect(within(sheet).getByRole('group', { name: 'ක්‍රමය (optional)' })).toBeInTheDocument()
+    expect(within(sheet).getByLabelText('සටහන් (optional)')).toBeInTheDocument()
     await user.type(within(sheet).getByLabelText(/^මුදල \(Rs\)/), '3000')
     const contributor = within(sheet).getByLabelText('දායකයා')
     await waitFor(() => expect(within(contributor).getByRole('option', { name: 'නිමල් සිල්වා' })).toBeInTheDocument())

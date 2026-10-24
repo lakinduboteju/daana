@@ -135,28 +135,28 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled, ch
           <div className={styles.newMonastery}>
             <label htmlFor="monastery-name" className={styles.subLabel}>අසපුවේ නම</label>
             <input id="monastery-name" className={styles.input} value={values.monasteryName} onChange={(e) => set('monasteryName', e.target.value)} placeholder="උදා: මාලබේ අසපුව" />
-            <label htmlFor="monastery-location" className={styles.subLabel}>ස්ථානය (අවශ්‍ය නම් පමණක්)</label>
+            <label htmlFor="monastery-location" className={styles.subLabel}>ස්ථානය (optional)</label>
             <input id="monastery-location" className={styles.input} value={values.monasteryLocation} onChange={(e) => set('monasteryLocation', e.target.value)} />
           </div>
         )}
       </fieldset>
 
       <div className={styles.field}>
-        <label htmlFor="event-host" className={styles.label}>දානය භාරගත් අය (අවශ්‍ය නම් පමණක්)</label>
-        <input id="event-host" className={styles.input} value={values.host} onChange={(e) => set('host', e.target.value)} placeholder="උදා: බොතේජු පවුල" />
+        <label htmlFor="event-host" className={styles.label}>දානය භාරගත් අය (optional)</label>
+        <input id="event-host" className={styles.input} value={values.host} onChange={(e) => set('host', e.target.value)} />
       </div>
 
       <div className={styles.counts}>
         <Stepper id="monk-count" label="ස්වාමීන් වහන්සේලා" value={values.monkCount} onChange={(v) => set('monkCount', v)} />
         <Stepper id="layperson-count" label="ගිහි පිරිස" value={values.laypersonCount} onChange={(v) => set('laypersonCount', v)} />
         <div className={styles.total}>
-          <span>මුළු පිරිස (ස්වයංක්‍රීයව)</span>
+          <span>මුළු පිරිස</span>
           <b>{toCount(values.monkCount) + toCount(values.laypersonCount)}</b>
         </div>
       </div>
 
       <details className={styles.more}>
-        <summary className={styles.moreSummary}>අමතර විස්තර (අවශ්‍ය නම් පමණක්)</summary>
+        <summary className={styles.moreSummary}>අමතර විස්තර (optional)</summary>
         <div className={styles.moreBody}>
           <label htmlFor="organizer-name" className={styles.subLabel}>සංවිධායකගේ නම</label>
           <input id="organizer-name" className={styles.input} value={values.organizerName} onChange={(e) => set('organizerName', e.target.value)} />

@@ -156,7 +156,7 @@ describe('assigning several contributors and changing plans', () => {
     await user.type(within(sheet).getByRole('searchbox', { name: 'දායකයා සොයන්න' }), 'දිල්රුක්ෂි')
     await user.click(within(sheet).getByRole('radio', { name: /නව දායකයෙක් එක් කරන්න/ }))
     expect(within(sheet).getByLabelText('නම')).toHaveValue('දිල්රුක්ෂි')
-    await user.type(within(sheet).getByLabelText(/දුරකථන අංකය/), '0711234567')
+    await user.type(within(sheet).getByLabelText('දුරකථන අංකය (optional)'), '0711234567')
     await user.click(within(sheet).getByRole('button', { name: 'දිල්රුක්ෂි ට පවරන්න' }))
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
