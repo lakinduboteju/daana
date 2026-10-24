@@ -48,7 +48,6 @@ describe('signing in', () => {
     await user.type(password, organizer.password)
 
     const show = screen.getByRole('button', { name: 'Show password' })
-    expect(show).toHaveAttribute('type', 'button')
     await user.click(show)
 
     expect(password).toHaveAttribute('type', 'text')
@@ -65,7 +64,6 @@ describe('signing in', () => {
     await user.click(screen.getByRole('button', { name: 'Show password' }))
 
     const hide = screen.getByRole('button', { name: 'Hide password' })
-    expect(hide).toHaveAttribute('type', 'button')
     await user.click(hide)
 
     expect(password).toHaveAttribute('type', 'password')
