@@ -59,6 +59,7 @@ describe('app shell', () => {
     const { user } = await renderApp('/no-such-page', { signedInAs: organizer })
 
     expect(await screen.findByRole('heading', { name: 'පිටුව හමු නොවීය' })).toBeInTheDocument()
+    expect(screen.queryByText('මෙම සබැඳිය වැරදියි, නැතහොත් එය ඉවත් කර ඇත.')).not.toBeInTheDocument()
     expect(screen.queryByRole('navigation', { name: 'ප්‍රධාන' })).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('link', { name: 'දාන වෙත යන්න' }))

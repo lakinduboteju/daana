@@ -63,8 +63,6 @@ export function MoneyTab() {
               ))}
             </ul>
           )}
-          <p className={styles.hint}>ලබා දුන් මුදල් සහ වියදම් වෙන වෙනම ගණනය වේ — එකම මුදල දෙවරක් ගණන් නොවේ.</p>
-
           <nav aria-label="ගනුදෙනු වර්ගය" className={styles.filters}>
             {FILTERS.map((f) => {
               const on = f.type === filter

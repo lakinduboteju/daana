@@ -60,7 +60,7 @@ export function ContributorForm({ initial, saving, error, onSave, done, children
       </div>
       <div className={styles.field}>
         <label htmlFor="contributor-phone" className={styles.label}>දුරකථන අංකය</label>
-        <input id="contributor-phone" name="phone" type="tel" inputMode="tel" placeholder="077 123 4567" defaultValue={initial?.phone ?? ''} className={styles.input} />
+        <input id="contributor-phone" name="phone" type="tel" inputMode="tel" defaultValue={initial?.phone ?? ''} className={styles.input} />
       </div>
       <div className={styles.field}>
         <label htmlFor="contributor-whatsapp" className={styles.label}>WhatsApp අංකය</label>

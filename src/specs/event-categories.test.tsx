@@ -12,6 +12,7 @@ describe('editing an event’s categories', () => {
     await user.click(await screen.findByRole('link', { name: 'Edit Categories' }))
     expect(currentPath()).toBe(`/events/${eventId}/categories`)
     expect(await categoryNames()).toEqual(['බත්', 'හොදි', 'පිරිකර'])
+    expect(screen.getByText('වෙනස්කම් මෙම දානයට පමණක් අදාළයි.')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'හොදි නම වෙනස් කරන්න' }))
     const name = screen.getByLabelText('කාණ්ඩයේ නම')
@@ -65,10 +66,10 @@ describe('editing an event’s categories', () => {
     const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්', 'හොදි'] })
     const { user } = await renderApp(`/events/${eventId}/categories`, { signedInAs: organizer })
 
-    await user.type(await screen.findByLabelText('අළුත් කාණ්ඩයක්'), 'දන්සල් බීම')
+    await user.type(await screen.findByLabelText('අළුත් ආහාර කාණ්ඩයක් (Category)'), 'දන්සල් බීම')
     await user.click(screen.getByRole('button', { name: 'එක් කරන්න' }))
     await waitFor(async () => expect(await categoryNames()).toEqual(['බත්', 'හොදි', 'දන්සල් බීම']))
-    expect(screen.getByLabelText('අළුත් කාණ්ඩයක්')).toHaveValue('')
+    expect(screen.getByLabelText('අළුත් ආහාර කාණ්ඩයක් (Category)')).toHaveValue('')
 
     await user.click(screen.getByRole('link', { name: 'ආපසු' }))
     await expectMenu(['බත්', 'හොදි', 'දන්සල් බීම'])
@@ -83,7 +84,7 @@ describe('editing an event’s categories', () => {
     const { user } = await renderApp(`/events/${eventId}/categories`, { signedInAs: organizer })
 
     await user.click(await screen.findByRole('button', { name: 'පිරිකර ඉවත් කරන්න' }))
-    expect(screen.getByRole('dialog', { name: 'පිරිකර ඉවත් කරන්නද?' })).toHaveTextContent('මෙම කාණ්ඩයේ Item නැත')
+    expect(screen.getByRole('dialog', { name: 'පිරිකර ඉවත් කරන්නද?' })).not.toHaveTextContent('මෙම කාණ්ඩයේ Item නැත')
     await user.click(screen.getByRole('button', { name: 'එපා' }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
 
@@ -116,7 +117,7 @@ describe('editing an event’s categories', () => {
     await waitFor(() => expect(screen.getByRole('button', { name: 'හොදි ඉවත් කරන්න' })).toBeEnabled())
     await user.click(screen.getByRole('button', { name: 'හොදි ඉවත් කරන්න' }))
     await user.click(screen.getByRole('button', { name: 'ඔව්, ඉවත් කරන්න' }))
-    await user.type(screen.getByLabelText('අළුත් කාණ්ඩයක්'), 'දන්සල් බීම')
+    await user.type(screen.getByLabelText('අළුත් ආහාර කාණ්ඩයක් (Category)'), 'දන්සල් බීම')
     await user.click(screen.getByRole('button', { name: 'එක් කරන්න' }))
     await waitFor(async () => expect(await categoryNames()).toEqual(['බත් වර්ග', 'පිරිකර', 'දන්සල් බීම']))
     unmount()

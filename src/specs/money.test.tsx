@@ -18,6 +18,7 @@ describe('money', () => {
     expect(currentPath()).toBe(`/events/${eventId}/money`)
 
     const totals = await screen.findByRole('region', { name: 'එකතුව' })
+    expect(screen.queryByText(/වෙන වෙනම ගණනය/)).not.toBeInTheDocument()
     await waitFor(() => expect(totals).toHaveTextContent('දායකයන්ට ලබා දුන් මුදල්Rs 2,500'))
     expect(totals).toHaveTextContent('සත්‍ය වියදම්Rs 5,000')
 

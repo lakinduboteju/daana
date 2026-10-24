@@ -96,10 +96,10 @@ describe('managing category templates', () => {
     const { user, unmount } = await renderApp('/settings/categories', { signedInAs: organizer })
     expect(await templateNames()).toEqual(DEFAULTS)
 
-    await user.type(screen.getByLabelText('අළුත් කාණ්ඩයක්'), 'දන්සල් බීම')
+    await user.type(screen.getByLabelText('අළුත් ආහාර කාණ්ඩයක් (Category)'), 'දන්සල් බීම')
     await user.click(screen.getByRole('button', { name: 'එක් කරන්න' }))
     await screen.findByText('දන්සල් බීම')
-    expect(screen.getByLabelText('අළුත් කාණ්ඩයක්')).toHaveValue('')
+    expect(screen.getByLabelText('අළුත් ආහාර කාණ්ඩයක් (Category)')).toHaveValue('')
 
     unmount()
     await renderApp('/settings/categories', { signedInAs: organizer })
@@ -130,7 +130,8 @@ describe('managing category templates', () => {
 
     await user.click(await screen.findByRole('button', { name: 'පාන ඉවත් කරන්න' }))
     const dialog = screen.getByRole('dialog', { name: 'පාන ඉවත් කරන්නද?' })
-    expect(dialog).toHaveTextContent('දැනට ඇති දානවල')
+    expect(dialog).not.toHaveTextContent('දැනට ඇති දානවල')
+    expect(screen.queryByText('අළුත් දානවලට මෙම කාණ්ඩ එකතු වේ. දැනට ඇති දානවල කාණ්ඩ වෙනස් නොවේ.')).not.toBeInTheDocument()
     await user.click(within(dialog).getByRole('button', { name: 'එපා' }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(await templateNames()).toEqual(DEFAULTS)

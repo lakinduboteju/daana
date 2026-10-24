@@ -20,7 +20,6 @@ export function CategoryTemplatesScreen() {
   return (
     <main className={styles.screen}>
       <BackHeader title="Edit Categories" backTo="/settings" />
-      <p className={styles.intro}>අළුත් දානවලට මෙම කාණ්ඩ එකතු වේ. දැනට ඇති දානවල කාණ්ඩ වෙනස් නොවේ.</p>
       {templates.isPending && <p className={styles.message}>…</p>}
       {templates.isError && <p role="alert" className={styles.message}>පූරණය කිරීමට නොහැකි විය</p>}
       {templates.data && (
@@ -30,7 +29,7 @@ export function CategoryTemplatesScreen() {
           rename={rename}
           swap={swap}
           remove={remove}
-          removeHint={() => 'අළුත් දානවලට මෙම කාණ්ඩය එකතු නොවේ. දැනට ඇති දානවල කාණ්ඩ වෙනස් නොවේ.'}
+          removeHint={() => null}
         />
       )}
     </main>

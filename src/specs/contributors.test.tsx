@@ -12,6 +12,7 @@ describe('contributors directory', () => {
     await user.click(screen.getByRole('link', { name: 'අළුත් දායකයෙක්' }))
     expect(currentPath()).toBe('/contributors/new')
     expect(await screen.findByRole('heading', { name: 'අළුත් දායකයෙක්' })).toBeInTheDocument()
+    expect(screen.queryByPlaceholderText('077 123 4567')).not.toBeInTheDocument()
     await user.type(await screen.findByLabelText('නම'), 'සුනිල් ජයසිංහ')
     await user.type(screen.getByLabelText('දුරකථන අංකය'), '0771234567')
     await user.click(screen.getByRole('button', { name: 'Save' }))

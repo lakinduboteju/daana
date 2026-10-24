@@ -49,7 +49,5 @@ export function EventCategoriesScreen() {
 }
 
 function removeHint(category: EventCategory) {
-  return category.itemCount > 0
-    ? `මෙම කාණ්ඩයේ Item ${category.itemCount}ක් ද මැකී යයි.`
-    : 'මෙම කාණ්ඩයේ Item නැත.'
+  return category.itemCount > 0 ? `මෙම කාණ්ඩයේ Item ${category.itemCount}ක් ද මැකී යයි.` : null
 }

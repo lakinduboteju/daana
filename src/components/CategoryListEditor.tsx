@@ -95,7 +95,7 @@ export function CategoryListEditor<T extends Named>({ categories, add, rename, s
             })
           }
         >
-          <p>{removeHint(removing)}</p>
+          {removeHint(removing) && <p>{removeHint(removing)}</p>}
           {remove.isError && <p role="alert" className={styles.error}>ඉවත් කිරීමට නොහැකි විය</p>}
         </ConfirmDialog>
       )}
@@ -113,7 +113,7 @@ function AddForm({ add }: { add: Mutation<string> }) {
 
   return (
     <form className={styles.addForm} onSubmit={handleSubmit}>
-      <label htmlFor="new-category" className={styles.label}>අළුත් කාණ්ඩයක්</label>
+      <label htmlFor="new-category" className={styles.label}>අළුත් ආහාර කාණ්ඩයක් (Category)</label>
       <div className={styles.addRow}>
         <input
           id="new-category"
