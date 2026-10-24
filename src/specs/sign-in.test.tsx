@@ -9,6 +9,7 @@ describe('signing in', () => {
 
     expect(await screen.findByLabelText('නම')).toHaveAttribute('placeholder', 'Username')
     expect(screen.getByLabelText('Password')).toBeInTheDocument()
+    expect(screen.queryByText('දායකයන්ට ගිණුමක් අවශ්‍ය නැත. සංවිධායක පමණක් ඇතුළු වේ.')).not.toBeInTheDocument()
     expect(currentPath()).toBe('/login?next=%2Fevents')
   })
 

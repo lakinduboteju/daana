@@ -60,8 +60,6 @@ export function LoginScreen() {
         {error && <p role="alert" className={styles.error}>{error}</p>}
         <button type="submit" className={styles.submit} disabled={submitting}>Login</button>
       </form>
-
-      <p className={styles.note}>දායකයන්ට ගිණුමක් අවශ්‍ය නැත. සංවිධායක පමණක් ඇතුළු වේ.</p>
     </main>
   )
 }
