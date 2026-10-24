@@ -99,11 +99,10 @@ Required information
 - Meal of the day (හීල් දානය / දහවල් දානය)
 - Monastery name (මාලබේ අසපුව, පොල්ගහවෙල අසපුව)
 - Almsgiving name or dedication (දානය භාරගත් අය)
-- Number of monks (ස්වාමීන් වහන්සේලා ගණන)
-- Number of laypeople (ගිහි පිරිස)
 
 Optional information
 
+- Number of monks (ස්වාමීන් වහන්සේලා) and laypeople (ගිහි පිරිස), with the total (මුළු පිරිස). Left untouched, both save as 0.
 - Main organizer's name and contact number
 - Additional event notes
 - Special dietary requirements or monastery instructions

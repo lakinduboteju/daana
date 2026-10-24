@@ -149,18 +149,17 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled, ch
         <input id="event-host" className={styles.input} value={values.host} onChange={(e) => set('host', e.target.value)} />
       </div>
 
-      <div className={styles.counts}>
-        <Stepper id="monk-count" label="ස්වාමීන් වහන්සේලා" value={values.monkCount} onChange={(v) => set('monkCount', v)} />
-        <Stepper id="layperson-count" label="ගිහි පිරිස" value={values.laypersonCount} onChange={(v) => set('laypersonCount', v)} />
-        <div className={styles.total}>
-          <span>මුළු පිරිස</span>
-          <b>{toCount(values.monkCount) + toCount(values.laypersonCount)}</b>
-        </div>
-      </div>
-
       <details className={styles.more}>
         <summary className={styles.moreSummary}>අමතර විස්තර (optional)</summary>
         <div className={styles.moreBody}>
+          <div className={styles.counts}>
+            <Stepper id="monk-count" label="ස්වාමීන් වහන්සේලා" value={values.monkCount} onChange={(v) => set('monkCount', v)} />
+            <Stepper id="layperson-count" label="ගිහි පිරිස" value={values.laypersonCount} onChange={(v) => set('laypersonCount', v)} />
+            <div className={styles.total}>
+              <span>මුළු පිරිස</span>
+              <b>{toCount(values.monkCount) + toCount(values.laypersonCount)}</b>
+            </div>
+          </div>
           <label htmlFor="organizer-name" className={styles.subLabel}>සංවිධායකගේ නම</label>
           <input id="organizer-name" className={styles.input} value={values.organizerName} onChange={(e) => set('organizerName', e.target.value)} />
           <label htmlFor="organizer-phone" className={styles.subLabel}>සංවිධායකගේ දුරකථනය</label>

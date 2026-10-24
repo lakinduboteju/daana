@@ -45,6 +45,7 @@ describe('copying a previous event', () => {
     expect(screen.getByLabelText(/දිනය/)).toHaveValue('')
     expect(screen.getByLabelText(/දිනය/)).toHaveAttribute('placeholder', 'dd/mm/yyyy')
     expect(await screen.findByRole('radio', { name: 'මාලබේ අසපුව' })).toBeChecked()
+    await user.click(screen.getByText('අමතර විස්තර (optional)'))
     expect(screen.getByLabelText('ස්වාමීන් වහන්සේලා')).toHaveValue('12')
     expect(screen.getByLabelText('ගිහි පිරිස')).toHaveValue('20')
 
