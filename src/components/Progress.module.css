@@ -12,7 +12,7 @@
 }
 
 .received {
-  background: #1e4a85;
+  background: var(--status-received-fg);
 }
 
 .confirmed {
@@ -20,12 +20,12 @@
 }
 
 .partial {
-  background: #e3a33b;
+  background: var(--status-pending-bar);
   opacity: 0.6;
 }
 
 .pending {
-  background: #e3a33b;
+  background: var(--status-pending-bar);
 }
 
 .track {

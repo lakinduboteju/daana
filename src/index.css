@@ -5,6 +5,10 @@
   --color-surface-muted: #f3eee7;
   --color-border: #e7e1d8;
   --color-border-strong: #cfc6ba;
+  /* Form controls and choice cards */
+  --color-border-control: #dcd4c9;
+  /* Lines between rows inside a card */
+  --color-divider: #f0ebe4;
   --color-text: #2a2420;
   --color-text-secondary: #3f3833;
   --color-text-muted: #6b625a;
@@ -12,9 +16,14 @@
   --color-accent: #b04e0a;
   --color-accent-strong: #8a3d08;
   --color-accent-soft: #fbeadb;
+  /* Hint boxes tinted with the accent */
+  --color-accent-tint: #fdf4ec;
+  --color-accent-tint-border: #e9cfb8;
   --color-on-accent: #ffffff;
   --color-track: #efe9e1;
   --color-ready: #2e7d4a;
+  /* Shortfalls and partial quantities */
+  --color-warning-fg: #8a5a00;
 
   /* Status colours: background / text */
   --status-unassigned-bg: #f1eeea;
@@ -26,8 +35,20 @@
   --status-received-bg: #e3ecf8;
   --status-received-fg: #1e4a85;
 
+  /* Status borders (badges) and stronger marks (selected choice, progress segments) */
+  --status-unassigned-border: #b5aa9d;
+  --status-pending-border: #ebc27a;
+  --status-confirmed-border: #a9d3b5;
+  --status-received-border: #afc6e6;
+  --status-pending-strong: #d9a441;
+  --status-pending-bar: #e3a33b;
+
   --color-error-bg: #fbe4e1;
   --color-error-fg: #9b2c1f;
+
+  /* Behind sheets and dialogs; under floating buttons */
+  --color-backdrop: rgba(42, 36, 32, 0.45);
+  --shadow-fab: 0 6px 16px rgba(120, 60, 10, 0.28);
 
   --radius-sm: 10px;
   --radius-md: 12px;

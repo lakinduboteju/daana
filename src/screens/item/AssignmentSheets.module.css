@@ -55,7 +55,7 @@
 
 .option:has(input:checked) {
   border-color: var(--color-accent);
-  background: #fdf4ec;
+  background: var(--color-accent-tint);
 }
 
 .option input {

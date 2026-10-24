@@ -115,7 +115,7 @@
   gap: 8px;
   font-size: 16px;
   font-weight: 600;
-  box-shadow: 0 6px 16px rgba(120, 60, 10, 0.28);
+  box-shadow: var(--shadow-fab);
 }
 
 .fab:hover {

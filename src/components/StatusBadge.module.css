@@ -19,24 +19,24 @@
 .unassigned {
   background: var(--status-unassigned-bg);
   color: var(--status-unassigned-fg);
-  border: 1px dashed #b5aa9d;
+  border: 1px dashed var(--status-unassigned-border);
 }
 
 .pending,
 .partial {
   background: var(--status-pending-bg);
   color: var(--status-pending-fg);
-  border-color: #ebc27a;
+  border-color: var(--status-pending-border);
 }
 
 .confirmed {
   background: var(--status-confirmed-bg);
   color: var(--status-confirmed-fg);
-  border-color: #a9d3b5;
+  border-color: var(--status-confirmed-border);
 }
 
 .received {
   background: var(--status-received-bg);
   color: var(--status-received-fg);
-  border-color: #afc6e6;
+  border-color: var(--status-received-border);
 }

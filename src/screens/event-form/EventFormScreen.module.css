@@ -39,7 +39,7 @@
 }
 
 .required {
-  color: #a0410a;
+  color: var(--color-accent);
 }
 
 .input,
@@ -68,7 +68,7 @@
 .meal {
   height: 52px;
   border-radius: var(--radius-md);
-  border: 2px solid #dcd4c9;
+  border: 2px solid var(--color-border-control);
   background: var(--color-surface);
   color: var(--color-text-secondary);
   font-size: 16px;
@@ -115,7 +115,7 @@
   min-height: 36px;
   padding: 4px 12px;
   border-radius: 18px;
-  border: 1px solid #dcd4c9;
+  border: 1px solid var(--color-border-control);
   background: var(--color-surface);
   font-size: 14px;
   color: var(--color-text-secondary);

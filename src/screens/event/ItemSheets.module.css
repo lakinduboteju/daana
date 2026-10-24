@@ -25,7 +25,7 @@
 }
 
 .required {
-  color: #a0410a;
+  color: var(--color-accent);
 }
 
 .input,
