@@ -39,10 +39,15 @@ export type Item = ItemRow & {
   assignments: Assignment[]
 }
 
+/** From the database's category_progress view: ready = confirmed or received. */
+export type CategoryProgress = { item_count: number; ready_count: number }
+
 export type Category = {
   id: string
   name: string
   items: Item[]
+  /** Counts all the category's items, whatever the menu filters show. */
+  progress: CategoryProgress
 }
 
 const ITEM_COLUMNS = 'id, category_id, name, required_quantity, unit, custom_unit, notes'
@@ -59,7 +64,7 @@ export function useMenu(eventId: string) {
   return useQuery({
     queryKey: menuKey(eventId),
     queryFn: async (): Promise<Category[]> => {
-      const [categories, statuses, assignments] = await Promise.all([
+      const [categories, statuses, assignments, progress] = await Promise.all([
         supabase
           .from('category')
           .select(`id, name, items:item(${ITEM_COLUMNS})`)
@@ -70,18 +75,27 @@ export function useMenu(eventId: string) {
           .order('created_at', { referencedTable: 'item' }),
         supabase.from('item_status').select('item_id, status, confirmed_quantity, shortfall').eq('event_id', eventId),
         supabase.from('assignment').select(ASSIGNMENT_COLUMNS).eq('event_id', eventId).order('created_at'),
+        supabase.from('category_progress').select('category_id, item_count, ready_count').eq('event_id', eventId),
       ])
       if (categories.error) throw categories.error
       if (statuses.error) throw statuses.error
       if (assignments.error) throw assignments.error
+      if (progress.error) throw progress.error
 
       const statusOf = new Map((statuses.data as StatusRow[]).map((s) => [s.item_id, s]))
       const assignmentsOf = new Map<string, Assignment[]>()
       for (const a of assignments.data as unknown as Assignment[]) {
         assignmentsOf.set(a.item_id, [...(assignmentsOf.get(a.item_id) ?? []), a])
       }
+      const progressOf = new Map(
+        (progress.data as ({ category_id: string } & CategoryProgress)[]).map((p) => [p.category_id, p]),
+      )
       return (categories.data as { id: string; name: string; items: ItemRow[] }[]).map((category) => ({
         ...category,
+        progress: {
+          item_count: progressOf.get(category.id)?.item_count ?? 0,
+          ready_count: progressOf.get(category.id)?.ready_count ?? 0,
+        },
         items: category.items.map((item) => {
           const status = statusOf.get(item.id)
           return {

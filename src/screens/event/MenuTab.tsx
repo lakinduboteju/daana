@@ -36,7 +36,6 @@ export function MenuTab() {
             <CategorySection
               key={category.id}
               category={category}
-              unfiltered={menu.data?.find((c) => c.id === category.id) ?? category}
               forceOpen={filtered}
             />
           ))}
@@ -55,15 +54,13 @@ export function MenuTab() {
 
 /**
  * While the menu is filtered, every shown category is open (forceOpen).
- * Its progress always counts all its items (unfiltered), not just the shown ones.
+ * Its progress (from the database) always counts all its items, not just the shown ones.
  */
 function CategorySection({
   category,
-  unfiltered,
   forceOpen = false,
 }: {
   category: Category
-  unfiltered: Category
   forceOpen?: boolean
 }) {
   const [openState, setOpen] = useState(true)
@@ -80,7 +77,7 @@ function CategorySection({
         onClick={() => setOpen(!open)}
       >
         <span id={nameId} className={styles.categoryName}>{category.name}</span>
-        {unfiltered.items.length > 0 && <CategoryProgress category={unfiltered} />}
+        {category.progress.item_count > 0 && <CategoryProgress category={category} />}
         <svg className={open ? styles.chevronOpen : styles.chevron} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
       </button>
       {open && (
@@ -104,8 +101,7 @@ function CategorySection({
 
 /** Ready items (confirmed or received) out of the category's items, as "2/3" and a small bar. */
 function CategoryProgress({ category }: { category: Category }) {
-  const total = category.items.length
-  const ready = category.items.filter((i) => i.status === 'confirmed' || i.status === 'received').length
+  const { item_count: total, ready_count: ready } = category.progress
   return (
     <>
       <span className={ready === total ? `${styles.count} ${styles.countDone}` : styles.count}>
