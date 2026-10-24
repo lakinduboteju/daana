@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { useToast } from '../../components/useToast'
 import { supabase } from '../../lib/supabase'
 import styles from './SettingsScreen.module.css'
 
@@ -10,11 +11,10 @@ export function PasswordForm() {
   const [repeat, setRepeat] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [done, setDone] = useState(false)
+  const toast = useToast()
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setDone(false)
     if (password.length < MIN_LENGTH) return setError(`මුරපදයට අවම වශයෙන් අකුරු ${MIN_LENGTH}ක් තිබිය යුතුයි`)
     if (password !== repeat) return setError('මුරපද දෙක එක සමාන නොවේ')
 
@@ -32,7 +32,7 @@ export function PasswordForm() {
     }
     setPassword('')
     setRepeat('')
-    setDone(true)
+    toast('මුරපදය වෙනස් කළා')
   }
 
   return (
@@ -62,7 +62,6 @@ export function PasswordForm() {
         />
       </div>
       {error && <p role="alert" className={styles.error}>{error}</p>}
-      {done && <p role="status" className={styles.success}>මුරපදය වෙනස් කළා</p>}
       <button type="submit" className={styles.primary} disabled={saving || !password}>
         මුරපදය වෙනස් කරන්න
       </button>

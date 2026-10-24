@@ -94,16 +94,6 @@
   font-weight: 500;
 }
 
-.success {
-  margin: 0;
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  background: var(--status-confirmed-bg);
-  color: var(--status-confirmed-fg);
-  font-size: 15px;
-  font-weight: 500;
-}
-
 .primary {
   min-height: var(--touch-target);
   border: 0;
