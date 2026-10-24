@@ -18,7 +18,7 @@ describe('signing in', () => {
 
     await user.type(await screen.findByLabelText('නම'), organizer.username)
     await user.type(screen.getByLabelText('Password'), organizer.password)
-    await user.click(screen.getByRole('button', { name: 'ඇතුළු වන්න' }))
+    await user.click(screen.getByRole('button', { name: 'Login' }))
 
     expect(await screen.findByRole('heading', { name: 'දායකයන්' })).toBeInTheDocument()
     expect(currentPath()).toBe('/contributors')
@@ -30,7 +30,7 @@ describe('signing in', () => {
 
     await user.type(await screen.findByLabelText('නම'), organizer.username)
     await user.type(screen.getByLabelText('Password'), organizer.password)
-    await user.click(screen.getByRole('button', { name: 'ඇතුළු වන්න' }))
+    await user.click(screen.getByRole('button', { name: 'Login' }))
 
     expect(await screen.findByRole('heading', { name: 'දාන' })).toBeInTheDocument()
     expect(screen.getByText('නමෝ බුද්ධාය!')).toBeInTheDocument()
@@ -43,7 +43,7 @@ describe('signing in', () => {
 
     await user.type(await screen.findByLabelText('නම'), organizer.username)
     await user.type(screen.getByLabelText('Password'), 'wrong-password')
-    await user.click(screen.getByRole('button', { name: 'ඇතුළු වන්න' }))
+    await user.click(screen.getByRole('button', { name: 'Login' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('නම හෝ මුරපදය වැරදියි')
     expect(currentPath()).toBe('/login')
@@ -54,7 +54,7 @@ describe('signing in', () => {
     const { user, unmount } = await renderApp('/login')
     await user.type(await screen.findByLabelText('නම'), organizer.username)
     await user.type(screen.getByLabelText('Password'), organizer.password)
-    await user.click(screen.getByRole('button', { name: 'ඇතුළු වන්න' }))
+    await user.click(screen.getByRole('button', { name: 'Login' }))
     await screen.findByRole('heading', { name: 'දාන' })
 
     unmount()
