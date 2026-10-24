@@ -1,5 +1,6 @@
-import { useId, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router'
+import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { Sheet } from '../../components/Sheet'
 import { useCloseSheet } from '../../components/sheetNavigation'
 import { findItem, useAddItem, useDeleteItem, useMenu, useUpdateItem, type Category, type ItemFields, type Unit } from '../../data/menu'
@@ -43,7 +44,6 @@ export function EditItemSheet() {
   const updateItem = useUpdateItem(eventId)
   const deleteItem = useDeleteItem(eventId)
   const [confirming, setConfirming] = useState(false)
-  const confirmTitleId = useId()
   const close = useCloseSheet(`/events/${eventId}/items/${itemId}`)
   const navigate = useNavigate()
   // A deleted item has no details to go back to, so it's back to the menu.
@@ -79,24 +79,17 @@ export function EditItemSheet() {
             Item එක මකන්න
           </button>
           {confirming && (
-            <dialog open aria-labelledby={confirmTitleId} className={styles.confirm}>
-              <h3 id={confirmTitleId} className={styles.confirmTitle}>{item.name} මකන්නද?</h3>
-              <p className={styles.confirmText}>
-                එයට පැවරූ දායකයන්ද ඉවත් වේ. එයට අදාළ මුදල් වාර්තා හා ලේඛන දානයේ ඉතිරි වේ.
-              </p>
-              {deleteItem.isError && <p role="alert" className={styles.error}>මැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න.</p>}
-              <div className={styles.confirmActions}>
-                <button type="button" className={styles.secondary} onClick={() => setConfirming(false)}>එපා</button>
-                <button
-                  type="button"
-                  className={styles.dangerSolid}
-                  disabled={deleteItem.isPending}
-                  onClick={() => void remove()}
-                >
-                  ඔව්, මකන්න
-                </button>
-              </div>
-            </dialog>
+            <ConfirmDialog
+              title={`${item.name} මකන්නද?`}
+              confirmLabel="ඔව්, මකන්න"
+              destructive
+              busy={deleteItem.isPending}
+              onCancel={() => setConfirming(false)}
+              onConfirm={() => void remove()}
+            >
+              <p>එයට පැවරූ දායකයන්ද ඉවත් වේ. එයට අදාළ මුදල් වාර්තා හා ලේඛන දානයේ ඉතිරි වේ.</p>
+              {deleteItem.isError && <p role="alert">මැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න.</p>}
+            </ConfirmDialog>
           )}
         </>
       )}
