@@ -131,7 +131,7 @@ describe('contributor details', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'සුනිල් ජයසිංහ' })).toBeInTheDocument()
   })
 
-  it('"ලැයිස්තුව යවන්න" opens WhatsApp with a Sinhala message listing that event\'s items and quantities', async () => {
+  it('"WhatsApp" opens WhatsApp with a Sinhala message listing that event\'s items and quantities', async () => {
     const { householdId, organizer } = await seedHousehold()
     const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ', { phone: '0711111111', whatsapp: '077 123 4567' })
     const eventId = await seedEvent(householdId, { date: '2099-11-08', monastery: 'මාලබේ අසපුව', categories: ['බත්'] })
@@ -145,7 +145,7 @@ describe('contributor details', () => {
     await renderApp(`/contributors/${sunil}`, { signedInAs: organizer })
 
     const group = await screen.findByRole('region', { name: /නොවැම්බර් 08/ })
-    const share = within(group).getByRole('link', { name: 'ලැයිස්තුව යවන්න' })
+    const share = within(group).getByRole('link', { name: 'WhatsApp' })
     const url = new URL(share.getAttribute('href')!)
     expect(url.origin + url.pathname).toBe('https://wa.me/94771234567')
     const message = url.searchParams.get('text')!
@@ -158,7 +158,7 @@ describe('contributor details', () => {
     expect(message).toContain('• කිරිබත්')
     expect(message).not.toContain('වතුර බෝතල්')
     // Past events have nothing left to send.
-    expect(within(screen.getByRole('region', { name: /පසුගිය/ })).queryByRole('link', { name: 'ලැයිස්තුව යවන්න' })).not.toBeInTheDocument()
+    expect(within(screen.getByRole('region', { name: /පසුගිය/ })).queryByRole('link', { name: 'WhatsApp' })).not.toBeInTheDocument()
   })
 
   it("another household's contributor is not found", async () => {

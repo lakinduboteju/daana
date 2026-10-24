@@ -27,7 +27,7 @@ type Props = {
   className?: string
 }
 
-const UPLOAD_LABEL = 'ඡායාරූපයක් හෝ PDF එකක් උඩුගත කරන්න'
+const UPLOAD_LABEL = 'Photo එකක් හෝ PDF එකක් Upload කරන්න'
 
 /**
  * "ලේඛන (N)": an event's receipts, bills and other files (or one item's or
@@ -53,7 +53,7 @@ export function DocumentsSection({ eventId, itemId, transactionId, layout = 'lis
     upload.mutate(
       { file, name: documentName(file.name), itemId: itemId ?? null, transactionId: transactionId ?? null },
       {
-        onSuccess: () => toast('ලේඛනය උඩුගත කළා'),
+        onSuccess: () => toast('Upload කළා'),
         onError: () => setFailed(file),
       },
     )
@@ -105,7 +105,7 @@ export function DocumentsSection({ eventId, itemId, transactionId, layout = 'lis
           </button>
         </div>
       )}
-      {upload.isPending && <p className={styles.uploading}>උඩුගත කරමින්…</p>}
+      {upload.isPending && <p className={styles.uploading}>Upload වෙමින්…</p>}
       <label className={styles.upload}>
         <input
           type="file"
@@ -116,7 +116,7 @@ export function DocumentsSection({ eventId, itemId, transactionId, layout = 'lis
           disabled={upload.isPending}
         />
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16" /></svg>
-        {layout === 'grid' ? 'උඩුගත කරන්න' : UPLOAD_LABEL}
+        {layout === 'grid' ? 'Upload කරන්න' : UPLOAD_LABEL}
       </label>
       {open && <DocumentSheet eventId={eventId} doc={open} onClose={() => setOpenId(null)} />}
     </section>
@@ -200,10 +200,10 @@ function DocumentSheet({ eventId, doc, onClose }: { eventId: string; doc: EventD
       </p>
       <div className={styles.actions}>
         {doc.url && (
-          <a href={doc.url} target="_blank" rel="noreferrer" className={styles.action}>විවෘත කරන්න</a>
+          <a href={doc.url} target="_blank" rel="noreferrer" className={styles.action}>Open</a>
         )}
         {download && (
-          <a href={download} download className={styles.action}>බාගන්න</a>
+          <a href={download} download className={styles.action}>Download</a>
         )}
       </div>
 

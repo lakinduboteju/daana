@@ -18,7 +18,8 @@ describe('documents', () => {
 
     const section = await screen.findByRole('region', { name: /^ලේඛන/ })
     expect(await within(section).findByText('තවම ලේඛන නැත.')).toBeInTheDocument()
-    await user.upload(within(section).getByLabelText('ඡායාරූපයක් හෝ PDF එකක් උඩුගත කරන්න'), pdf('සහල් බිල්පත.pdf'))
+    await user.upload(within(section).getByLabelText('Photo එකක් හෝ PDF එකක් Upload කරන්න'), pdf('සහල් බිල්පත.pdf'))
+    expect(await screen.findByRole('status')).toHaveTextContent('Upload කළා')
 
     const list = await within(section).findByRole('list', { name: 'ලේඛන' })
     expect(within(list).getAllByRole('listitem')).toHaveLength(1)
@@ -28,7 +29,8 @@ describe('documents', () => {
 
     await user.click(within(list).getByRole('button', { name: 'සහල් බිල්පත — විකල්ප' }))
     const sheet = await screen.findByRole('dialog', { name: 'සහල් බිල්පත' })
-    const download = within(sheet).getByRole('link', { name: 'බාගන්න' })
+    expect(within(sheet).getByRole('link', { name: 'Open' })).toBeInTheDocument()
+    const download = within(sheet).getByRole('link', { name: 'Download' })
     const response = await fetch(download.getAttribute('href')!)
     expect(response.ok).toBe(true)
     expect(await response.text()).toBe('%PDF-1.4 සහල් බිල්පත')
@@ -41,8 +43,9 @@ describe('documents', () => {
     const { user } = await renderApp(`/events/${eventId}/items/${rice}`, { signedInAs: organizer })
 
     const section = await screen.findByRole('region', { name: 'ලේඛන (0)' })
+    expect(section).toHaveTextContent('Upload කරන්න')
     await user.upload(
-      within(section).getByLabelText('ඡායාරූපයක් හෝ PDF එකක් උඩුගත කරන්න'),
+      within(section).getByLabelText('Photo එකක් හෝ PDF එකක් Upload කරන්න'),
       new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], 'සහල් රිසිට්පත.jpg', { type: 'image/jpeg' }),
     )
     const grid = await within(section).findByRole('list', { name: 'ලේඛන' })
@@ -76,7 +79,7 @@ describe('documents', () => {
     const section = await screen.findByRole('region', { name: 'ලේඛන (0)' })
     const sheet = screen.getByRole('dialog', { name: 'Edit' })
     expect(sheet).toContainElement(section)
-    await user.upload(within(section).getByLabelText('ඡායාරූපයක් හෝ PDF එකක් උඩුගත කරන්න'), pdf('සහල් බිල්පත.pdf'))
+    await user.upload(within(section).getByLabelText('Photo එකක් හෝ PDF එකක් Upload කරන්න'), pdf('සහල් බිල්පත.pdf'))
     expect(await within(section).findByRole('list', { name: 'ලේඛන' })).toHaveTextContent('සහල් බිල්පත')
     expect(within(section).queryByText('අසපුවේ උපදෙස්')).not.toBeInTheDocument()
 
@@ -96,7 +99,7 @@ describe('documents', () => {
 
     await user.click(await screen.findByRole('button', { name: 'සහල් බිල්පත — විකල්ප' }))
     const sheet = await screen.findByRole('dialog', { name: 'සහල් බිල්පත' })
-    const download = within(sheet).getByRole('link', { name: 'බාගන්න' }).getAttribute('href')!
+    const download = within(sheet).getByRole('link', { name: 'Download' }).getAttribute('href')!
     expect((await fetch(download)).ok).toBe(true)
     await user.click(within(sheet).getByRole('button', { name: 'වසන්න' }))
 
@@ -117,7 +120,7 @@ describe('documents', () => {
 
     const section = await screen.findByRole('region', { name: /^ලේඛන/ })
     await within(section).findByText('තවම ලේඛන නැත.')
-    const input = within(section).getByLabelText('ඡායාරූපයක් හෝ PDF එකක් උඩුගත කරන්න')
+    const input = within(section).getByLabelText('Photo එකක් හෝ PDF එකක් Upload කරන්න')
 
     await user.upload(input, new File(['hello'], 'සටහන්.txt', { type: 'text/plain' }))
     expect(within(section).getByRole('alert')).toHaveTextContent('සටහන්.txt — ඡායාරූප සහ PDF පමණක් උඩුගත කළ හැක.')
@@ -183,7 +186,7 @@ describe('documents', () => {
         ? Promise.reject(new TypeError('Failed to fetch'))
         : realFetch(input, init),
     )
-    await user.upload(within(section).getByLabelText('ඡායාරූපයක් හෝ PDF එකක් උඩුගත කරන්න'), pdf('පොල් බිල්පත.pdf'))
+    await user.upload(within(section).getByLabelText('Photo එකක් හෝ PDF එකක් Upload කරන්න'), pdf('පොල් බිල්පත.pdf'))
 
     const alert = await within(section).findByRole('alert')
     expect(alert).toHaveTextContent('පොල් බිල්පත.pdf උඩුගත කිරීම අසාර්ථකයි. අන්තර්ජාලය පරීක්ෂා කරන්න.')
@@ -215,7 +218,7 @@ describe('documents', () => {
     await waitFor(() => expect(list).toHaveTextContent('අසපුවේ උපදෙස්'))
     expect(list).not.toHaveTextContent('scan_0012')
 
-    const download = within(sheet).getByRole('link', { name: 'බාගන්න' }).getAttribute('href')!
+    const download = within(sheet).getByRole('link', { name: 'Download' }).getAttribute('href')!
     await user.click(within(sheet).getByRole('button', { name: 'මකන්න' }))
     const confirm = await screen.findByRole('dialog', { name: 'අසපුවේ උපදෙස් මකන්නද?' })
     await user.click(within(confirm).getByRole('button', { name: 'එපා' }))
