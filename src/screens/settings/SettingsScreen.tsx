@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { useAuth, useSignOut } from '../../auth/useAuth'
+import { emailToUsername } from '../../auth/username'
 import { BackHeader } from '../../components/BackHeader'
 import { useHouseholds } from '../../data/household'
 import { PasswordForm } from './PasswordForm'
@@ -9,7 +10,8 @@ export function SettingsScreen() {
   const auth = useAuth()
   const signOut = useSignOut()
   const households = useHouseholds()
-  const username = auth.status === 'signedIn' ? auth.session.user.email?.split('@')[0] : undefined
+  const email = auth.status === 'signedIn' ? auth.session.user.email : undefined
+  const username = email ? emailToUsername(email) : undefined
 
   return (
     <main className={styles.screen}>
