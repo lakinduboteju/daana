@@ -12,10 +12,12 @@ export function callUrl({ phone }: Contact): string | null {
 /**
  * `wa.me` link for the WhatsApp number, falling back to the phone number.
  * Local numbers (077 123 4567) get the Sri Lankan country code: wa.me/94771234567.
+ * With `text`, WhatsApp opens with that message typed in, ready to send by hand.
  */
-export function whatsappUrl({ phone, whatsapp }: Contact): string | null {
+export function whatsappUrl({ phone, whatsapp }: Contact, text?: string): string | null {
   const number = internationalNumber(whatsapp) ?? internationalNumber(phone)
-  return number ? `https://wa.me/${number}` : null
+  if (!number) return null
+  return text ? `https://wa.me/${number}?text=${encodeURIComponent(text)}` : `https://wa.me/${number}`
 }
 
 function internationalNumber(text: string | null): string | null {
