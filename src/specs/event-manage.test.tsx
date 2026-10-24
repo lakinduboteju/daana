@@ -62,7 +62,7 @@ describe('editing an event', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(screen.getByLabelText(/දානය භාරගත් අය/)).toHaveValue('බොතේජු පවුල සහ දරුවන්')
 
-    await user.click(screen.getByRole('link', { name: 'අවලංගු' }))
+    await user.click(screen.getByRole('link', { name: 'Cancel' }))
     await user.click(await screen.findByRole('button', { name: 'ඉවත දමන්න' }))
     expect(currentPath()).toBe(`/events/${eventId}`)
 
@@ -81,36 +81,37 @@ describe('editing an event', () => {
     const eventId = await seedEvent(householdId, { date: colomboDate(4), host: 'බොතේජු පවුල' })
     const { user } = await renderApp(`/events/${eventId}/edit`, { signedInAs: organizer })
 
-    await user.click(await screen.findByRole('button', { name: 'දානය අවලංගු කරන්න' }))
-    expect(await screen.findByRole('status')).toHaveTextContent('දානය අවලංගු කළා')
-    expect(await screen.findByRole('button', { name: 'අවලංගු කිරීම ඉවත් කරන්න' })).toBeInTheDocument()
+    await user.click(await screen.findByRole('button', { name: 'දානය Cancel කරන්න' }))
+    expect(await screen.findByRole('status')).toHaveTextContent('දානය Cancel කළා')
+    expect(await screen.findByRole('button', { name: 'දානය නැවත සක්‍රීය කරන්න' })).toBeInTheDocument()
+    expect(screen.getByText('මෙම දානය Cancel කර ඇත. එහි විස්තර සියල්ල තවමත් සුරැකී ඇත.')).toBeInTheDocument()
 
     goTo(`/events/${eventId}`)
-    expect(await screen.findByText('අවලංගුයි')).toBeInTheDocument()
+    expect(await screen.findByText('Cancelled')).toBeInTheDocument()
 
     goTo('/events')
     const upcoming = await screen.findByRole('region', { name: 'ඉදිරි දාන' })
-    expect(within(upcoming).getByRole('link', { name: /බොතේජු පවුල/ })).toHaveTextContent('අවලංගුයි')
+    expect(within(upcoming).getByRole('link', { name: /බොතේජු පවුල/ })).toHaveTextContent('Cancelled')
 
     goTo(`/events/${eventId}/edit`)
-    await user.click(await screen.findByRole('button', { name: 'අවලංගු කිරීම ඉවත් කරන්න' }))
-    expect(await screen.findByRole('button', { name: 'දානය අවලංගු කරන්න' })).toBeInTheDocument()
+    await user.click(await screen.findByRole('button', { name: 'දානය නැවත සක්‍රීය කරන්න' }))
+    expect(await screen.findByRole('button', { name: 'දානය Cancel කරන්න' })).toBeInTheDocument()
 
     goTo('/events')
     const card = within(await screen.findByRole('region', { name: 'ඉදිරි දාන' })).getByRole('link', { name: /බොතේජු පවුල/ })
-    await waitFor(() => expect(card).not.toHaveTextContent('අවලංගුයි'))
+    await waitFor(() => expect(card).not.toHaveTextContent('Cancelled'))
   })
 
   it('marks a cancelled past event in the past list', async () => {
     const { householdId, organizer } = await seedHousehold()
     const eventId = await seedEvent(householdId, { date: colomboDate(-4), host: 'බොතේජු පවුල' })
     const { user } = await renderApp(`/events/${eventId}/edit`, { signedInAs: organizer })
-    await user.click(await screen.findByRole('button', { name: 'දානය අවලංගු කරන්න' }))
-    await screen.findByRole('button', { name: 'අවලංගු කිරීම ඉවත් කරන්න' })
+    await user.click(await screen.findByRole('button', { name: 'දානය Cancel කරන්න' }))
+    await screen.findByRole('button', { name: 'දානය නැවත සක්‍රීය කරන්න' })
 
     goTo('/events')
     const past = await screen.findByRole('region', { name: 'පසුගිය දාන' })
-    expect(within(past).getByRole('link', { name: /බොතේජු පවුල/ })).toHaveTextContent('අවලංගුයි')
+    expect(within(past).getByRole('link', { name: /බොතේජු පවුල/ })).toHaveTextContent('Cancelled')
   })
 
   it('asks before leaving a half-filled new event', async () => {
@@ -150,6 +151,7 @@ describe('event card more-menu', () => {
     expect(confirm).toHaveTextContent('ගෙවීම්')
     expect(confirm).toHaveTextContent('ලේඛන')
     expect(confirm).not.toHaveTextContent('කාණ්ඩ සහ අයිතම')
+    expect(confirm).toHaveTextContent('දානය Cancel කරන්න')
 
     await user.click(within(confirm).getByRole('button', { name: 'එපා' }))
     expect(screen.getByRole('link', { name: /බොතේජු පවුල/ })).toBeInTheDocument()

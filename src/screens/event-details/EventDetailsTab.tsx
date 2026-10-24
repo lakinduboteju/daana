@@ -40,7 +40,7 @@ function EditEvent({ event }: { event: EventDetails }) {
   async function toggleCancelled() {
     try {
       await setCancelled.mutateAsync({ eventId: event.id, cancelled: !cancelled })
-      toast(cancelled ? 'දානය නැවත සක්‍රීය කළා' : 'දානය අවලංගු කළා')
+      toast(cancelled ? 'දානය නැවත සක්‍රීය කළා' : 'දානය Cancel කළා')
     } catch {
       toast('සුරැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න.')
     }
@@ -57,9 +57,9 @@ function EditEvent({ event }: { event: EventDetails }) {
       }}
     >
       <section className={styles.manage} aria-label="දානය කළමනාකරණය">
-        {cancelled && <p className={styles.note}>මෙම දානය අවලංගු කර ඇත. එහි විස්තර සියල්ල තවමත් සුරැකී ඇත.</p>}
+        {cancelled && <p className={styles.note}>මෙම දානය Cancel කර ඇත. එහි විස්තර සියල්ල තවමත් සුරැකී ඇත.</p>}
         <button type="button" className={styles.action} onClick={toggleCancelled} disabled={setCancelled.isPending}>
-          {cancelled ? 'අවලංගු කිරීම ඉවත් කරන්න' : 'දානය අවලංගු කරන්න'}
+          {cancelled ? 'දානය නැවත සක්‍රීය කරන්න' : 'දානය Cancel කරන්න'}
         </button>
         <button type="button" className={styles.delete} onClick={() => setConfirmingDelete(true)}>
           දානය මකන්න

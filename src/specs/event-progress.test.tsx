@@ -65,7 +65,7 @@ describe('event progress', () => {
     const { unmount } = await renderApp(`/events/${cancelled}`, { signedInAs: organizer })
     const cancelledSummary = await screen.findByRole('region', { name: /මාලබේ අසපුව/ })
     await waitFor(() => expect(cancelledSummary).toHaveTextContent('3 / 7 තහවුරුයි'))
-    expect(cancelledSummary).toHaveTextContent('අවලංගුයි')
+    expect(cancelledSummary).toHaveTextContent('Cancelled')
     expect(screen.queryByRole('region', { name: 'අවධානය අවශ්‍යයි' })).not.toBeInTheDocument()
     unmount()
 

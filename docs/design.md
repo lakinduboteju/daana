@@ -53,6 +53,10 @@ Sri Lankan users are used to apps that mix Sinhala and English, and a fully Sinh
 | New password fields | New Password / New Password Again |
 | Optional field marker | (optional) |
 | Event date | calendar (`YYYY-MM-DD`) |
+| Leave the event form | Cancel |
+| Cancelled event | Cancelled |
+| Cancel an event | දානය Cancel කරන්න |
+| Restore a cancelled event | දානය නැවත සක්‍රීය කරන්න |
 | Assign to someone | `<name>` ට පවරන්න |
 | Login field | නම (Username) + Password |
 | Sign in | Login |

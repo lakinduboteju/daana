@@ -9,7 +9,7 @@ import { type EventFormValues } from './eventFormValues'
 type Props = {
   initial: EventFormValues
   submitLabel: string
-  /** Where "අවලංගු" goes. */
+  /** Where "Cancel" goes. */
   cancelTo: string
   /** Saves the event. Resolves to where to go next, or nothing to stay on the form. */
   onSave: (fields: EventFields) => Promise<string | void>
@@ -127,7 +127,7 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, children }: 
       {children}
 
       <div className={styles.actions}>
-        <Link to={cancelTo} className={styles.cancel}>අවලංගු</Link>
+        <Link to={cancelTo} className={styles.cancel}>Cancel</Link>
         <button type="submit" className={styles.save} disabled={saving}>
           {submitLabel}
         </button>
