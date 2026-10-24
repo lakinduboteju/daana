@@ -116,36 +116,34 @@ export function EditTransactionSheet() {
         )
       }
     >
-      {(saved) => (
-        <>
-          <button type="button" className={styles.danger} onClick={() => setConfirming(true)}>
-            මකන්න
-          </button>
-          {confirming && (
-            <ConfirmDialog
-              title="මෙම ගනුදෙනුව මකන්නද?"
-              confirmLabel="ඔව්, මකන්න"
-              destructive
-              busy={remove.isPending}
-              onCancel={() => setConfirming(false)}
-              onConfirm={() =>
-                // mutateAsync: the sheet unmounts once the transaction is gone.
-                void remove.mutateAsync(transactionId).then(
-                  () => {
-                    saved()
-                    toast('ගනුදෙනුව මකා දැමුවා')
-                    close()
-                  },
-                  () => {},
-                )
-              }
-            >
-              {remove.isError && <p role="alert">මැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න.</p>}
-            </ConfirmDialog>
-          )}
-        </>
-      )}
-    </TransactionForm>
+      <>
+        <button type="button" className={styles.danger} onClick={() => setConfirming(true)}>
+          මකන්න
+        </button>
+        {confirming && (
+          <ConfirmDialog
+            title="මෙම ගනුදෙනුව මකන්නද?"
+            confirmLabel="ඔව්, මකන්න"
+            destructive
+            busy={remove.isPending}
+            onCancel={() => setConfirming(false)}
+            onConfirm={() =>
+              // mutateAsync: the sheet (and its unsaved-changes guard) unmounts
+              // once the refetched money no longer has the transaction.
+              void remove.mutateAsync(transactionId).then(
+                () => {
+                  toast('ගනුදෙනුව මකා දැමුවා')
+                  close()
+                },
+                () => {},
+              )
+            }
+          >
+            {remove.isError && <p role="alert">මැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න.</p>}
+          </ConfirmDialog>
+        )}
+      </>
+  </TransactionForm>
   )
 }
 
@@ -160,7 +158,7 @@ type FormProps = {
   onClose: () => void
   /** `saved()` marks the form clean so closing doesn't ask about unsaved changes. */
   onSubmit: (fields: TransactionFields, saved: () => void) => void
-  children?: (saved: () => void) => ReactNode
+  children?: ReactNode
 }
 
 function TransactionForm({ title, initial, knownItem, knownContributor, saving, failed, onClose, onSubmit, children }: FormProps) {
@@ -288,7 +286,7 @@ function TransactionForm({ title, initial, knownItem, knownContributor, saving, 
 
         <button type="submit" className={styles.submit} disabled={saving}>සුරකින්න</button>
       </form>
-      {children?.(saved)}
+      {children}
     </Sheet>
   )
 }
