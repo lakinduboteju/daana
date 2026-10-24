@@ -4,6 +4,23 @@ import { currentPath, renderApp } from '../test/renderApp'
 import { colomboDate, seedEvent, seedHousehold } from '../test/seed'
 
 describe('events', () => {
+  it('keeps the organizer on the form when the date is not a real dd/mm/yyyy date', async () => {
+    const { organizer } = await seedHousehold()
+    const { user } = await renderApp('/events/new', { signedInAs: organizer })
+    const date = await screen.findByLabelText(/දිනය/)
+
+    await user.type(date, '2099-11-08')
+    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('වලංගු දිනයක් ඇතුළත් කරන්න.')
+    expect(currentPath()).toBe('/events/new')
+
+    await user.clear(date)
+    await user.type(date, '31/02/2099')
+    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    expect(screen.getByRole('alert')).toHaveTextContent('වලංගු දිනයක් ඇතුළත් කරන්න.')
+    expect(currentPath()).toBe('/events/new')
+  })
+
   it('creates an event with a new monastery and shows it as a card on the events home', async () => {
     const { organizer } = await seedHousehold()
     const { user } = await renderApp('/events', { signedInAs: organizer })
@@ -11,7 +28,9 @@ describe('events', () => {
     await user.click(await screen.findByRole('link', { name: 'අළුත් දානයක්' }))
     expect(currentPath()).toBe('/events/new')
 
-    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
+    const date = await screen.findByLabelText(/දිනය/)
+    expect(date).toHaveAttribute('placeholder', 'dd/mm/yyyy')
+    await user.type(date, '08/11/2099')
     expect(screen.getByLabelText('දානය භාරගත් අය (optional)')).not.toHaveAttribute('placeholder')
     expect(screen.getByText('අමතර විස්තර (optional)')).toBeInTheDocument()
     expect(screen.queryByText(/අවශ්‍ය නම් පමණක්/)).not.toBeInTheDocument()
@@ -88,7 +107,7 @@ describe('events', () => {
     await seedEvent(householdId, { date: colomboDate(-30), monastery: 'පොල්ගහවෙල අසපුව' })
     const { user } = await renderApp('/events/new', { signedInAs: organizer })
 
-    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-07')
+    await user.type(await screen.findByLabelText(/දිනය/), '07/11/2099')
     await user.click(screen.getByRole('radio', { name: 'හීල් දානය' }))
     await user.click(await screen.findByRole('radio', { name: 'පොල්ගහවෙල අසපුව' }))
     expect(screen.queryByLabelText('අසපුවේ නම')).not.toBeInTheDocument()

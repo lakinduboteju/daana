@@ -4,6 +4,7 @@ import { UnsavedChangesGuard } from '../../components/UnsavedChangesGuard'
 import type { EventFields } from '../../data/events'
 import { MEAL_LABEL, type Meal } from '../../data/meal'
 import { useRecentMonasteries } from '../../data/monasteries'
+import { toIsoDate } from '../../lib/dates'
 import styles from './EventFormScreen.module.css'
 import { NEW_MONASTERY, type EventFormValues } from './eventFormValues'
 
@@ -44,7 +45,9 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled, ch
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
-    if (!values.date) return setError('දිනය ඇතුළත් කරන්න.')
+    const isoDate = toIsoDate(values.date)
+    if (!values.date.trim()) return setError('දිනය ඇතුළත් කරන්න.')
+    if (!isoDate) return setError('වලංගු දිනයක් ඇතුළත් කරන්න.')
     if (!monasteryChoice) return setError('අසපුවක් තෝරන්න.')
     if (monasteryChoice === NEW_MONASTERY && !values.monasteryName.trim()) return setError('අසපුවේ නම ඇතුළත් කරන්න.')
     setError(null)
@@ -53,7 +56,7 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled, ch
 
     try {
       const next = await onSave({
-        date: values.date,
+        date: isoDate,
         meal: values.meal,
         monastery:
           monasteryChoice === NEW_MONASTERY
@@ -83,7 +86,7 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, disabled, ch
         <label htmlFor="event-date" className={styles.label}>
           දිනය <span className={styles.required}>*</span>
         </label>
-        <input id="event-date" type="date" className={styles.input} value={values.date} onChange={(e) => set('date', e.target.value)} required />
+        <input id="event-date" type="text" autoComplete="off" placeholder="dd/mm/yyyy" className={styles.input} value={values.date} onChange={(e) => set('date', e.target.value)} required />
       </div>
 
       <fieldset className={styles.fieldset}>

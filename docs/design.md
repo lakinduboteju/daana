@@ -51,6 +51,7 @@ Sri Lankan users are used to apps that mix Sinhala and English, and a fully Sinh
 | Password section | Password |
 | New password fields | New Password / New Password Again |
 | Optional field marker | (optional) |
+| Event date | typed as dd/mm/yyyy |
 | Assign to someone | `<name>` ට පවරන්න |
 | Login field | නම (Username) + Password |
 | Sign in | Login |

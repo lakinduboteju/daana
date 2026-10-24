@@ -1,5 +1,6 @@
 import type { EventDetails } from '../../data/events'
 import type { Meal } from '../../data/meal'
+import { toDisplayDate } from '../../lib/dates'
 
 export const NEW_MONASTERY = 'new'
 
@@ -38,7 +39,7 @@ export const EMPTY_EVENT_FORM: EventFormValues = {
 export function eventFormValues(event: EventDetails): EventFormValues {
   return {
     ...EMPTY_EVENT_FORM,
-    date: event.date,
+    date: toDisplayDate(event.date),
     meal: event.meal,
     monastery: event.monastery_id,
     host: event.host ?? '',
