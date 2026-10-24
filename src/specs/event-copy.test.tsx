@@ -1,7 +1,7 @@
 import { screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
-import { colomboDate, seedAssignment, seedContributor, seedEvent, seedHousehold, seedItem } from '../test/seed'
+import { colomboDate, seedAssignment, seedContributor, seedEvent, seedHousehold, seedItem, seedTransaction } from '../test/seed'
 
 /** A previous event with a menu: two categories, three items, two contributors (one confirmed, one received). */
 async function seedPreviousEvent() {
@@ -114,6 +114,24 @@ describe('copying a previous event', () => {
 
     const copied = await screen.findByRole('region', { name: 'බත්' })
     expect(itemRow(copied, 'කහ බත්')).toHaveTextContent('දායකයෙකු තවම නැත')
+  })
+
+  it('leaves out money: the copy has no givens or expenses', async () => {
+    const { householdId, organizer, eventId } = await seedPreviousEvent()
+    const nimal = await seedContributor(householdId, 'නිමල් සිල්වා')
+    await seedTransaction(eventId, { kind: 'given', amount: 2500, contributorId: nimal })
+    await seedTransaction(eventId, { kind: 'expense', amount: 3150 })
+    const { user } = await renderApp(`/events/new?from=${eventId}`, { signedInAs: organizer })
+
+    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
+    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    expect(await screen.findByRole('heading', { name: 'නොවැම්බර් 08 · දහවල් දානය' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('link', { name: 'මුදල් හා ලේඛන' }))
+    expect(await screen.findByText('තවම මුදල් වාර්තා නැත.')).toBeInTheDocument()
+    const totals = screen.getByRole('region', { name: 'එකතුව' })
+    expect(totals).toHaveTextContent('දායකයන්ට ලබා දුන් මුදල්Rs 0')
+    expect(totals).toHaveTextContent('සත්‍ය වියදම්Rs 0')
   })
 
   it("can't copy another household's event", async () => {

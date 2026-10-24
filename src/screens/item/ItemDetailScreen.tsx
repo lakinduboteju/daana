@@ -8,10 +8,12 @@ import { StatusBadge } from '../../components/StatusBadge'
 import { StatusChoice } from '../../components/StatusChoice'
 import { useSaveFailed, useToast } from '../../components/useToast'
 import { useSetAssignmentStatus } from '../../data/assignments'
+import { useEventMoney } from '../../data/money'
 import { useMenu, type Assignment, type Category, type Item } from '../../data/menu'
 import { STATUS_LABEL, type AssignmentStatus } from '../../data/status'
 import { formatAmount, formatQuantity } from '../../data/units'
 import { menuPath } from '../event/menuFilters'
+import { TransactionList } from '../money/MoneyTab'
 import { NotFoundScreen } from '../not-found/NotFoundScreen'
 import styles from './ItemDetailScreen.module.css'
 
@@ -46,6 +48,7 @@ export function ItemDetailScreen() {
           <p className={styles.notes}>{item.notes}</p>
         </section>
       )}
+      <ItemMoney eventId={eventId} itemId={item.id} />
       <Link to="edit" state={OVER_PARENT} className={styles.edit}>Item එක සංස්කරණය කරන්න</Link>
       <Outlet />
     </>,
@@ -140,6 +143,28 @@ function AssignmentRow({ eventId, item, assignment }: { eventId: string; item: I
       </div>
       <StatusChoice label={`${name} — තත්ත්වය`} hideLabel value={assignment.status} onChange={change} />
     </li>
+  )
+}
+
+/** The item's givens and expenses (#13), with links to record more for it. */
+function ItemMoney({ eventId, itemId }: { eventId: string; itemId: string }) {
+  const money = useEventMoney(eventId)
+  const newPath = (type: string) => `/events/${eventId}/money/new?type=${type}&item=${itemId}`
+  return (
+    <section aria-labelledby="item-money" className={styles.card}>
+      <h2 id="item-money" className={styles.cardTitle}>මුදල්</h2>
+      {money.data && (
+        <TransactionList
+          transactions={money.data.transactions.filter((t) => t.item?.id === itemId)}
+          empty="මුදල් වාර්තා නැත."
+          showItem={false}
+        />
+      )}
+      <div className={styles.moneyActions}>
+        <Link to={newPath('given')} state={OVER_PARENT} className={styles.addContributor}>+ ලබා දුන් මුදලක්</Link>
+        <Link to={newPath('expense')} state={OVER_PARENT} className={styles.addContributor}>+ වියදමක්</Link>
+      </div>
+    </section>
   )
 }
 
