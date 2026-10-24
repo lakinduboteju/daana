@@ -23,11 +23,7 @@ export function EventHeader({ event }: { event: EventSummary }) {
         </h2>
         {event.host && <p className={styles.host}>{event.host}</p>}
         {event.cancelled_at && <CancelledBadge />}
-        <div className={styles.chips}>
-          <Chip label="ස්වාමීන් වහන්සේලා" count={event.monk_count} />
-          <Chip label="ගිහි" count={event.layperson_count} />
-          <Chip label="මුළු" count={event.monk_count + event.layperson_count} />
-        </div>
+        <CountChips event={event} />
         {event.item_count > 0 && (
           <div className={styles.readiness}>
             <div className={styles.readinessRow}>
@@ -47,6 +43,19 @@ export function EventHeader({ event }: { event: EventSummary }) {
         <NavLink to={`${base}/edit`} className={tabClass}>විස්තර</NavLink>
       </nav>
     </>
+  )
+}
+
+/** A count of zero is omitted. The total is omitted only when both are zero. */
+function CountChips({ event }: { event: EventSummary }) {
+  const total = event.monk_count + event.layperson_count
+  if (total === 0) return null
+  return (
+    <div className={styles.chips}>
+      {event.monk_count > 0 && <Chip label="ස්වාමීන් වහන්සේලා" count={event.monk_count} />}
+      {event.layperson_count > 0 && <Chip label="ගිහි" count={event.layperson_count} />}
+      <Chip label="මුළු" count={total} />
+    </div>
   )
 }
 

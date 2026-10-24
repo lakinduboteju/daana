@@ -98,6 +98,19 @@ function DateGroup({ date, daysAway, events }: { date: string; daysAway: number;
   )
 }
 
+/** A count of zero is omitted. The total is omitted only when both are zero. */
+function CountLine({ event }: { event: EventSummary }) {
+  const total = event.monk_count + event.layperson_count
+  if (total === 0) return null
+  return (
+    <span className={styles.counts}>
+      {event.monk_count > 0 && <span>ස්වාමීන් වහන්සේලා <b>{event.monk_count}</b></span>}
+      {event.layperson_count > 0 && <span>ගිහි පිරිස <b>{event.layperson_count}</b></span>}
+      <span>මුළු <b>{total}</b></span>
+    </span>
+  )
+}
+
 function EventCard({ event }: { event: EventSummary }) {
   return (
     <div className={styles.cardWrap}>
@@ -114,10 +127,7 @@ function EventCard({ event }: { event: EventSummary }) {
         ) : (
           <span className={styles.cardTitle}>{event.monastery_name}</span>
         )}
-        <span className={styles.counts}>
-          <span>ස්වාමීන් වහන්සේලා <b>{event.monk_count}</b></span>{' '}
-          <span>ගිහි පිරිස <b>{event.layperson_count}</b></span>
-        </span>
+        <CountLine event={event} />
         <CardProgress event={event} />
       </Link>
       <EventCardMenu event={event} />

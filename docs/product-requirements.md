@@ -85,6 +85,7 @@ Expected behavior
 - Tapping an event card opens its menu and management screen.
 - Include search and filtering by date, monastery, organizer/name, and event status.
 - Support multiple events on the same date.
+- On the event card and the event header, omit a count of zero. Omit the total only when both counts are zero.
 - Provide a clear primary action to create a new event.
 
 Recommended addition: Allow an organizer to duplicate an existing event, including its menu and categories, to save time when organizing similar almsgiving events. Contributor confirmations should reset for the new event.

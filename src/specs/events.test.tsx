@@ -157,4 +157,71 @@ describe('events', () => {
     expect(cards[1]).toHaveTextContent('බොතේජු පවුල')
     expect(cards[1]).toHaveTextContent('මාලබේ අසපුව')
   })
+
+  it('hides a zero count, and hides the total only when both counts are zero', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const date = colomboDate(3)
+    await seedEvent(householdId, { date, host: 'හිස්', monkCount: 0, laypersonCount: 0 })
+    await seedEvent(householdId, { date, meal: 'breakfast', host: 'ස්වාමීන් පමණයි', monkCount: 4, laypersonCount: 0 })
+    await seedEvent(householdId, { date: colomboDate(4), host: 'ගිහියන් පමණයි', monkCount: 0, laypersonCount: 6 })
+    await seedEvent(householdId, { date: colomboDate(5), host: 'දෙපිරිසම', monkCount: 3, laypersonCount: 5 })
+    const { user } = await renderApp('/events', { signedInAs: organizer })
+
+    const upcoming = await screen.findByRole('region', { name: 'ඉදිරි දාන' })
+    const none = within(upcoming).getByRole('link', { name: /හිස්/ })
+    expect(none).not.toHaveTextContent('ස්වාමීන් වහන්සේලා')
+    expect(none).not.toHaveTextContent('ගිහි පිරිස')
+    expect(none).not.toHaveTextContent('මුළු')
+
+    const monks = within(upcoming).getByRole('link', { name: /ස්වාමීන් පමණයි/ })
+    expect(monks).toHaveTextContent('ස්වාමීන් වහන්සේලා 4')
+    expect(monks).not.toHaveTextContent('ගිහි පිරිස')
+    expect(monks).toHaveTextContent('මුළු 4')
+
+    const lay = within(upcoming).getByRole('link', { name: /ගිහියන් පමණයි/ })
+    expect(lay).toHaveTextContent('ගිහි පිරිස 6')
+    expect(lay).not.toHaveTextContent('ස්වාමීන් වහන්සේලා')
+    expect(lay).toHaveTextContent('මුළු 6')
+
+    const both = within(upcoming).getByRole('link', { name: /දෙපිරිසම/ })
+    expect(both).toHaveTextContent('ස්වාමීන් වහන්සේලා 3')
+    expect(both).toHaveTextContent('ගිහි පිරිස 5')
+    expect(both).toHaveTextContent('මුළු 8')
+
+    await user.click(none)
+    expect(await screen.findByRole('heading', { name: /හිස්|මාලබේ/ })).toBeInTheDocument()
+    expect(screen.queryByText('ස්වාමීන් වහන්සේලා')).not.toBeInTheDocument()
+    expect(screen.queryByText('ගිහි')).not.toBeInTheDocument()
+    expect(screen.queryByText('මුළු')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('link', { name: 'ආපසු' }))
+    await user.click(await screen.findByRole('link', { name: /ස්වාමීන් පමණයි/ }))
+    expect((await screen.findByText('ස්වාමීන් වහන්සේලා')).parentElement).toHaveTextContent('ස්වාමීන් වහන්සේලා 4')
+    expect(screen.getByText('මුළු').parentElement).toHaveTextContent('මුළු 4')
+    expect(screen.queryByText('ගිහි')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('link', { name: 'ආපසු' }))
+    await user.click(await screen.findByRole('link', { name: /ගිහියන් පමණයි/ }))
+    expect((await screen.findByText('ගිහි')).parentElement).toHaveTextContent('ගිහි 6')
+    expect(screen.getByText('මුළු').parentElement).toHaveTextContent('මුළු 6')
+    expect(screen.queryByText('ස්වාමීන් වහන්සේලා')).not.toBeInTheDocument()
+  })
+
+  it('saves zero counts when the steppers are left untouched', async () => {
+    const { organizer } = await seedHousehold()
+    const { user } = await renderApp('/events/new', { signedInAs: organizer })
+
+    await user.type(await screen.findByLabelText(/දිනය/), '08/11/2099')
+    await user.type(screen.getByLabelText(/^අසපුව/), 'මාලබේ අසපුව')
+    await user.click(screen.getByRole('button', { name: 'සුරකින්න, මෙනුවට යන්න' }))
+    expect(await screen.findByRole('heading', { name: /මාලබේ අසපුව/ })).toBeInTheDocument()
+    expect(screen.queryByText('ස්වාමීන් වහන්සේලා')).not.toBeInTheDocument()
+    expect(screen.queryByText('ගිහි')).not.toBeInTheDocument()
+    expect(screen.queryByText('මුළු')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('link', { name: 'විස්තර' }))
+    await user.click(await screen.findByText('අමතර විස්තර (optional)'))
+    expect(screen.getByLabelText('ස්වාමීන් වහන්සේලා')).toHaveValue('0')
+    expect(screen.getByLabelText('ගිහි පිරිස')).toHaveValue('0')
+  })
 })
