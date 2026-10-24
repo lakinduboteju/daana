@@ -9,6 +9,8 @@ describe('changing the password', () => {
     const { user } = await renderApp('/settings', { signedInAs: organizer })
 
     expect(await screen.findByRole('heading', { name: 'Settings' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Account' })).toBeInTheDocument()
+    expect(screen.getByText('නම')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'ආහාර කාණ්ඩ (Categories)' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Password' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Edit' })).toHaveAttribute('href', expect.stringContaining('/settings/categories'))
@@ -24,7 +26,7 @@ describe('changing the password', () => {
     await user.type(await screen.findByLabelText('නම'), organizer.username)
     await user.type(screen.getByLabelText('Password'), organizer.password)
     await user.click(screen.getByRole('button', { name: 'Login' }))
-    expect(await screen.findByRole('alert')).toHaveTextContent('නම හෝ මුරපදය වැරදියි')
+    expect(await screen.findByRole('alert')).toHaveTextContent('නම හෝ Password වැරදියි.')
 
     await user.clear(screen.getByLabelText('Password'))
     await user.type(screen.getByLabelText('Password'), 'new-password-456')

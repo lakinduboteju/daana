@@ -15,7 +15,7 @@ export function SettingsScreen() {
     <main className={styles.screen}>
       <BackHeader title="Settings" backTo="/events" />
       <section className={styles.section} aria-labelledby="account">
-        <h2 id="account" className={styles.sectionTitle}>ගිණුම</h2>
+        <h2 id="account" className={styles.sectionTitle}>Account</h2>
         <dl className={styles.details}>
           <dt>නම</dt>
           <dd>{username}</dd>

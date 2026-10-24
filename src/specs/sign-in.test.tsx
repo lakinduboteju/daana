@@ -80,7 +80,7 @@ describe('signing in', () => {
     await user.type(screen.getByLabelText('Password'), 'wrong-password')
     await user.click(screen.getByRole('button', { name: 'Login' }))
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('නම හෝ මුරපදය වැරදියි')
+    expect(await screen.findByRole('alert')).toHaveTextContent('නම හෝ Password වැරදියි.')
     expect(currentPath()).toBe('/login')
   })
 

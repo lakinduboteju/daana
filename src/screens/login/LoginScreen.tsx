@@ -29,7 +29,7 @@ export function LoginScreen() {
     if (error) {
       setError(
         error.code === 'invalid_credentials'
-          ? 'නම හෝ මුරපදය වැරදියි. නැවත උත්සාහ කරන්න.'
+          ? 'නම හෝ Password වැරදියි.'
           : 'ඇතුළු වීමට නොහැකි විය. සම්බන්ධතාවය පරීක්ෂා කර නැවත උත්සාහ කරන්න.',
       )
     }
