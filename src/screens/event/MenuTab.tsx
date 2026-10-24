@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, Outlet, useLocation, useParams } from 'react-router'
+import { Link, useLocation, useOutlet, useParams } from 'react-router'
 import { OVER_PARENT } from '../../components/sheetNavigation'
 import { StatusBadge } from '../../components/StatusBadge'
 import { useMenu, type Category, type Item } from '../../data/menu'
@@ -12,13 +12,14 @@ import styles from './MenuTab.module.css'
 export function MenuTab() {
   const { eventId = '' } = useParams()
   const menu = useMenu(eventId)
-  const menuFilters = useMenuFilters()
+  const outlet = useOutlet()
+  const menuFilters = useMenuFilters(outlet === null)
   const filtered = isFiltered(menuFilters.filters)
   const shown = menu.data ? filterMenu(menu.data, menuFilters.filters) : undefined
 
   return (
     <>
-      {menu.data && shown && (
+      {menu.data && shown && menu.data.some((c) => c.items.length > 0) && (
         <MenuFilterBar menu={menu.data} shown={shown.reduce((n, c) => n + c.items.length, 0)} filters={menuFilters} />
       )}
       <div className={styles.titleRow}>
@@ -41,7 +42,7 @@ export function MenuTab() {
         Item
       </Link>
 
-      <Outlet />
+      {outlet}
     </>
   )
 }

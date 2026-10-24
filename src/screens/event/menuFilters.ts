@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useSearchParams } from 'react-router'
 import type { Category, Item } from '../../data/menu'
 import type { ItemStatus } from '../../data/status'
@@ -89,10 +90,18 @@ export function filterMenu(menu: Category[], filters: MenuFilters): Category[] {
     .filter((category) => category.items.length > 0)
 }
 
-/** The menu's filters, read from and written to the query string. */
-export function useMenuFilters() {
+/**
+ * The menu's filters, read from and written to the query string. While a sheet
+ * or item is open over the menu (onMenu false), the URL is the child route's
+ * (items/new uses ?category= for something else), so the menu keeps the
+ * filters it last had.
+ */
+export function useMenuFilters(onMenu: boolean) {
   const [params, setParams] = useSearchParams()
-  const filters = readFilters(params)
+  const search = params.toString()
+  const [menuSearch, setMenuSearch] = useState(onMenu ? search : '')
+  if (onMenu && search !== menuSearch) setMenuSearch(search)
+  const filters = readFilters(onMenu ? params : new URLSearchParams(menuSearch))
 
   /** Sets (or with null, removes) one filter param, keeping the others. Replaces the history entry. */
   function set(name: (typeof FILTER_PARAMS)[number], value: string | null) {
