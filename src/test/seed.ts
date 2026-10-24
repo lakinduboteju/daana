@@ -202,6 +202,47 @@ type SeedTransactionOptions = {
   notes?: string | null
 }
 
+type SeedDocumentOptions = {
+  name: string
+  /** The file's content. */
+  content?: string
+  mimeType?: 'application/pdf' | 'image/jpeg'
+  itemId?: string | null
+  transactionId?: string | null
+}
+
+/**
+ * Stores a file in the documents bucket under the event's household/event
+ * folder and records it. Returns the document's id and storage path.
+ */
+export async function seedDocument(
+  eventId: string,
+  options: SeedDocumentOptions,
+): Promise<{ documentId: string; storagePath: string }> {
+  const { data: event, error: eventError } = await admin.from('event').select('household_id').eq('id', eventId).single()
+  if (eventError) throw eventError
+  const mimeType = options.mimeType ?? 'application/pdf'
+  const content = new TextEncoder().encode(options.content ?? '%PDF-1.4 test')
+  const storagePath = `${event.household_id}/${eventId}/${crypto.randomUUID()}.${mimeType === 'application/pdf' ? 'pdf' : 'jpg'}`
+  const { error: uploadError } = await admin.storage.from('documents').upload(storagePath, content, { contentType: mimeType })
+  if (uploadError) throw uploadError
+  const { data, error } = await admin
+    .from('document')
+    .insert({
+      event_id: eventId,
+      item_id: options.itemId ?? null,
+      transaction_id: options.transactionId ?? null,
+      name: options.name,
+      storage_path: storagePath,
+      mime_type: mimeType,
+      size: content.byteLength,
+    })
+    .select('id')
+    .single()
+  if (error) throw error
+  return { documentId: data.id, storagePath }
+}
+
 /** Records a given or an expense on an event. Returns the transaction's id. */
 export async function seedTransaction(eventId: string, options: SeedTransactionOptions): Promise<string> {
   const { data, error } = await admin
