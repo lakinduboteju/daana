@@ -63,3 +63,24 @@
   color: var(--color-accent-strong);
   border-bottom-color: var(--color-accent);
 }
+
+.readiness {
+  margin-top: 16px;
+}
+
+.readinessRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 15px;
+}
+
+.readinessTitle {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.readyCount {
+  font-size: 22px;
+}

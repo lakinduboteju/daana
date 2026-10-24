@@ -41,6 +41,8 @@ describe('contributors directory', () => {
     const { user } = await renderApp('/contributors', { signedInAs: organizer })
 
     await user.click(await screen.findByText(longName))
+    expect(currentPath()).toMatch(/^\/contributors\/[0-9a-f-]+$/)
+    await user.click(await screen.findByRole('link', { name: 'සංස්කරණය' }))
     expect(currentPath()).toMatch(/^\/contributors\/[0-9a-f-]+\/edit$/)
     const name = await screen.findByLabelText('නම')
     expect(name).toHaveValue(longName)

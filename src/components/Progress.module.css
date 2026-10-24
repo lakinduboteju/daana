@@ -1,0 +1,55 @@
+.stacked {
+  display: flex;
+  height: 14px;
+  margin-top: 8px;
+  border-radius: 7px;
+  overflow: hidden;
+  background: var(--color-track);
+}
+
+.segment {
+  height: 100%;
+}
+
+.received {
+  background: #1e4a85;
+}
+
+.confirmed {
+  background: var(--color-ready);
+}
+
+.partial {
+  background: #e3a33b;
+  opacity: 0.6;
+}
+
+.pending {
+  background: #e3a33b;
+}
+
+.track {
+  display: block;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--color-track);
+  overflow: hidden;
+}
+
+.small {
+  display: inline-block;
+  width: 48px;
+  height: 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  background: var(--color-accent);
+}
+
+.done {
+  background: var(--color-ready);
+}

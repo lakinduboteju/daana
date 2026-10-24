@@ -122,3 +122,16 @@
   background: var(--color-accent-strong);
   color: var(--color-on-accent);
 }
+
+.pending {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--status-pending-bg);
+  color: var(--status-pending-fg);
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  gap: 4px;
+}

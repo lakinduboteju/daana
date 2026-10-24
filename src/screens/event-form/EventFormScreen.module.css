@@ -272,3 +272,9 @@
   opacity: 0.6;
   cursor: default;
 }
+
+.status {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--color-text-muted);
+}

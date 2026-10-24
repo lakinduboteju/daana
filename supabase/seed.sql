@@ -124,3 +124,27 @@ join (values
   ('ඉඟුරු තේ', 'කමලා රත්නායක', 4, 'confirmed')
 ) as v (item, contributor, qty, status) on v.item = i.name
 join public.contributor co on co.household_id = h.id and co.name = v.contributor;
+
+-- Design sample money on the first මාලබේ event (ticket #13, Money artboard):
+-- given Rs 7,500, expenses Rs 6,200, ශ්‍රියා පෙරේරා owed Rs 1,200.
+insert into public.contributor (household_id, name, phone)
+select h.id, 'ශ්‍රියා පෙරේරා', '078 789 0123'
+from public.household h
+where h.name = 'බොතේජු පවුල';
+
+insert into public.transaction (event_id, item_id, contributor_id, kind, amount, date, method, notes)
+select e.id, i.id, co.id, v.kind, v.amount, current_date + v.day, v.method, v.notes
+from public.event e
+join public.monastery mo on mo.id = e.monastery_id and mo.name = 'මාලබේ අසපුව'
+join public.household h on h.id = e.household_id and h.name = 'බොතේජු පවුල'
+cross join (values
+  ('given', 2500, 'සුනිල් ජයසිංහ', 'සුදු බත්', 6, 'bank_transfer', null),
+  ('given', 3000, 'නිමල් සිල්වා', 'කිරිබත්', 8, 'cash', null),
+  ('given', 2000, 'දිල්රුක්ෂි', 'වම්බටු මෝජු', 9, 'bank_transfer', null),
+  ('expense', 1850, 'සුනිල් ජයසිංහ', 'සුදු බත්', 10, null, 'සහල් කි.ග්‍රෑ. 5'),
+  ('expense', 1200, 'ශ්‍රියා පෙරේරා', null, 10, null, 'පරිප්පු, පොල්'),
+  ('expense', 3150, null, null, 11, null, 'මල් හා පහන් තෙල්')
+) as v (kind, amount, contributor, item, day, method, notes)
+left join public.item i on i.event_id = e.id and i.name = v.item
+left join public.contributor co on co.household_id = h.id and co.name = v.contributor
+where e.date = current_date + 15 and e.meal = 'lunch';

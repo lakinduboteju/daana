@@ -81,6 +81,10 @@
   color: var(--color-text-subtle);
 }
 
+.countDone {
+  color: var(--status-confirmed-fg);
+}
+
 .items {
   margin: 0;
   padding: 0;

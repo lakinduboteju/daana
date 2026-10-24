@@ -14,9 +14,27 @@ export type EventSummary = {
   days_away: number
   is_past: boolean
   cancelled_at: string | null
+} & EventProgress
+
+/** How many of the event's items are in each item status, from the event_summary view. */
+export type EventProgress = {
+  item_count: number
+  unassigned_count: number
+  pending_count: number
+  partial_count: number
+  confirmed_count: number
+  received_count: number
+  /** Confirmed plus received. */
+  ready_count: number
+  /** Unassigned plus pending; 0 for past or cancelled events. */
+  attention_count: number
+  /** Partial items; 0 for past or cancelled events. */
+  short_count: number
 }
 
-const SUMMARY_COLUMNS = 'id, date, meal, host, monk_count, layperson_count, monastery_name, days_away, is_past, cancelled_at'
+const PROGRESS_COLUMNS =
+  'item_count, unassigned_count, pending_count, partial_count, confirmed_count, received_count, ready_count, attention_count, short_count'
+const SUMMARY_COLUMNS = `id, date, meal, host, monk_count, layperson_count, monastery_name, days_away, is_past, cancelled_at, ${PROGRESS_COLUMNS}`
 
 /** All the household's events, by date. Upcoming or past comes from the database (Sri Lanka date). */
 export function useEventSummaries() {
@@ -101,6 +119,42 @@ export function useCreateEvent() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['events'] })
       void queryClient.invalidateQueries({ queryKey: ['monasteries'] })
+    },
+  })
+}
+
+export type CopiedEvent = NewEvent & { sourceEventId: string }
+
+/**
+ * Creates an event from the form's fields with a copy of another event's menu:
+ * categories, items and contributors, every assignment pending again. Money and
+ * documents aren't copied. Resolves to the new event's id.
+ */
+export function useCopyEvent() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (event: CopiedEvent): Promise<string> => {
+      const monasteryId = await resolveMonastery(event.householdId, event.monastery)
+      const { data, error } = await supabase.rpc('copy_event', {
+        p_source_event_id: event.sourceEventId,
+        p_date: event.date,
+        p_meal: event.meal,
+        p_monastery_id: monasteryId,
+        p_host: event.host,
+        p_monk_count: event.monkCount,
+        p_layperson_count: event.laypersonCount,
+        p_organizer_name: event.organizerName,
+        p_organizer_phone: event.organizerPhone,
+        p_notes: event.notes,
+        p_instructions: event.instructions,
+      })
+      if (error) throw error
+      return data as string
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['events'] })
+      void queryClient.invalidateQueries({ queryKey: ['monasteries'] })
+      void queryClient.invalidateQueries({ queryKey: ['contributors'] })
     },
   })
 }

@@ -1,5 +1,6 @@
 import { Navigate, type RouteObject } from 'react-router'
 import { RequireAuth } from './auth/RequireAuth'
+import { ContributorDetailScreen } from './screens/contributors/ContributorDetailScreen'
 import { ContributorEditScreen } from './screens/contributors/ContributorEditScreen'
 import { ContributorNewScreen } from './screens/contributors/ContributorNewScreen'
 import { ContributorsScreen } from './screens/contributors/ContributorsScreen'
@@ -7,7 +8,8 @@ import { EventCategoriesScreen } from './screens/event-categories/EventCategorie
 import { EventScreen } from './screens/event/EventScreen'
 import { AddItemSheet, EditItemSheet } from './screens/event/ItemSheets'
 import { MenuTab } from './screens/event/MenuTab'
-import { TabPlaceholder } from './screens/event/TabPlaceholder'
+import { MoneyTab } from './screens/money/MoneyTab'
+import { AddTransactionSheet, EditTransactionSheet } from './screens/money/TransactionSheets'
 import { EventDetailsTab } from './screens/event-details/EventDetailsTab'
 import { EventFormScreen } from './screens/event-form/EventFormScreen'
 import { EventsHome } from './screens/events/EventsHome'
@@ -58,12 +60,20 @@ export const routes: RouteObject[] = [
               },
             ],
           },
-          { path: 'money', element: <TabPlaceholder title="මුදල් හා ලේඛන" /> },
+          {
+            path: 'money',
+            element: <MoneyTab />,
+            children: [
+              { path: 'new', element: <AddTransactionSheet /> },
+              { path: ':transactionId', element: <EditTransactionSheet /> },
+            ],
+          },
           { path: 'edit', element: <EventDetailsTab /> },
         ],
       },
       { path: '/events/:eventId/categories', element: <EventCategoriesScreen /> },
       { path: '/contributors/new', element: <ContributorNewScreen /> },
+      { path: '/contributors/:contributorId', element: <ContributorDetailScreen /> },
       { path: '/contributors/:contributorId/edit', element: <ContributorEditScreen /> },
       { path: '/settings', element: <SettingsScreen /> },
       { path: '/settings/categories', element: <CategoryTemplatesScreen /> },
