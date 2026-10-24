@@ -173,9 +173,10 @@ function PastRow({ event }: { event: EventSummary }) {
   return (
     <div className={styles.cardWrap}>
       <Link to={`/events/${event.id}`} className={styles.pastRow}>
-        <span className={styles.pastTitle}>{event.host ?? event.monastery_name}</span>
+        <span className={styles.pastTitle}>{event.monastery_name}</span>
         <span className={styles.pastMeta}>
-          {formatDayMonth(event.date)} {formatWeekday(event.date)} · {MEAL_LABEL[event.meal]} · {event.monastery_name}
+          {formatDayMonth(event.date)} {formatWeekday(event.date)} · {MEAL_LABEL[event.meal]}
+          {event.host && ` · ${event.host}`}
         </span>
         {event.cancelled_at && <CancelledBadge />}
       </Link>

@@ -152,6 +152,20 @@ describe('events', () => {
     })
   })
 
+  it('names the monastery, then the host, on a past row', async () => {
+    const organizer = await seedOrganizer()
+    await seedEvent(organizer, { date: '2020-11-08', meal: 'lunch', host: 'බොතේජු පවුල', monastery: 'මාලබේ අසපුව' })
+    await seedEvent(organizer, { date: '2020-11-09', meal: 'breakfast', monastery: 'පොල්ගහවෙල අසපුව' })
+    await renderApp('/events', { signedInAs: organizer })
+
+    const past = await screen.findByRole('region', { name: 'පසුගිය දාන' })
+    const withHost = within(past).getByRole('link', { name: /මාලබේ අසපුව/ })
+    expect(withHost).toHaveTextContent(/^මාලබේ අසපුවනොවැම්බර් 08 ඉරිදා · දහවල් දානය · බොතේජු පවුල$/)
+
+    const noHost = within(past).getByRole('link', { name: /පොල්ගහවෙල අසපුව/ })
+    expect(noHost).toHaveTextContent(/^පොල්ගහවෙල අසපුවනොවැම්බර් 09 සඳුදා · හීල් දානය$/)
+  })
+
   it('names the monastery, then the host, on an upcoming card', async () => {
     const organizer = await seedOrganizer()
     await seedEvent(organizer, { date: colomboDate(3), meal: 'lunch', host: 'බොතේජු පවුල', monastery: 'මාලබේ අසපුව' })
