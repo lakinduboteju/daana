@@ -1,13 +1,12 @@
 import { screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
-import { colomboDate, seedAssignment, seedContributor, seedDocument, seedEvent, seedHousehold, seedItem, seedTransaction } from '../test/seed'
+import { colomboDate, seedAssignment, seedContributor, seedDocument, seedEvent, seedOrganizer, seedItem, seedTransaction } from '../test/seed'
 
 /** A previous event with a menu: two categories, three items, two contributors (one confirmed, one received). */
 async function seedPreviousEvent() {
-  const seeded = await seedHousehold()
-  const { householdId } = seeded
-  const eventId = await seedEvent(householdId, {
+  const organizer = await seedOrganizer()
+  const eventId = await seedEvent(organizer, {
     date: colomboDate(2),
     meal: 'lunch',
     host: 'බොතේජු පවුල',
@@ -19,11 +18,11 @@ async function seedPreviousEvent() {
   const rice = await seedItem(eventId, 'බත්', { name: 'සුදු බත්', requiredQuantity: 3, unit: 'kg' })
   const bananas = await seedItem(eventId, 'පලතුරු', { name: 'කෙසෙල්', requiredQuantity: 40 })
   await seedItem(eventId, 'පලතුරු', { name: 'අන්නාසි' })
-  const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ')
-  const anula = await seedContributor(householdId, 'අනුලා විජේසේකර')
+  const sunil = await seedContributor(organizer, 'සුනිල් ජයසිංහ')
+  const anula = await seedContributor(organizer, 'අනුලා විජේසේකර')
   await seedAssignment(rice, sunil, { quantity: 3, status: 'confirmed' })
   await seedAssignment(bananas, anula, { status: 'received' })
-  return { ...seeded, eventId }
+  return { organizer, eventId }
 }
 
 function itemRow(container: HTMLElement, name: string): HTMLElement {
@@ -67,8 +66,8 @@ describe('copying a previous event', () => {
   })
 
   it("starts a new event from a previous one picked on the form's copy link", async () => {
-    const { householdId, organizer, eventId } = await seedPreviousEvent()
-    await seedEvent(householdId, { date: colomboDate(-30), host: 'සිල්වා පවුල', monastery: 'පොල්ගහවෙල අසපුව' })
+    const { organizer, eventId } = await seedPreviousEvent()
+    await seedEvent(organizer, { date: colomboDate(-30), host: 'සිල්වා පවුල', monastery: 'පොල්ගහවෙල අසපුව' })
     const { user } = await renderApp('/events/new', { signedInAs: organizer })
 
     await user.click(await screen.findByRole('button', { name: /පෙර දානයකින් පිටපත් කරන්න/ }))
@@ -105,9 +104,9 @@ describe('copying a previous event', () => {
   })
 
   it('leaves out contributors who have since been archived', async () => {
-    const { householdId, organizer, eventId } = await seedPreviousEvent()
+    const { organizer, eventId } = await seedPreviousEvent()
     const rice = await seedItem(eventId, 'බත්', { name: 'කහ බත්' })
-    await seedAssignment(rice, await seedContributor(householdId, 'කමලා රත්නායක', { archived: true }))
+    await seedAssignment(rice, await seedContributor(organizer, 'කමලා රත්නායක', { archived: true }))
     const { user } = await renderApp(`/events/new?from=${eventId}`, { signedInAs: organizer })
 
     await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
@@ -118,8 +117,8 @@ describe('copying a previous event', () => {
   })
 
   it('leaves out money and documents: the copy has no givens, expenses or files', async () => {
-    const { householdId, organizer, eventId } = await seedPreviousEvent()
-    const nimal = await seedContributor(householdId, 'නිමල් සිල්වා')
+    const { organizer, eventId } = await seedPreviousEvent()
+    const nimal = await seedContributor(organizer, 'නිමල් සිල්වා')
     await seedTransaction(eventId, { kind: 'given', amount: 2500, contributorId: nimal })
     await seedTransaction(eventId, { kind: 'expense', amount: 3150 })
     await seedDocument(eventId, { name: 'සහල් බිල්පත' })
@@ -138,10 +137,10 @@ describe('copying a previous event', () => {
     expect(screen.getByRole('region', { name: 'ලේඛන (0)' })).toBeInTheDocument()
   })
 
-  it("can't copy another household's event", async () => {
+  it("can't copy another organizer's event", async () => {
     const { eventId } = await seedPreviousEvent()
-    const other = await seedHousehold('සිල්වා පවුල')
-    await renderApp(`/events/new?from=${eventId}`, { signedInAs: other.organizer })
+    const other = await seedOrganizer()
+    await renderApp(`/events/new?from=${eventId}`, { signedInAs: other })
 
     expect(await screen.findByRole('heading', { name: 'පිටුව හමු නොවීය' })).toBeInTheDocument()
     expect(screen.queryByDisplayValue('බොතේජු පවුල')).not.toBeInTheDocument()

@@ -29,7 +29,7 @@ npm run lint
 npm run build
 ```
 
-The local stack uses the 573xx ports (`supabase/config.toml`) so it can run next to other Supabase projects. The seed creates two organizers for local development, both with password `password123`: `organizer` (household බොතේජු පවුල) and `other` (household සිල්වා පවුල, for checking household isolation).
+The local stack uses the 573xx ports (`supabase/config.toml`) so it can run next to other Supabase projects. The seed creates two organizers for local development, both with password `password123`: `organizer` (with the design's sample data) and `other` (with only the default category templates, for checking that organizers can't see each other's data).
 
 The app reads `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` at build time. The deploy workflow sets them from repository variables.
 
@@ -39,13 +39,13 @@ The app reads `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` at build t
 
 There is one test seam ([ADR 0003](docs/adr/0003-ci-deploys-only-tests-run-locally.md)): the whole app rendered at a route, signed in as an organizer, talking to the real local database. Tests act as the organizer would and check only what the organizer sees. Specs live in `src/specs/`; the harness lives in `src/test/`:
 
-- `seedHousehold(name?)` creates a fresh organizer and household through the same `setup_household` function production uses. Every test seeds its own, so tests don't depend on each other or on `seed.sql`. `admin` (service role) is exported for seeding further data; never use it to check results.
+- `seedOrganizer()` creates a fresh organizer the way production does: just the user, who gets the default category templates from the database. Every test seeds its own, so tests don't depend on each other or on `seed.sql`. `admin` (service role) is exported for seeding further data; never use it to check results.
 - `renderApp(path, { signedInAs })` renders `<App />` at `path` (relative to the base, e.g. `/events`), optionally signed in. It returns a `user` from user-event plus the render result.
 - `currentPath()` returns the current route relative to the base, e.g. `/login?next=%2Fevents`.
-- `seedEvent(householdId, { date, meal?, host?, monastery?, ... })` adds an event (with a new monastery) and returns its id. `colomboDate(offsetDays)` gives a date relative to today in Sri Lanka, for upcoming and past events.
+- `seedEvent(organizer, { date, meal?, host?, monastery?, ... })` adds an event (with a new monastery) and returns its id. `colomboDate(offsetDays)` gives a date relative to today in Sri Lanka, for upcoming and past events.
 
 ```tsx
-const { organizer } = await seedHousehold()
+const organizer = await seedOrganizer()
 const { user } = await renderApp('/events', { signedInAs: organizer })
 await user.click(await screen.findByRole('link', { name: 'Search' }))
 expect(currentPath()).toBe('/search')
@@ -53,16 +53,9 @@ expect(currentPath()).toBe('/search')
 
 After each test the harness signs out and clears browser storage.
 
-## Setting up a household
+## Setting up an organizer
 
-There is no public sign-up ([ADR 0002](docs/adr/0002-username-login-via-synthetic-email.md)). To give someone access to the hosted app:
-
-1. In the Supabase dashboard, open **Authentication → Users → Add user → Create new user**. Use the email `<username>@daana.local` (lowercase), a password of at least 8 characters, and tick **Auto Confirm User**.
-2. In the **SQL editor**, create their household and link them to it:
-
-   ```sql
-   select public.setup_household('බොතේජු පවුල', '<username>');
-   ```
+There is no public sign-up ([ADR 0002](docs/adr/0002-username-login-via-synthetic-email.md)). To give someone access to the hosted app, open **Authentication → Users → Add user → Create new user** in the Supabase dashboard. Use the email `<username>@daana.local` (lowercase), a password of at least 8 characters, and tick **Auto Confirm User**. The database gives them the default category templates; their data is their own ([ADR 0004](docs/adr/0004-organizer-owns-data.md)).
 
 They then sign in with just `<username>` and the password. Passwords are reset in the dashboard too.
 
@@ -82,7 +75,7 @@ src/                 App source
   lib/               The Supabase client
   screens/           One folder per screen, each with its CSS Module
   specs/             Tests at the app-at-route seam
-  test/              Test harness: renderApp, seedHousehold
+  test/              Test harness: renderApp, seedOrganizer
   routes.tsx         Route table (docs/routes.md)
 supabase/            config.toml, migrations/, seed.sql
 ```

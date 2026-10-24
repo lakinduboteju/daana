@@ -1,11 +1,11 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
-import { seedHousehold } from '../test/seed'
+import { seedOrganizer } from '../test/seed'
 
 describe('changing the password', () => {
   it('lets the organizer sign in with the new password, and not the old one', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user } = await renderApp('/settings', { signedInAs: organizer })
 
     expect(await screen.findByRole('heading', { name: 'Settings' })).toBeInTheDocument()
@@ -36,7 +36,7 @@ describe('changing the password', () => {
   })
 
   it('refuses a password shorter than 8 characters or one that does not match', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user } = await renderApp('/settings', { signedInAs: organizer })
 
     await user.type(await screen.findByLabelText('New Password'), 'short')
@@ -56,7 +56,7 @@ describe('changing the password', () => {
 
 describe('category templates', () => {
   it('a renamed template appears in events created afterwards, but not in existing ones', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user } = await renderApp('/events/new', { signedInAs: organizer })
 
     await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
@@ -94,7 +94,7 @@ describe('managing category templates', () => {
   const DEFAULTS = ['බත්', 'හොදි', 'ව්‍යංජන', 'පලතුරු', 'කැවිලි හා අතුරුපස', 'පාන', 'වෙනත් ආහාර', 'පිරිකර', 'ඖෂධ']
 
   it('starts with the nine default categories, and an added one goes last and stays', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user, unmount } = await renderApp('/settings/categories', { signedInAs: organizer })
     expect(await templateNames()).toEqual(DEFAULTS)
 
@@ -109,7 +109,7 @@ describe('managing category templates', () => {
   })
 
   it('moves templates up and down, and the order stays', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user, unmount } = await renderApp('/settings/categories', { signedInAs: organizer })
 
     expect(await screen.findByRole('button', { name: 'බත් ඉහළට' })).toBeDisabled()
@@ -127,7 +127,7 @@ describe('managing category templates', () => {
   })
 
   it('removes a template after confirming, and keeps it when the organizer changes their mind', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user, unmount } = await renderApp('/settings/categories', { signedInAs: organizer })
 
     await user.click(await screen.findByRole('button', { name: 'පාන ඉවත් කරන්න' }))

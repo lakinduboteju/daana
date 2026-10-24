@@ -1,14 +1,14 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
-import { seedContributor, seedEvent, seedHousehold, seedItem, seedTransaction } from '../test/seed'
+import { seedContributor, seedEvent, seedOrganizer, seedItem, seedTransaction } from '../test/seed'
 
 describe('money', () => {
   it('total given and total expenses are kept separate, and the list filters by kind', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්'] })
     const rice = await seedItem(eventId, 'බත්', { name: 'සුදු බත්' })
-    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ')
+    const sunil = await seedContributor(organizer, 'සුනිල් ජයසිංහ')
     await seedTransaction(eventId, { kind: 'given', amount: 2500, contributorId: sunil, itemId: rice, method: 'bank_transfer' })
     await seedTransaction(eventId, { kind: 'expense', amount: 1850, contributorId: sunil, itemId: rice })
     await seedTransaction(eventId, { kind: 'expense', amount: 3150, notes: 'මල් හා පහන් තෙල්' })
@@ -48,11 +48,11 @@ describe('money', () => {
   })
 
   it('organizer records a given to a contributor in a sheet over the money tab', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්'] })
     await seedItem(eventId, 'බත්', { name: 'කිරිබත්' })
-    await seedContributor(householdId, 'නිමල් සිල්වා')
-    await seedContributor(householdId, 'පැරණි දායකයා', { archived: true })
+    await seedContributor(organizer, 'නිමල් සිල්වා')
+    await seedContributor(organizer, 'පැරණි දායකයා', { archived: true })
     const { user } = await renderApp(`/events/${eventId}/money`, { signedInAs: organizer })
 
     expect(await screen.findByText('තවම මුදල් වාර්තා නැත.')).toBeInTheDocument()
@@ -82,8 +82,8 @@ describe('money', () => {
   })
 
   it('organizer edits a transaction into an expense, then deletes it', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08' })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08' })
     const transactionId = await seedTransaction(eventId, { kind: 'given', amount: 2000, method: 'cash' })
     const { user } = await renderApp(`/events/${eventId}/money`, { signedInAs: organizer })
 
@@ -114,10 +114,10 @@ describe('money', () => {
   })
 
   it('a contributor who spent more than they were given is owed a reimbursement, settled by another given', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08' })
-    const shriya = await seedContributor(householdId, 'ශ්‍රියා පෙරේරා')
-    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ')
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08' })
+    const shriya = await seedContributor(organizer, 'ශ්‍රියා පෙරේරා')
+    const sunil = await seedContributor(organizer, 'සුනිල් ජයසිංහ')
     await seedTransaction(eventId, { kind: 'given', amount: 1000, contributorId: shriya })
     await seedTransaction(eventId, { kind: 'expense', amount: 2200, contributorId: shriya })
     // Given more than spent: nothing owed (never a negative reimbursement).
@@ -144,11 +144,11 @@ describe('money', () => {
   })
 
   it("item details show that item's transactions, and money recorded from there is linked to it", async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්'] })
     const rice = await seedItem(eventId, 'බත්', { name: 'සුදු බත්' })
     const kiribath = await seedItem(eventId, 'බත්', { name: 'කිරිබත්' })
-    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ')
+    const sunil = await seedContributor(organizer, 'සුනිල් ජයසිංහ')
     await seedTransaction(eventId, { kind: 'expense', amount: 1850, contributorId: sunil, itemId: rice })
     await seedTransaction(eventId, { kind: 'given', amount: 3000, itemId: kiribath })
     const { user } = await renderApp(`/events/${eventId}/items/${rice}`, { signedInAs: organizer })
@@ -174,10 +174,10 @@ describe('money', () => {
   })
 
   it('deleting an item keeps its transactions on the event', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්'] })
     const rice = await seedItem(eventId, 'බත්', { name: 'සුදු බත්' })
-    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ')
+    const sunil = await seedContributor(organizer, 'සුනිල් ජයසිංහ')
     await seedTransaction(eventId, { kind: 'expense', amount: 1850, contributorId: sunil, itemId: rice })
     const { user } = await renderApp(`/events/${eventId}/items/${rice}/edit`, { signedInAs: organizer })
 
@@ -194,9 +194,9 @@ describe('money', () => {
   })
 
   it('deleting a contributor with transactions archives them, and their transactions stay', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08' })
-    const shriya = await seedContributor(householdId, 'ශ්‍රියා පෙරේරා')
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08' })
+    const shriya = await seedContributor(organizer, 'ශ්‍රියා පෙරේරා')
     await seedTransaction(eventId, { kind: 'expense', amount: 1200, contributorId: shriya })
     const { user } = await renderApp(`/contributors/${shriya}/edit`, { signedInAs: organizer })
 
@@ -211,13 +211,13 @@ describe('money', () => {
     expect(screen.getByRole('list', { name: 'ආපසු ගෙවිය යුතුයි' })).toHaveTextContent('ශ්‍රියා පෙරේරාට Rs 1,200')
   })
 
-  it("another household's transaction is not found", async () => {
-    const a = await seedHousehold('බොතේජු පවුල')
-    const b = await seedHousehold('සිල්වා පවුල')
-    const aEvent = await seedEvent(a.householdId, { date: '2099-11-08' })
-    const bEvent = await seedEvent(b.householdId, { date: '2099-11-08' })
+  it("another organizer's transaction is not found", async () => {
+    const a = await seedOrganizer()
+    const b = await seedOrganizer()
+    const aEvent = await seedEvent(a, { date: '2099-11-08' })
+    const bEvent = await seedEvent(b, { date: '2099-11-08' })
     const aTransaction = await seedTransaction(aEvent, { kind: 'given', amount: 9999 })
-    await renderApp(`/events/${bEvent}/money/${aTransaction}`, { signedInAs: b.organizer })
+    await renderApp(`/events/${bEvent}/money/${aTransaction}`, { signedInAs: b })
 
     const sheet = await screen.findByRole('dialog', { name: 'Edit' })
     expect(await within(sheet).findByText('මෙම ගනුදෙනුව හමු නොවීය.')).toBeInTheDocument()
@@ -225,8 +225,8 @@ describe('money', () => {
   })
 
   it('leaving a transaction sheet with unsaved changes asks first', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08' })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08' })
     const { user } = await renderApp(`/events/${eventId}/money`, { signedInAs: organizer })
 
     await user.click(await screen.findByRole('link', { name: '+ වියදමක්' }))

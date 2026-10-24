@@ -37,7 +37,7 @@ const PROGRESS_COLUMNS =
   'item_count, unassigned_count, pending_count, partial_count, confirmed_count, received_count, ready_count, attention_count, short_count'
 const SUMMARY_COLUMNS = `id, date, meal, host, monk_count, layperson_count, monastery_name, days_away, is_past, cancelled_at, ${PROGRESS_COLUMNS}`
 
-/** All the household's events, by date. Upcoming or past comes from the database (Sri Lanka date). */
+/** All the organizer's events, by date. Upcoming or past comes from the database (Sri Lanka date). */
 export function useEventSummaries() {
   return useQuery({
     queryKey: ['events'],
@@ -54,7 +54,7 @@ export function useEventSummaries() {
   })
 }
 
-/** One event, or null when it doesn't exist or belongs to another household. */
+/** One event, or null when it doesn't exist or belongs to another organizer. */
 export function useEventSummary(eventId: string) {
   return useQuery({
     queryKey: ['events', eventId],
@@ -78,7 +78,7 @@ export function useEventSummary(eventId: string) {
 export type EventFields = {
   date: string
   meal: Meal
-  /** The monastery name as typed. An existing household monastery with the same trimmed name is reused. */
+  /** The monastery name as typed. An existing monastery of the organizer's with the same trimmed name is reused. */
   monasteryName: string
   host: string
   monkCount: number
@@ -89,26 +89,23 @@ export type EventFields = {
   instructions: string
 }
 
-export type NewEvent = EventFields & { householdId: string }
-
-/** The household's monastery with this trimmed name, or a new one. */
-async function resolveMonastery(householdId: string, name: string): Promise<string> {
+/** The organizer's monastery with this trimmed name, or a new one. */
+async function resolveMonastery(name: string): Promise<string> {
   const trimmed = name.trim()
   const { data, error } = await supabase.from('monastery').select('id, name')
   if (error) throw error
   const existing = (data ?? []).find((monastery) => monastery.name.trim() === trimmed)
   if (existing) return existing.id
-  return createMonastery(householdId, trimmed)
+  return createMonastery(trimmed)
 }
 
-/** Creates an event with the household's category templates as its categories. Resolves to its id. */
+/** Creates an event with the organizer's category templates as its categories. Resolves to its id. */
 export function useCreateEvent() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (event: NewEvent): Promise<string> => {
-      const monasteryId = await resolveMonastery(event.householdId, event.monasteryName)
+    mutationFn: async (event: EventFields): Promise<string> => {
+      const monasteryId = await resolveMonastery(event.monasteryName)
       const { data, error } = await supabase.rpc('create_event', {
-        p_household_id: event.householdId,
         p_date: event.date,
         p_meal: event.meal,
         p_monastery_id: monasteryId,
@@ -130,7 +127,7 @@ export function useCreateEvent() {
   })
 }
 
-export type CopiedEvent = NewEvent & { sourceEventId: string }
+export type CopiedEvent = EventFields & { sourceEventId: string }
 
 /**
  * Creates an event from the form's fields with a copy of another event's menu:
@@ -141,7 +138,7 @@ export function useCopyEvent() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (event: CopiedEvent): Promise<string> => {
-      const monasteryId = await resolveMonastery(event.householdId, event.monasteryName)
+      const monasteryId = await resolveMonastery(event.monasteryName)
       const { data, error } = await supabase.rpc('copy_event', {
         p_source_event_id: event.sourceEventId,
         p_date: event.date,
@@ -169,7 +166,6 @@ export function useCopyEvent() {
 /** Everything the event form shows, for editing. */
 export type EventDetails = {
   id: string
-  household_id: string
   date: string
   meal: Meal
   monastery_id: string
@@ -185,9 +181,9 @@ export type EventDetails = {
 }
 
 const DETAIL_COLUMNS =
-  'id, household_id, date, meal, monastery_id, host, monk_count, layperson_count, organizer_name, organizer_phone, notes, instructions, cancelled_at'
+  'id, date, meal, monastery_id, host, monk_count, layperson_count, organizer_name, organizer_phone, notes, instructions, cancelled_at'
 
-/** One event's editable details, or null when it doesn't exist or belongs to another household. */
+/** One event's editable details, or null when it doesn't exist or belongs to another organizer. */
 export function useEventDetails(eventId: string) {
   return useQuery({
     queryKey: ['events', eventId, 'details'],
@@ -213,8 +209,8 @@ export function useEventDetails(eventId: string) {
 export function useUpdateEvent() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ eventId, householdId, fields }: { eventId: string; householdId: string; fields: EventFields }) => {
-      const monasteryId = await resolveMonastery(householdId, fields.monasteryName)
+    mutationFn: async ({ eventId, fields }: { eventId: string; fields: EventFields }) => {
+      const monasteryId = await resolveMonastery(fields.monasteryName)
       const { error } = await supabase
         .from('event')
         .update({

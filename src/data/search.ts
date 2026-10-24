@@ -34,7 +34,7 @@ export type SearchResult = {
   cancelled_at: string | null
 }
 
-/** Items across all the household's events that match, in event order then menu order. */
+/** Items across all the organizer's events that match, in event order then menu order. */
 export function useSearch(criteria: SearchCriteria, enabled: boolean) {
   const q = criteria.q.trim()
   const { from, to, statuses, monasteryId, contributorId } = criteria

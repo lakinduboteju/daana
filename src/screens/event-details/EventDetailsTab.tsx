@@ -52,7 +52,7 @@ function EditEvent({ event }: { event: EventDetails }) {
       submitLabel="Save"
       cancelTo={`/events/${event.id}`}
       onSave={async (fields) => {
-        await updateEvent.mutateAsync({ eventId: event.id, householdId: event.household_id, fields })
+        await updateEvent.mutateAsync({ eventId: event.id, fields })
         toast('සුරැකිණි')
       }}
     >

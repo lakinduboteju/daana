@@ -20,7 +20,7 @@ function useInvalidateAssignments() {
 
 export type NewAssignment = {
   itemId: string
-  /** An existing contributor, or a new one to add to the household first. */
+  /** An existing contributor, or a new one to add to the organizer's list first. */
   contributor: { id: string } | { name: string; phone: string | null }
   quantity: number | null
   status: AssignmentStatus
@@ -115,7 +115,7 @@ export function useUpdateAssignment(eventId: string) {
   })
 }
 
-/** Removes an assignment. The contributor stays in the household's list. */
+/** Removes an assignment. The contributor stays in the organizer's list. */
 export function useRemoveAssignment(eventId: string) {
   const invalidate = useInvalidateAssignments()
   return useMutation({

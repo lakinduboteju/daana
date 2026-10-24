@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import styles from './NotFoundScreen.module.css'
 
 /**
- * Broken links, and records the organizer can't see (another household's
+ * Broken links, and records the organizer can't see (another organizer's
  * event looks exactly like one that doesn't exist).
  */
 export function NotFoundScreen() {

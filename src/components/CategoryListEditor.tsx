@@ -22,7 +22,7 @@ type Props<T extends Named> = {
 /**
  * An ordered list of categories the organizer can add to, rename, move up and
  * down, and remove after confirming. Used for an event's categories and for
- * the household's category templates.
+ * the organizer's category templates.
  */
 export function CategoryListEditor<T extends Named>({ categories, add, rename, swap, remove, removeHint }: Props<T>) {
   const [editingId, setEditingId] = useState<string | null>(null)

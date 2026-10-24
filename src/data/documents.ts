@@ -3,7 +3,7 @@ import { extension, shrinkPhoto } from '../lib/documentFiles'
 import { supabase } from '../lib/supabase'
 import type { TransactionKind } from './money'
 
-/** The private Storage bucket; objects live at `<household_id>/<event_id>/<file>`. */
+/** The private Storage bucket; objects live at `<organizer_id>/<event_id>/<file>`. */
 const BUCKET = 'documents'
 
 /** Signed links stay valid for an hour. */
@@ -106,18 +106,18 @@ function useInvalidateEvent(eventId: string) {
 }
 
 /**
- * Shrinks a photo, stores the file under the event's household/event folder
+ * Shrinks a photo, stores the file under the event's organizer/event folder
  * and records it. The file is removed again if it can't be recorded.
  */
 export function useUploadDocument(eventId: string) {
   const invalidate = useInvalidateEvent(eventId)
   return useMutation({
     mutationFn: async ({ file, name, itemId = null, transactionId = null }: NewDocument) => {
-      const event = await supabase.from('event').select('household_id').eq('id', eventId).single()
+      const event = await supabase.from('event').select('organizer_id').eq('id', eventId).single()
       if (event.error) throw event.error
       const body = await shrinkPhoto(file)
       const mimeType = body.type || file.type
-      const path = `${event.data.household_id}/${eventId}/${crypto.randomUUID()}.${extension(mimeType)}`
+      const path = `${event.data.organizer_id}/${eventId}/${crypto.randomUUID()}.${extension(mimeType)}`
       // An ArrayBuffer rather than the Blob: supabase-js would wrap a Blob in
       // FormData, which not every fetch implementation sends as-is.
       const upload = await supabase.storage

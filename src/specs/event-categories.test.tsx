@@ -1,12 +1,12 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
-import { admin, seedEvent, seedHousehold, seedItem } from '../test/seed'
+import { admin, seedEvent, seedOrganizer, seedItem } from '../test/seed'
 
 describe('editing an event’s categories', () => {
   it('opens from the menu, lists the categories in order, and a rename shows on the menu', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්', 'හොදි', 'පිරිකර'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්', 'හොදි', 'පිරිකර'] })
     const { user } = await renderApp(`/events/${eventId}`, { signedInAs: organizer })
 
     await user.click(await screen.findByRole('link', { name: 'Edit Categories' }))
@@ -27,8 +27,8 @@ describe('editing an event’s categories', () => {
   })
 
   it('moves categories up and down, saving straight away, and the menu follows', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්', 'හොදි', 'පිරිකර'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්', 'හොදි', 'පිරිකර'] })
     const { user, unmount } = await renderApp(`/events/${eventId}/categories`, { signedInAs: organizer })
 
     expect(await screen.findByRole('button', { name: 'බත් ඉහළට' })).toBeDisabled()
@@ -46,8 +46,8 @@ describe('editing an event’s categories', () => {
   })
 
   it('moves a category even when categories share a position', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්', 'හොදි'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්', 'හොදි'] })
     await admin.from('category').update({ position: 1 }).eq('event_id', eventId)
     const { user, unmount } = await renderApp(`/events/${eventId}/categories`, { signedInAs: organizer })
 
@@ -62,8 +62,8 @@ describe('editing an event’s categories', () => {
   })
 
   it('adds a category last, and it shows on the menu', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්', 'හොදි'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්', 'හොදි'] })
     const { user } = await renderApp(`/events/${eventId}/categories`, { signedInAs: organizer })
 
     await user.type(await screen.findByLabelText('අළුත් ආහාර කාණ්ඩයක් (Category)'), 'දන්සල් බීම')
@@ -76,8 +76,8 @@ describe('editing an event’s categories', () => {
   })
 
   it('warns how many items will be deleted before removing a category, and removes its items', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්', 'හොදි', 'පිරිකර'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්', 'හොදි', 'පිරිකර'] })
     await seedItem(eventId, 'හොදි', { name: 'පරිප්පු' })
     await seedItem(eventId, 'හොදි', { name: 'අල හොදි' })
     await seedItem(eventId, 'බත්', { name: 'කිරිබත්' })
@@ -102,9 +102,9 @@ describe('editing an event’s categories', () => {
   })
 
   it('changes only this event: the templates and other events keep their categories', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්', 'හොදි', 'පිරිකර'] })
-    const otherEventId = await seedEvent(householdId, { date: '2099-11-15', categories: ['බත්', 'හොදි', 'පිරිකර'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්', 'හොදි', 'පිරිකර'] })
+    const otherEventId = await seedEvent(organizer, { date: '2099-11-15', categories: ['බත්', 'හොදි', 'පිරිකර'] })
     const { user, unmount } = await renderApp(`/events/${eventId}/categories`, { signedInAs: organizer })
 
     await user.click(await screen.findByRole('button', { name: 'බත් නම වෙනස් කරන්න' }))
@@ -130,10 +130,10 @@ describe('editing an event’s categories', () => {
     expect(await categoryNames()).toEqual(['බත්', 'හොදි', 'ව්‍යංජන', 'පලතුරු', 'කැවිලි හා අතුරුපස', 'පාන', 'වෙනත් ආහාර', 'පිරිකර', 'ඖෂධ'])
   })
 
-  it('shows not found for another household’s event', async () => {
-    const other = await seedHousehold()
-    const eventId = await seedEvent(other.householdId, { date: '2099-11-08', categories: ['බත්'] })
-    const { organizer } = await seedHousehold()
+  it('shows not found for another organizer’s event', async () => {
+    const other = await seedOrganizer()
+    const eventId = await seedEvent(other, { date: '2099-11-08', categories: ['බත්'] })
+    const organizer = await seedOrganizer()
     await renderApp(`/events/${eventId}/categories`, { signedInAs: organizer })
 
     expect(await screen.findByRole('heading', { name: 'පිටුව හමු නොවීය' })).toBeInTheDocument()

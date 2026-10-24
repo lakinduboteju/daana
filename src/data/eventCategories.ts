@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 
 /**
- * One of an event's own categories. Events copy the household's templates
+ * One of an event's own categories. Events copy the organizer's templates
  * when they're created, so editing these never touches the templates or other
  * events.
  */

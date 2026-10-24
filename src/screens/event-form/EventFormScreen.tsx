@@ -2,7 +2,6 @@ import { useSearchParams } from 'react-router'
 import { BackHeader } from '../../components/BackHeader'
 import { useToast } from '../../components/useToast'
 import { useCopyEvent, useCreateEvent, useEventDetails, type EventDetails } from '../../data/events'
-import { useHouseholds } from '../../data/household'
 import { NotFoundScreen } from '../not-found/NotFoundScreen'
 import { CopyFromPicker } from './CopyFromPicker'
 import { EventForm } from './EventForm'
@@ -20,10 +19,8 @@ export function EventFormScreen() {
 }
 
 function NewEvent() {
-  const households = useHouseholds()
   const createEvent = useCreateEvent()
   const toast = useToast()
-  const householdId = households.data?.[0]?.id
 
   return (
     <main className={styles.screen}>
@@ -34,8 +31,7 @@ function NewEvent() {
         submitLabel="Save"
         cancelTo="/events"
         onSave={async (fields) => {
-          if (!householdId) throw new Error('Household is not available')
-          const eventId = await createEvent.mutateAsync({ ...fields, householdId })
+          const eventId = await createEvent.mutateAsync(fields)
           toast('දානය සුරැකිණි')
           return `/events/${eventId}`
         }}
@@ -71,7 +67,6 @@ function CopyEventForm({ source }: { source: EventDetails }) {
       onSave={async (fields) => {
         const eventId = await copyEvent.mutateAsync({
           ...fields,
-          householdId: source.household_id,
           sourceEventId: source.id,
         })
         toast('දානය සුරැකිණි')

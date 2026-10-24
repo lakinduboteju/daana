@@ -1,12 +1,12 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
-import { seedEvent, seedHousehold, seedItem } from '../test/seed'
+import { seedEvent, seedOrganizer, seedItem } from '../test/seed'
 
 describe('event menu', () => {
   it('shows the event header, counts, tabs and categories in order', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, {
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, {
       date: '2099-11-08',
       meal: 'lunch',
       monastery: 'මාලබේ අසපුව',
@@ -43,8 +43,8 @@ describe('event menu', () => {
   })
 
   it('adds an item under a category from its row, with a quantity, unit and notes', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්', 'පිරිකර'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්', 'පිරිකර'] })
     const { user } = await renderApp(`/events/${eventId}`, { signedInAs: organizer })
 
     const rice = await screen.findByRole('region', { name: 'බත්' })
@@ -67,8 +67,8 @@ describe('event menu', () => {
   })
 
   it('adds a requisite with a typed unit from the floating Item button', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්', 'පිරිකර'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්', 'පිරිකර'] })
     const { user } = await renderApp(`/events/${eventId}`, { signedInAs: organizer })
 
     await user.click(await screen.findByRole('link', { name: 'Item' }))
@@ -86,8 +86,8 @@ describe('event menu', () => {
   })
 
   it('edits an item from its details and moves it to another category', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්', 'හොදි'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්', 'හොදි'] })
     const itemId = await seedItem(eventId, 'බත්', { name: 'පරිප්පු', requiredQuantity: 2, unit: 'kg', notes: 'සීනි නැතිව' })
     const { user } = await renderApp(`/events/${eventId}`, { signedInAs: organizer })
 
@@ -124,8 +124,8 @@ describe('event menu', () => {
   })
 
   it('closes a sheet on back and keeps the menu as it was underneath', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්', 'හොදි'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්', 'හොදි'] })
     await seedItem(eventId, 'බත්', { name: 'කිරිබත්' })
     const { user } = await renderApp(`/events/${eventId}`, { signedInAs: organizer })
 
@@ -145,8 +145,8 @@ describe('event menu', () => {
   })
 
   it('a collapsed category stays collapsed after reloading', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්', 'හොදි'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්', 'හොදි'] })
     await seedItem(eventId, 'හොදි', { name: 'පරිප්පු' })
     const { user, unmount } = await renderApp(`/events/${eventId}`, { signedInAs: organizer })
 
@@ -168,8 +168,8 @@ describe('event menu', () => {
   })
 
   it("opens a sheet from a direct link and closes it to the item's details", async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්'] })
     const itemId = await seedItem(eventId, 'බත්', { name: 'කිරිබත්' })
     const { user } = await renderApp(`/events/${eventId}/items/${itemId}/edit`, { signedInAs: organizer })
 
@@ -183,8 +183,8 @@ describe('event menu', () => {
   })
 
   it('deletes an item only after confirmation', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['පලතුරු'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['පලතුරු'] })
     await seedItem(eventId, 'පලතුරු', { name: 'අන්නාසි' })
     await seedItem(eventId, 'පලතුරු', { name: 'කෙසෙල්' })
     const { user } = await renderApp(`/events/${eventId}`, { signedInAs: organizer })
