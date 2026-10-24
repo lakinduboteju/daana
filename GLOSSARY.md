@@ -5,15 +5,11 @@ Planning Buddhist almsgiving events for monks at a monastery: the menu, who brin
 ## People and ownership
 
 **Organizer**:
-A person who signs in and plans events. In V1, a household has one organizer.
+A person who signs in and plans events. An organizer owns their events, contributors, monasteries and category templates, and sees only their own.
 _Avoid_: User, admin
 
-**Household**:
-The group that owns events, contributors, monasteries and category templates. Organizers belong to a household.
-_Avoid_: Team, workspace, family, account
-
 **Contributor** (දායකයා):
-A person who may bring or pay for food for an event. Contributors don't sign in. They're kept in the household's reusable list.
+A person who may bring or pay for food for an event. Contributors don't sign in. They're kept in the organizer's reusable list.
 _Avoid_: Donor, helper, person, member
 
 **Host** (දානය භාරගත් අය):
@@ -21,7 +17,7 @@ The person or family on whose behalf an event is given, such as "බොතේජ
 _Avoid_: Almsgiving name, sponsor, dedication
 
 **Monastery** (අසපුව):
-The place where an event is given, kept in the household's list.
+The place where an event is given, kept in the organizer's list.
 _Avoid_: Temple, asapuwa, venue
 
 ## Events and menu
@@ -39,7 +35,7 @@ A group of items within one event's menu, such as බත් or පලතුර�
 _Avoid_: Section, group
 
 **Category template**:
-A household-level default category that's copied into new events. Changing it doesn't affect existing events. The defaults are බත්, හොදි, ව්‍යංජන, පලතුරු, කැවිලි හා අතුරුපස, පාන, වෙනත් ආහාර, පිරිකර and ඖෂධ.
+An organizer's default category that's copied into new events. Changing it doesn't affect existing events. The defaults are බත්, හොදි, ව්‍යංජන, පලතුරු, කැවිලි හා අතුරුපස, පාන, වෙනත් ආහාර, පිරිකර and ඖෂධ.
 _Avoid_: Global category, default category
 
 **Item**:
