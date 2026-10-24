@@ -19,7 +19,7 @@ describe('unsaved changes', () => {
 
     await user.click(await screen.findByRole('link', { name: 'Item' }))
     const sheet = await screen.findByRole('dialog', { name: 'අළුත් Item' })
-    await user.type(within(sheet).getByLabelText(/^නම/), 'කිරිබත්')
+    await user.type(await within(sheet).findByLabelText(/^නම/), 'කිරිබත්')
     await user.click(within(sheet).getByRole('button', { name: 'වසන්න' }))
 
     await answer(user, 'එපා')
@@ -38,13 +38,13 @@ describe('unsaved changes', () => {
     const itemId = await seedItem(eventId, 'බත්', { name: 'කිරිබත්' })
     const { user } = await renderApp(`/events/${eventId}/items/${itemId}/edit`, { signedInAs: organizer })
 
-    let sheet = await screen.findByRole('dialog', { name: 'Item සංස්කරණය' })
+    let sheet = await screen.findByRole('dialog', { name: 'Edit' })
     await within(sheet).findByLabelText(/^නම/)
     await user.click(within(sheet).getByRole('button', { name: 'වසන්න' }))
     await waitFor(() => expect(currentPath()).toBe(`/events/${eventId}/items/${itemId}`))
 
-    await user.click(await screen.findByRole('link', { name: 'Item එක සංස්කරණය කරන්න' }))
-    sheet = await screen.findByRole('dialog', { name: 'Item සංස්කරණය' })
+    await user.click(await screen.findByRole('link', { name: 'Edit' }))
+    sheet = await screen.findByRole('dialog', { name: 'Edit' })
     await user.type(await within(sheet).findByLabelText(/^නම/), ' 2')
     await user.click(within(sheet).getByRole('button', { name: 'Item එක මකන්න' }))
     await user.click(within(screen.getByRole('dialog', { name: 'කිරිබත් මකන්නද?' })).getByRole('button', { name: 'ඔව්, මකන්න' }))
@@ -106,12 +106,12 @@ describe('unsaved changes', () => {
     await seedAssignment(itemId, nimal, { quantity: 1 })
     const { user } = await renderApp(`/events/${eventId}/items/${itemId}`, { signedInAs: organizer })
 
-    await user.click(await screen.findByRole('link', { name: 'නිමල් සිල්වා — පැවරුම සංස්කරණය' }))
-    const sheet = await screen.findByRole('dialog', { name: 'පැවරුම සංස්කරණය' })
+    await user.click(await screen.findByRole('link', { name: 'නිමල් සිල්වා — Edit' }))
+    const sheet = await screen.findByRole('dialog', { name: 'Edit' })
     await user.type(within(sheet).getByLabelText(/ප්‍රමාණය/), '5')
     await user.click(within(sheet).getByRole('button', { name: 'වසන්න' }))
     await answer(user, 'ඉවත දමන්න')
-    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'පැවරුම සංස්කරණය' })).not.toBeInTheDocument())
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Edit' })).not.toBeInTheDocument())
     expect(currentPath()).toBe(`/events/${eventId}/items/${itemId}`)
   })
 

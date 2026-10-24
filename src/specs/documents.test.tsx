@@ -54,7 +54,7 @@ describe('documents', () => {
     expect(sheet).toHaveTextContent('සුදු බත්')
     await user.click(within(sheet).getByRole('button', { name: 'වසන්න' }))
 
-    await user.click(screen.getByRole('link', { name: 'Item එක සංස්කරණය කරන්න' }))
+    await user.click(screen.getByRole('link', { name: 'Edit' }))
     await user.click(await screen.findByRole('button', { name: 'Item එක මකන්න' }))
     await user.click(within(await screen.findByRole('dialog', { name: 'සුදු බත් මකන්නද?' })).getByRole('button', { name: 'ඔව්, මකන්න' }))
     await waitFor(() => expect(currentPath()).toBe(`/events/${eventId}`))
@@ -74,7 +74,7 @@ describe('documents', () => {
     const { user } = await renderApp(`/events/${eventId}/money/${expense}`, { signedInAs: organizer })
 
     const section = await screen.findByRole('region', { name: 'ලේඛන (0)' })
-    const sheet = screen.getByRole('dialog', { name: 'ගනුදෙනුව සංස්කරණය' })
+    const sheet = screen.getByRole('dialog', { name: 'Edit' })
     expect(sheet).toContainElement(section)
     await user.upload(within(section).getByLabelText('ඡායාරූපයක් හෝ PDF එකක් උඩුගත කරන්න'), pdf('සහල් බිල්පත.pdf'))
     expect(await within(section).findByRole('list', { name: 'ලේඛන' })).toHaveTextContent('සහල් බිල්පත')
@@ -100,7 +100,7 @@ describe('documents', () => {
     expect((await fetch(download)).ok).toBe(true)
     await user.click(within(sheet).getByRole('button', { name: 'වසන්න' }))
 
-    await user.click(screen.getByRole('link', { name: 'විස්තර' }))
+    await user.click(screen.getByRole('link', { name: 'Edit' }))
     await user.click(await screen.findByRole('button', { name: 'දානය මකන්න' }))
     await user.click(await screen.findByRole('button', { name: 'ඔව්, මකන්න' }))
     expect(await screen.findByText('තවම දාන කිසිවක් නැත')).toBeInTheDocument()

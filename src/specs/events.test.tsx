@@ -15,7 +15,7 @@ describe('events', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(await screen.findByRole('heading', { name: 'නොවැම්බර් 08 · දහවල් දානය' })).toBeInTheDocument()
-    await user.click(screen.getByRole('link', { name: 'විස්තර' }))
+    await user.click(screen.getByRole('link', { name: 'Edit' }))
     expect(await screen.findByLabelText(/දිනය/)).toHaveValue('2099-11-08')
   })
 
@@ -249,7 +249,7 @@ describe('events', () => {
     expect(screen.queryByText('ගිහි')).not.toBeInTheDocument()
     expect(screen.queryByText('මුළු')).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('link', { name: 'විස්තර' }))
+    await user.click(screen.getByRole('link', { name: 'Edit' }))
     await user.click(await screen.findByText('අමතර විස්තර (optional)'))
     expect(screen.getByLabelText('ස්වාමීන් වහන්සේලා')).toHaveValue('0')
     expect(screen.getByLabelText('ගිහි පිරිස')).toHaveValue('0')

@@ -37,7 +37,7 @@ export function ContributorEditScreen() {
 
   return (
     <main className={styles.screen}>
-      <BackHeader title="දායකයා සංස්කරණය" backTo="/contributors" />
+      <BackHeader title="Edit" backTo="/contributors" />
       {contributor.isPending && <p className={styles.message}>පූරණය වෙමින්…</p>}
       {contributor.isError && (
         <p role="alert" className={styles.message}>දායකයා පූරණය කිරීමට නොහැකි විය.</p>

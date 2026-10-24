@@ -15,7 +15,7 @@ Path segments are English (ASCII). The UI text is mixed Sinhala and English.
 | `/events/:eventId/money` | Money & documents tab | `Money` | `?type=given\|expense`. |
 | `/events/:eventId/money/new` | Add payment or expense (sheet) | — | `?type=given\|expense&item=<itemId>`. |
 | `/events/:eventId/money/:transactionId` | View or edit a transaction (sheet) | — | |
-| `/events/:eventId/edit` | Event details / settings tab (විස්තර) | `EventForm` | Same form as create. Also has cancel and delete actions. |
+| `/events/:eventId/edit` | Event details / settings tab (Edit) | `EventForm` | Same form as create. Also has cancel and delete actions. |
 | `/events/:eventId/categories` | Edit Categories | — | Add, rename, reorder and remove categories. |
 | `/events/:eventId/items/new` | Add item (sheet) | — | `?category=<id>` preselects the category. |
 | `/events/:eventId/items/:itemId` | Food item details | `ItemDetail` | |

@@ -38,7 +38,7 @@ describe('event menu', () => {
     expect(currentPath()).toBe(`/events/${eventId}/money`)
     expect(within(tabs).getByRole('link', { name: 'මුදල් හා ලේඛන' })).toHaveAttribute('aria-current', 'page')
 
-    await user.click(within(tabs).getByRole('link', { name: 'විස්තර' }))
+    await user.click(within(tabs).getByRole('link', { name: 'Edit' }))
     expect(currentPath()).toBe(`/events/${eventId}/edit`)
   })
 
@@ -94,10 +94,10 @@ describe('event menu', () => {
     const rice = await screen.findByRole('region', { name: 'බත්' })
     await user.click(await within(rice).findByRole('link', { name: /පරිප්පු/ }))
     expect(currentPath()).toBe(`/events/${eventId}/items/${itemId}`)
-    await user.click(await screen.findByRole('link', { name: 'Item එක සංස්කරණය කරන්න' }))
+    await user.click(await screen.findByRole('link', { name: 'Edit' }))
     expect(currentPath()).toBe(`/events/${eventId}/items/${itemId}/edit`)
 
-    const sheet = await screen.findByRole('dialog', { name: 'Item සංස්කරණය' })
+    const sheet = await screen.findByRole('dialog', { name: 'Edit' })
     expect(await within(sheet).findByLabelText(/^නම/)).toHaveValue('පරිප්පු')
     expect(within(sheet).getByLabelText(/අවශ්‍ය ප්‍රමාණය/)).toHaveValue(2)
     expect(within(sheet).getByLabelText('ඒකකය')).toHaveValue('kg')
@@ -173,7 +173,7 @@ describe('event menu', () => {
     const itemId = await seedItem(eventId, 'බත්', { name: 'කිරිබත්' })
     const { user } = await renderApp(`/events/${eventId}/items/${itemId}/edit`, { signedInAs: organizer })
 
-    const sheet = await screen.findByRole('dialog', { name: 'Item සංස්කරණය' })
+    const sheet = await screen.findByRole('dialog', { name: 'Edit' })
     expect(await within(sheet).findByLabelText(/^නම/)).toHaveValue('කිරිබත්')
     await user.click(within(sheet).getByRole('button', { name: 'වසන්න' }))
 
@@ -190,8 +190,8 @@ describe('event menu', () => {
     const { user } = await renderApp(`/events/${eventId}`, { signedInAs: organizer })
 
     await user.click(await screen.findByRole('link', { name: /අන්නාසි/ }))
-    await user.click(await screen.findByRole('link', { name: 'Item එක සංස්කරණය කරන්න' }))
-    const sheet = await screen.findByRole('dialog', { name: 'Item සංස්කරණය' })
+    await user.click(await screen.findByRole('link', { name: 'Edit' }))
+    const sheet = await screen.findByRole('dialog', { name: 'Edit' })
     await user.click(await within(sheet).findByRole('button', { name: 'Item එක මකන්න' }))
     await user.click(screen.getByRole('button', { name: 'එපා' }))
     expect(screen.queryByRole('dialog', { name: 'අන්නාසි මකන්නද?' })).not.toBeInTheDocument()

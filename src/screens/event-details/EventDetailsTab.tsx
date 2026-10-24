@@ -14,7 +14,7 @@ import { DeleteEventDialog } from './DeleteEventDialog'
 import styles from './EventDetailsTab.module.css'
 
 /**
- * /events/:eventId/edit, the "විස්තර" tab: the event form prefilled with this
+ * /events/:eventId/edit, the "Edit" tab: the event form prefilled with this
  * event's details, plus cancel and delete. The event screen shows not found.
  */
 export function EventDetailsTab() {

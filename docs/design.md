@@ -42,6 +42,7 @@ Sri Lankan users are used to apps that mix Sinhala and English, and a fully Sinh
 | Create event | අළුත් දානයක් |
 | Food item | Item |
 | Add item | Item එකක් එක් කරන්න |
+| Edit (event tab, cards, items, assignments, transactions, contributors) | Edit |
 | Edit categories (event menu and that screen's title) | Edit Categories |
 | Category templates on Settings | Edit |
 | Clear filters/search | Clear |

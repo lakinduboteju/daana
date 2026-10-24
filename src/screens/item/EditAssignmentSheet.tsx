@@ -21,7 +21,7 @@ export function EditAssignmentSheet() {
   const [removed, setRemoved] = useState(false)
 
   return (
-    <Sheet title="පැවරුම සංස්කරණය" onClose={close}>
+    <Sheet title="Edit" onClose={close}>
       {menu.data && !assignment && !removed && <p className={styles.missing}>මෙම පැවරුම හමු නොවීය.</p>}
       {item && assignment && (
         <AssignmentForm

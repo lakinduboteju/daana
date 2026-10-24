@@ -80,7 +80,7 @@ export function EditTransactionSheet() {
 
   if (!money.data || !transaction) {
     return (
-      <Sheet title="ගනුදෙනුව සංස්කරණය" onClose={close}>
+      <Sheet title="Edit" onClose={close}>
         {money.isPending ? <p className={styles.missing}>…</p> : <p className={styles.missing}>මෙම ගනුදෙනුව හමු නොවීය.</p>}
       </Sheet>
     )
@@ -89,7 +89,7 @@ export function EditTransactionSheet() {
   return (
     <TransactionForm
       key={transaction.id}
-      title="ගනුදෙනුව සංස්කරණය"
+      title="Edit"
       initial={{
         kind: transaction.kind,
         amount: transaction.amount,

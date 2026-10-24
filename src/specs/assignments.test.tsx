@@ -177,9 +177,9 @@ describe('assigning several contributors and changing plans', () => {
     await seedAssignment(itemId, nimal, { quantity: 1 })
     const { user } = await renderApp(`/events/${eventId}/items/${itemId}`, { signedInAs: organizer })
 
-    await user.click(await screen.findByRole('link', { name: 'නිමල් සිල්වා — පැවරුම සංස්කරණය' }))
+    await user.click(await screen.findByRole('link', { name: 'නිමල් සිල්වා — Edit' }))
     expect(currentPath()).toMatch(new RegExp(`^/events/${eventId}/items/${itemId}/assignments/[0-9a-f-]{36}$`))
-    const sheet = await screen.findByRole('dialog', { name: 'පැවරුම සංස්කරණය' })
+    const sheet = await screen.findByRole('dialog', { name: 'Edit' })
     const quantity = within(sheet).getByLabelText(/ප්‍රමාණය/)
     expect(quantity).toHaveValue(1)
     await user.clear(quantity)
@@ -193,7 +193,7 @@ describe('assigning several contributors and changing plans', () => {
     await waitFor(() => expect(status).toHaveTextContent('✓තහවුරුයි'))
     expect(status).toHaveTextContent('තහවුරු 3 / 3')
 
-    await user.click(screen.getByRole('link', { name: 'නිමල් සිල්වා — පැවරුම සංස්කරණය' }))
+    await user.click(screen.getByRole('link', { name: 'නිමල් සිල්වා — Edit' }))
     await user.click(await screen.findByRole('button', { name: 'පැවරුම ඉවත් කරන්න' }))
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())

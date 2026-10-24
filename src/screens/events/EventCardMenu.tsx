@@ -40,7 +40,7 @@ export function EventCardMenu({ event }: { event: EventSummary }) {
       {open && (
         <ul className={styles.menu}>
           <li>
-            <Link to={`/events/${event.id}/edit`} className={styles.item}>සංස්කරණය</Link>
+            <Link to={`/events/${event.id}/edit`} className={styles.item}>Edit</Link>
           </li>
           <li>
             <Link to={`/events/new?from=${event.id}`} className={styles.item}>පිටපත් කරන්න</Link>

@@ -40,7 +40,7 @@ export function EventHeader({ event }: { event: EventSummary }) {
       <nav aria-label="දාන කොටස්" className={styles.tabs}>
         <NavLink to={base} end className={tabClass}>මෙනුව</NavLink>
         <NavLink to={`${base}/money`} className={tabClass}>මුදල් හා ලේඛන</NavLink>
-        <NavLink to={`${base}/edit`} className={tabClass}>විස්තර</NavLink>
+        <NavLink to={`${base}/edit`} className={tabClass}>Edit</NavLink>
       </nav>
     </>
   )

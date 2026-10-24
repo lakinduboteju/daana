@@ -45,7 +45,7 @@ export function ContributorDetailScreen() {
         <div className={styles.profileRow}>
           <div className={styles.profileText}>
             {phone && <p className={styles.phone}>{phone}</p>}
-            <Link to="edit" className={styles.edit}>සංස්කරණය</Link>
+            <Link to="edit" className={styles.edit}>Edit</Link>
           </div>
           <ContactLinks contributor={profile} />
         </div>

@@ -75,7 +75,7 @@ export function EditItemSheet() {
     )
 
   return (
-    <Sheet title="Item සංස්කරණය" onClose={close}>
+    <Sheet title="Edit" onClose={close}>
       {menu.data && !item && !deleteItem.isSuccess && <p className={styles.missing}>මෙම Item එක හමු නොවීය.</p>}
       {menu.data && item && (
         <>

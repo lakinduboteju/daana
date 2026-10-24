@@ -89,7 +89,7 @@ describe('money', () => {
     const list = await screen.findByRole('list', { name: 'ගනුදෙනු' })
     await user.click(within(row(list, 'Rs 2,000')).getByRole('link'))
     expect(currentPath()).toBe(`/events/${eventId}/money/${transactionId}`)
-    const sheet = await screen.findByRole('dialog', { name: 'ගනුදෙනුව සංස්කරණය' })
+    const sheet = await screen.findByRole('dialog', { name: 'Edit' })
     await user.click(within(sheet).getByRole('radio', { name: 'වියදම' }))
     const amount = within(sheet).getByLabelText(/^මුදල \(Rs\)/)
     await user.clear(amount)
@@ -102,7 +102,7 @@ describe('money', () => {
     expect(totals).toHaveTextContent('දායකයන්ට ලබා දුන් මුදල්Rs 0')
 
     await user.click(within(row(list, 'Rs 2,200')).getByRole('link'))
-    const again = await screen.findByRole('dialog', { name: 'ගනුදෙනුව සංස්කරණය' })
+    const again = await screen.findByRole('dialog', { name: 'Edit' })
     await user.click(within(again).getByRole('button', { name: 'මකන්න' }))
     const confirm = await screen.findByRole('dialog', { name: 'මෙම ගනුදෙනුව මකන්නද?' })
     await user.click(within(confirm).getByRole('button', { name: 'ඔව්, මකන්න' }))
@@ -180,7 +180,7 @@ describe('money', () => {
     await seedTransaction(eventId, { kind: 'expense', amount: 1850, contributorId: sunil, itemId: rice })
     const { user } = await renderApp(`/events/${eventId}/items/${rice}/edit`, { signedInAs: organizer })
 
-    const sheet = await screen.findByRole('dialog', { name: 'Item සංස්කරණය' })
+    const sheet = await screen.findByRole('dialog', { name: 'Edit' })
     await user.click(await within(sheet).findByRole('button', { name: 'Item එක මකන්න' }))
     await user.click(within(sheet).getByRole('button', { name: 'ඔව්, මකන්න' }))
     await waitFor(() => expect(currentPath()).toBe(`/events/${eventId}`))
@@ -218,7 +218,7 @@ describe('money', () => {
     const aTransaction = await seedTransaction(aEvent, { kind: 'given', amount: 9999 })
     await renderApp(`/events/${bEvent}/money/${aTransaction}`, { signedInAs: b.organizer })
 
-    const sheet = await screen.findByRole('dialog', { name: 'ගනුදෙනුව සංස්කරණය' })
+    const sheet = await screen.findByRole('dialog', { name: 'Edit' })
     expect(await within(sheet).findByText('මෙම ගනුදෙනුව හමු නොවීය.')).toBeInTheDocument()
     expect(screen.queryByText('Rs 9,999')).not.toBeInTheDocument()
   })

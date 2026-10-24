@@ -44,8 +44,9 @@ describe('contributors directory', () => {
 
     await user.click(await screen.findByText(longName))
     expect(currentPath()).toMatch(/^\/contributors\/[0-9a-f-]+$/)
-    await user.click(await screen.findByRole('link', { name: 'සංස්කරණය' }))
+    await user.click(await screen.findByRole('link', { name: 'Edit' }))
     expect(currentPath()).toMatch(/^\/contributors\/[0-9a-f-]+\/edit$/)
+    expect(await screen.findByRole('heading', { name: 'Edit' })).toBeInTheDocument()
     const name = await screen.findByLabelText('නම')
     expect(name).toHaveValue(longName)
     expect(screen.getByLabelText('දුරකථන අංකය')).toHaveValue('0771234567')

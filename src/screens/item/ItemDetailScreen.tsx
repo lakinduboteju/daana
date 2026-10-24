@@ -52,7 +52,7 @@ export function ItemDetailScreen() {
       )}
       <ItemMoney eventId={eventId} itemId={item.id} />
       <DocumentsSection eventId={eventId} itemId={item.id} layout="grid" className={styles.card} />
-      <Link to="edit" state={OVER_PARENT} className={styles.edit}>Item එක සංස්කරණය කරන්න</Link>
+      <Link to="edit" state={OVER_PARENT} className={styles.edit}>Edit</Link>
       <Outlet />
     </>,
   )
@@ -136,7 +136,7 @@ function AssignmentRow({ eventId, item, assignment }: { eventId: string; item: I
         <Link
           to={`assignments/${assignment.id}`}
           state={OVER_PARENT}
-          aria-label={`${name} — පැවරුම සංස්කරණය`}
+          aria-label={`${name} — Edit`}
           className={styles.contributorName}
         >
           <span className={styles.name}>{name}</span>

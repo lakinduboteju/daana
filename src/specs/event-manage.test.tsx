@@ -131,7 +131,7 @@ describe('event card more-menu', () => {
     const { user } = await renderApp('/events', { signedInAs: organizer })
 
     await user.click(await screen.findByRole('button', { name: 'බොතේජු පවුල: තවත් විකල්ප' }))
-    await user.click(screen.getByRole('link', { name: 'සංස්කරණය' }))
+    await user.click(screen.getByRole('link', { name: 'Edit' }))
     expect(currentPath()).toBe(`/events/${eventId}/edit`)
     expect(await screen.findByDisplayValue('බොතේජු පවුල')).toBeInTheDocument()
   })
@@ -170,7 +170,7 @@ describe('event card more-menu', () => {
 
     const past = await screen.findByRole('region', { name: 'පසුගිය දාන' })
     await user.click(await within(past).findByRole('button', { name: 'බොතේජු පවුල: තවත් විකල්ප' }))
-    expect(within(past).getByRole('link', { name: 'සංස්කරණය' })).toHaveAttribute('href', expect.stringMatching(new RegExp(`/events/${eventId}/edit$`)))
+    expect(within(past).getByRole('link', { name: 'Edit' })).toHaveAttribute('href', expect.stringMatching(new RegExp(`/events/${eventId}/edit$`)))
     expect(within(past).getByRole('link', { name: 'පිටපත් කරන්න' })).toHaveAttribute('href', expect.stringMatching(new RegExp(`/events/new\\?from=${eventId}$`)))
 
     await user.click(within(past).getByRole('button', { name: 'මකන්න' }))
