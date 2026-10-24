@@ -3,8 +3,8 @@
 -- everything else reaches its organizer through its event. The household,
 -- its membership and its setup step are removed.
 
--- 1. Owners, taken from the household's member. Rows of a household with no
---    member have no one to belong to and are deleted, events first (their
+-- 1. Owners, taken from the household's earliest member (V1 households have
+--    one). Rows of a household with no member have no one to belong to and are deleted, events first (their
 --    monastery is restricted while an event uses it).
 
 alter table public.event add column organizer_id uuid;
@@ -195,8 +195,8 @@ create policy "Organizers manage their events' transactions"
     )
   );
 
--- The file must sit in the event's own folder: `<organizer_id>/<event_id>/`,
--- or `<household_id>/<event_id>/` for files stored before this migration.
+-- The file must sit in the event's own folder, `<first folder>/<event_id>/`.
+-- Who may store or read a file there is up to the storage policies below.
 create policy "Organizers manage their events' documents"
   on public.document for all
   to authenticated

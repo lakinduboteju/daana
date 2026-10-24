@@ -36,11 +36,11 @@ describe('a new organizer', () => {
     const organizer = await seedOrganizer()
     const { user } = await renderApp('/contributors/new', { signedInAs: organizer })
 
-    await user.type(await screen.findByLabelText('නම'), 'QA TEST Donor')
+    await user.type(await screen.findByLabelText('නම'), 'QA TEST Contributor')
     await user.type(screen.getByLabelText('දුරකථන අංකය'), '0771234567')
     await user.click(screen.getByRole('button', { name: 'Save' }))
 
-    expect(await screen.findByText('QA TEST Donor')).toBeInTheDocument()
+    expect(await screen.findByText('QA TEST Contributor')).toBeInTheDocument()
     expect(currentPath()).toBe('/contributors')
   })
 
