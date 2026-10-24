@@ -22,11 +22,6 @@ export function formatWeekday(date: string): string {
   return weekday.format(atNoonUtc(date))
 }
 
-/** Today in Sri Lanka, as 'YYYY-MM-DD'. */
-export function colomboToday(): string {
-  return new Intl.DateTimeFormat('en-CA', { timeZone: TIME_ZONE }).format(new Date())
-}
-
 /** The Sri Lanka date of a timestamp, as 'YYYY-MM-DD'. */
 export function colomboDateOf(timestamp: string): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: TIME_ZONE }).format(new Date(timestamp))
@@ -37,4 +32,11 @@ export function formatDaysAway(daysAway: number): string {
   if (daysAway === 0) return 'අද'
   if (daysAway === 1) return 'හෙට'
   return `තව දින ${daysAway}`
+}
+
+/** Today in Sri Lanka plus `offsetDays`, as 'YYYY-MM-DD'. */
+export function colomboToday(offsetDays = 0): string {
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: TIME_ZONE }).format(new Date())
+  const [year, month, day] = today.split('-').map(Number)
+  return new Date(Date.UTC(year, month - 1, day + offsetDays)).toISOString().slice(0, 10)
 }
