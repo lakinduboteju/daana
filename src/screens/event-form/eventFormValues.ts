@@ -1,6 +1,5 @@
 import type { EventDetails } from '../../data/events'
 import type { Meal } from '../../data/meal'
-import { toDisplayDate } from '../../lib/dates'
 
 /** The event form's own state: what the organizer has typed, as typed. */
 export type EventFormValues = {
@@ -32,7 +31,7 @@ export const EMPTY_EVENT_FORM: EventFormValues = {
 export function eventFormValues(event: EventDetails): EventFormValues {
   return {
     ...EMPTY_EVENT_FORM,
-    date: toDisplayDate(event.date),
+    date: event.date,
     meal: event.meal,
     monasteryName: event.monastery_name,
     host: event.host ?? '',

@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router'
 import { UnsavedChangesGuard } from '../../components/UnsavedChangesGuard'
 import type { EventFields } from '../../data/events'
 import { MEAL_LABEL, type Meal } from '../../data/meal'
-import { toIsoDate } from '../../lib/dates'
 import styles from './EventFormScreen.module.css'
 import { type EventFormValues } from './eventFormValues'
 
@@ -37,9 +36,7 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, children }: 
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
-    const isoDate = toIsoDate(values.date)
-    if (!values.date.trim()) return setError('දිනය ඇතුළත් කරන්න.')
-    if (!isoDate) return setError('වලංගු දිනයක් ඇතුළත් කරන්න.')
+    if (!values.date) return setError('දිනය ඇතුළත් කරන්න.')
     if (!values.monasteryName.trim()) return setError('අසපුව ඇතුළත් කරන්න.')
     setError(null)
     setSaving(true)
@@ -47,7 +44,7 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, children }: 
 
     try {
       const next = await onSave({
-        date: isoDate,
+        date: values.date,
         meal: values.meal,
         monasteryName: values.monasteryName,
         host: values.host,
@@ -74,7 +71,7 @@ export function EventForm({ initial, submitLabel, cancelTo, onSave, children }: 
         <label htmlFor="event-date" className={styles.label}>
           දිනය <span className={styles.required}>*</span>
         </label>
-        <input id="event-date" type="text" autoComplete="off" placeholder="dd/mm/yyyy" className={styles.input} value={values.date} onChange={(e) => set('date', e.target.value)} required />
+        <input id="event-date" type="date" className={styles.input} value={values.date} onChange={(e) => set('date', e.target.value)} required />
       </div>
 
       <fieldset className={styles.fieldset}>

@@ -34,24 +34,6 @@ export function formatDaysAway(daysAway: number): string {
   return `තව දින ${daysAway}`
 }
 
-/** '2099-11-08' as the organizer types it: '08/11/2099'. */
-export function toDisplayDate(iso: string): string {
-  const [year, month, day] = iso.split('-')
-  return `${day}/${month}/${year}`
-}
-
-/** A typed dd/mm/yyyy date as 'YYYY-MM-DD', or null when it is not a real calendar date. */
-export function toIsoDate(display: string): string | null {
-  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(display.trim())
-  if (!match) return null
-  const day = Number(match[1])
-  const month = Number(match[2])
-  const year = Number(match[3])
-  const date = new Date(Date.UTC(year, month - 1, day))
-  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return null
-  return `${match[3]}-${match[2]}-${match[1]}`
-}
-
 /** Today in Sri Lanka plus `offsetDays`, as 'YYYY-MM-DD'. */
 export function colomboToday(offsetDays = 0): string {
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: TIME_ZONE }).format(new Date())

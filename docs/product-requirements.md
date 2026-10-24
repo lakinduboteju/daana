@@ -96,7 +96,7 @@ The organizer should be able to enter:
 
 Required information
 
-- Almsgiving date (දිනය), entered as dd/mm/yyyy
+- Almsgiving date (දිනය), chosen on the calendar. Stored as YYYY-MM-DD
 - Meal of the day (හීල් දානය / දහවල් දානය)
 - Monastery name (මාලබේ අසපුව, පොල්ගහවෙල අසපුව)
 - Almsgiving name or dedication (දානය භාරගත් අය)

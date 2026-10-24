@@ -4,28 +4,26 @@ import { currentPath, renderApp } from '../test/renderApp'
 import { colomboDate, seedEvent, seedHousehold, seedOrganizer } from '../test/seed'
 
 describe('events', () => {
-  it('keeps the organizer on the form when the date is not a real dd/mm/yyyy date', async () => {
+  it('saves the calendar date the organizer picked and shows that date when they edit', async () => {
     const { organizer } = await seedHousehold()
     const { user } = await renderApp('/events/new', { signedInAs: organizer })
     const date = await screen.findByLabelText(/දිනය/)
 
     await user.type(date, '2099-11-08')
+    expect(date).toHaveValue('2099-11-08')
+    await user.type(screen.getByLabelText(/^අසපුව/), 'මාලබේ අසපුව')
     await user.click(screen.getByRole('button', { name: 'Save' }))
-    expect(await screen.findByRole('alert')).toHaveTextContent('වලංගු දිනයක් ඇතුළත් කරන්න.')
-    expect(currentPath()).toBe('/events/new')
 
-    await user.clear(date)
-    await user.type(date, '31/02/2099')
-    await user.click(screen.getByRole('button', { name: 'Save' }))
-    expect(screen.getByRole('alert')).toHaveTextContent('වලංගු දිනයක් ඇතුළත් කරන්න.')
-    expect(currentPath()).toBe('/events/new')
+    expect(await screen.findByRole('heading', { name: 'නොවැම්බර් 08 · දහවල් දානය' })).toBeInTheDocument()
+    await user.click(screen.getByRole('link', { name: 'විස්තර' }))
+    expect(await screen.findByLabelText(/දිනය/)).toHaveValue('2099-11-08')
   })
 
   it('creates the event and opens its menu once the date, meal and monastery are filled', async () => {
     const { organizer } = await seedHousehold()
     const { user } = await renderApp('/events/new', { signedInAs: organizer })
 
-    await user.type(await screen.findByLabelText(/දිනය/), '08/11/2099')
+    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
     await user.click(screen.getByRole('radio', { name: 'දහවල් දානය' }))
     await user.type(screen.getByLabelText(/^අසපුව/), 'මාලබේ අසපුව')
 
@@ -41,7 +39,7 @@ describe('events', () => {
     const organizer = await seedOrganizer()
     const { user } = await renderApp('/events/new', { signedInAs: organizer })
 
-    await user.type(await screen.findByLabelText(/දිනය/), '08/11/2099')
+    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
     await user.click(screen.getByRole('radio', { name: 'දහවල් දානය' }))
     await user.type(screen.getByLabelText(/^අසපුව/), 'මාලබේ අසපුව')
 
@@ -61,8 +59,8 @@ describe('events', () => {
     expect(currentPath()).toBe('/events/new')
 
     const date = await screen.findByLabelText(/දිනය/)
-    expect(date).toHaveAttribute('placeholder', 'dd/mm/yyyy')
-    await user.type(date, '08/11/2099')
+    await user.type(date, '2099-11-08')
+    expect(date).toHaveValue('2099-11-08')
     expect(screen.getByLabelText('දානය භාරගත් අය (optional)')).not.toHaveAttribute('placeholder')
     expect(screen.getByText('අමතර විස්තර (optional)')).toBeInTheDocument()
     expect(screen.queryByText(/අවශ්‍ය නම් පමණක්/)).not.toBeInTheDocument()
@@ -148,7 +146,7 @@ describe('events', () => {
     const monastery = await screen.findByLabelText(/^අසපුව/)
     expect(screen.queryByRole('radio', { name: 'පොල්ගහවෙල අසපුව' })).not.toBeInTheDocument()
     await user.type(monastery, '   ')
-    await user.type(screen.getByLabelText(/දිනය/), '07/11/2099')
+    await user.type(screen.getByLabelText(/දිනය/), '2099-11-07')
     await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('අසපුව ඇතුළත් කරන්න.')
     expect(currentPath()).toBe('/events/new')
@@ -243,7 +241,7 @@ describe('events', () => {
     const { organizer } = await seedHousehold()
     const { user } = await renderApp('/events/new', { signedInAs: organizer })
 
-    await user.type(await screen.findByLabelText(/දිනය/), '08/11/2099')
+    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
     await user.type(screen.getByLabelText(/^අසපුව/), 'මාලබේ අසපුව')
     await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByRole('heading', { name: /මාලබේ අසපුව/ })).toBeInTheDocument()

@@ -22,7 +22,7 @@ describe('editing an event', () => {
     const { user } = await renderApp(`/events/${eventId}/edit`, { signedInAs: organizer })
 
     expect(await screen.findByDisplayValue('බොතේජු පවුල')).toBeInTheDocument()
-    expect(screen.getByLabelText(/දිනය/)).toHaveValue('08/11/2099')
+    expect(screen.getByLabelText(/දිනය/)).toHaveValue('2099-11-08')
     expect(screen.getByRole('radio', { name: 'දහවල් දානය' })).toBeChecked()
     expect(await screen.findByLabelText(/^අසපුව/)).toHaveValue('මාලබේ අසපුව')
     await user.click(screen.getByText('අමතර විස්තර (optional)'))
@@ -32,7 +32,7 @@ describe('editing an event', () => {
     await user.clear(screen.getByLabelText(/දානය භාරගත් අය/))
     await user.type(screen.getByLabelText(/දානය භාරගත් අය/), 'සිල්වා පවුල')
     await user.clear(screen.getByLabelText(/දිනය/))
-    await user.type(screen.getByLabelText(/දිනය/), '07/11/2099')
+    await user.type(screen.getByLabelText(/දිනය/), '2099-11-07')
     await user.click(screen.getByRole('radio', { name: 'හීල් දානය' }))
     await user.click(screen.getByRole('button', { name: 'ස්වාමීන් වහන්සේලා වැඩි කරන්න' }))
     await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -117,7 +117,7 @@ describe('editing an event', () => {
     const { organizer } = await seedHousehold()
     const { user } = await renderApp('/events/new', { signedInAs: organizer })
 
-    await user.type(await screen.findByLabelText(/දිනය/), '08/11/2099')
+    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
     await user.click(screen.getByRole('link', { name: 'ආපසු' }))
     await user.click(await screen.findByRole('button', { name: 'ඉවත දමන්න' }))
     expect(currentPath()).toBe('/events')

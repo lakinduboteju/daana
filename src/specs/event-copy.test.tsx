@@ -43,7 +43,6 @@ describe('copying a previous event', () => {
 
     expect(await screen.findByDisplayValue('බොතේජු පවුල')).toBeInTheDocument()
     expect(screen.getByLabelText(/දිනය/)).toHaveValue('')
-    expect(screen.getByLabelText(/දිනය/)).toHaveAttribute('placeholder', 'dd/mm/yyyy')
     expect(await screen.findByLabelText(/^අසපුව/)).toHaveValue('මාලබේ අසපුව')
     await user.click(screen.getByText('අමතර විස්තර (optional)'))
     expect(screen.getByLabelText('ස්වාමීන් වහන්සේලා')).toHaveValue('12')
@@ -52,7 +51,7 @@ describe('copying a previous event', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByText('දිනය ඇතුළත් කරන්න.')).toBeInTheDocument()
 
-    await user.type(screen.getByLabelText(/දිනය/), '08/11/2099')
+    await user.type(screen.getByLabelText(/දිනය/), '2099-11-08')
     await user.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(await screen.findByRole('heading', { name: 'නොවැම්බර් 08 · දහවල් දානය' })).toBeInTheDocument()
@@ -85,14 +84,13 @@ describe('copying a previous event', () => {
     expect(await screen.findByDisplayValue('බොතේජු පවුල')).toBeInTheDocument()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(screen.getByLabelText(/දිනය/)).toHaveValue('')
-    expect(screen.getByLabelText(/දිනය/)).toHaveAttribute('placeholder', 'dd/mm/yyyy')
   })
 
   it('leaves the source event as it was', async () => {
     const { organizer, eventId } = await seedPreviousEvent()
     const { user, unmount } = await renderApp(`/events/new?from=${eventId}`, { signedInAs: organizer })
 
-    await user.type(await screen.findByLabelText(/දිනය/), '08/11/2099')
+    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
     await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByRole('heading', { name: 'නොවැම්බර් 08 · දහවල් දානය' })).toBeInTheDocument()
     unmount()
@@ -112,7 +110,7 @@ describe('copying a previous event', () => {
     await seedAssignment(rice, await seedContributor(householdId, 'කමලා රත්නායක', { archived: true }))
     const { user } = await renderApp(`/events/new?from=${eventId}`, { signedInAs: organizer })
 
-    await user.type(await screen.findByLabelText(/දිනය/), '08/11/2099')
+    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
     await user.click(screen.getByRole('button', { name: 'Save' }))
 
     const copied = await screen.findByRole('region', { name: 'බත්' })
@@ -127,7 +125,7 @@ describe('copying a previous event', () => {
     await seedDocument(eventId, { name: 'සහල් බිල්පත' })
     const { user } = await renderApp(`/events/new?from=${eventId}`, { signedInAs: organizer })
 
-    await user.type(await screen.findByLabelText(/දිනය/), '08/11/2099')
+    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
     await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByRole('heading', { name: 'නොවැම්බර් 08 · දහවල් දානය' })).toBeInTheDocument()
 

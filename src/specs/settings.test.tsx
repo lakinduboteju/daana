@@ -57,7 +57,7 @@ describe('category templates', () => {
     const { organizer } = await seedHousehold()
     const { user } = await renderApp('/events/new', { signedInAs: organizer })
 
-    await user.type(await screen.findByLabelText(/දිනය/), '08/11/2099')
+    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
     await user.type(await screen.findByLabelText(/^අසපුව/), 'මාලබේ අසපුව')
     await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByText('බත්')).toBeInTheDocument()
@@ -76,7 +76,7 @@ describe('category templates', () => {
     expect(await screen.findByText('බත් වර්ග')).toBeInTheDocument()
 
     goTo('/events/new')
-    await user.type(await screen.findByLabelText(/දිනය/), '15/11/2099')
+    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-15')
     await user.type(await screen.findByLabelText(/^අසපුව/), 'මාලබේ අසපුව')
     await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(await screen.findByText('බත් වර්ග')).toBeInTheDocument()
