@@ -168,7 +168,7 @@ function CardProgress({ event }: { event: EventSummary }) {
       {event.ready_count === event.item_count && (
         <span className={styles.allReady}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>
-          සියලු අයිතම තහවුරුයි
+          සියල්ල තහවුරුයි
         </span>
       )}
     </>

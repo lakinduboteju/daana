@@ -74,7 +74,7 @@ export function SearchScreen() {
 
       {results && (
         <>
-          {results.length === 0 && <p className={styles.message}>ගැළපෙන අයිතම නැත.</p>}
+          {results.length === 0 && <p className={styles.message}>Not Found</p>}
           <div className={styles.groups}>
             {groupByEvent(results).map((group) => (
               <EventGroup key={group[0].event_id} results={group} />

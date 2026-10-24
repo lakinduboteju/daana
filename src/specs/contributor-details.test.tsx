@@ -104,7 +104,7 @@ describe('contributor details', () => {
 
     const stats = await screen.findByRole('list', { name: 'සංඛ්‍යා' })
     await waitFor(() => expect(stats).toHaveTextContent('සහාය වූ දාන 2'))
-    expect(stats).toHaveTextContent('ගෙනා අයිතම 2')
+    expect(stats).toHaveTextContent('ගෙනා දේවල් 2')
   })
 
   it('the directory shows how many pending assignments each contributor has in upcoming events, and opens their page', async () => {
@@ -149,6 +149,7 @@ describe('contributor details', () => {
     const url = new URL(share.getAttribute('href')!)
     expect(url.origin + url.pathname).toBe('https://wa.me/94771234567')
     const message = url.searchParams.get('text')!
+    expect(message).toContain('ඔබ ගෙන එන දේවල්')
     expect(message).toContain('සුනිල් ජයසිංහ')
     expect(message).toContain('නොවැම්බර් 08')
     expect(message).toContain('දහවල් දානය')

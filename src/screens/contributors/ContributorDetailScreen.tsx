@@ -55,7 +55,7 @@ export function ContributorDetailScreen() {
       {counts && (
         <ul aria-label="සංඛ්‍යා" className={styles.stats}>
           <li className={styles.stat}>සහාය වූ දාන {counts.events_helped}</li>
-          <li className={styles.stat}>ගෙනා අයිතම {counts.items_brought}</li>
+          <li className={styles.stat}>ගෙනා දේවල් {counts.items_brought}</li>
           {counts.pending_count > 0 && <li className={styles.stat}>තහවුරු නොවූ {counts.pending_count}</li>}
         </ul>
       )}
@@ -113,7 +113,7 @@ function shareMessage(contributor: Contributor, { event, assignments }: Contribu
   return [
     `නමෝ බුද්ධාය! ${contributor.name},`,
     '',
-    `${where} සඳහා ඔබ ගෙන එන අයිතම:`,
+    `${where} සඳහා ඔබ ගෙන එන දේවල්:`,
     ...lines,
     '',
     'බොහොම ස්තූතියි!',

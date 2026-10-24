@@ -115,7 +115,7 @@ function AssignForm({ eventId, itemId, itemName, unit, onDone }: { eventId: stri
                 if (!newName) setNewName(q.trim())
               }}
             />
-            <span className={styles.optionName}>+ නව දායකයෙක් එක් කරන්න</span>
+            <span className={styles.optionName}>අළුත් දායකයෙක්</span>
           </label>
         </div>
       </fieldset>

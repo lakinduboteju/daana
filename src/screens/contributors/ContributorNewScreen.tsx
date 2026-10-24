@@ -14,7 +14,7 @@ export function ContributorNewScreen() {
 
   return (
     <main className={styles.screen}>
-      <BackHeader title="නව දායකයා" backTo="/contributors" />
+      <BackHeader title="අළුත් දායකයෙක්" backTo="/contributors" />
       <ContributorForm
         saving={add.isPending}
         done={done}

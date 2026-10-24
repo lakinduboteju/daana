@@ -56,7 +56,7 @@ describe('menu filters', () => {
     expect(within(chips()).getByRole('button', { name: 'පවරා නැත · 2' })).toHaveAttribute('aria-pressed', 'true')
     expect(shownItems()).toEqual(['බෝංචි', 'අන්නාසි'])
     expect(screen.queryByRole('region', { name: 'බත්' })).not.toBeInTheDocument()
-    expect(screen.getByText('අයිතම 2ක් පෙන්වයි')).toBeInTheDocument()
+    expect(screen.getByText('2ක් පෙන්වයි')).toBeInTheDocument()
 
     await user.click(within(chips()).getByRole('button', { name: 'තහවුරු කර නැත · 2' }))
     expect(currentPath()).toBe(`/events/${eventId}?status=pending`)
@@ -92,7 +92,7 @@ describe('menu filters', () => {
     await user.type(screen.getByRole('searchbox', { name: 'මෙනුව තුළ සොයන්න' }), 'බත්')
     expect(currentPath()).toContain('q=')
     expect(shownItems()).toEqual(['සුදු බත්'])
-    expect(screen.getByText('අයිතම 1ක් පෙන්වයි')).toBeInTheDocument()
+    expect(screen.getByText('1ක් පෙන්වයි')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Clear' }))
     expect(currentPath()).toBe(`/events/${eventId}`)

@@ -36,7 +36,7 @@ describe('event progress', () => {
     await renderApp(`/events/${eventId}`, { signedInAs: organizer })
 
     const summary = await screen.findByRole('region', { name: /මාලබේ අසපුව/ })
-    await waitFor(() => expect(summary).toHaveTextContent('3 / 7 අයිතම තහවුරුයි'))
+    await waitFor(() => expect(summary).toHaveTextContent('3 / 7 තහවුරුයි'))
     expect(within(summary).getByRole('img', { name: /^සූදානම:/ })).toHaveAccessibleName(
       'සූදානම: ලැබී ඇත 1, තහවුරුයි 2, අර්ධ වශයෙන් තහවුරුයි 1, තහවුරු කර නැත 1, පවරා නැත 2',
     )
@@ -64,14 +64,14 @@ describe('event progress', () => {
 
     const { unmount } = await renderApp(`/events/${cancelled}`, { signedInAs: organizer })
     const cancelledSummary = await screen.findByRole('region', { name: /මාලබේ අසපුව/ })
-    await waitFor(() => expect(cancelledSummary).toHaveTextContent('3 / 7 අයිතම තහවුරුයි'))
+    await waitFor(() => expect(cancelledSummary).toHaveTextContent('3 / 7 තහවුරුයි'))
     expect(cancelledSummary).toHaveTextContent('අවලංගුයි')
     expect(screen.queryByRole('region', { name: 'අවධානය අවශ්‍යයි' })).not.toBeInTheDocument()
     unmount()
 
     await renderApp(`/events/${past}`)
     const pastSummary = await screen.findByRole('region', { name: /මාලබේ අසපුව/ })
-    await waitFor(() => expect(pastSummary).toHaveTextContent('3 / 7 අයිතම තහවුරුයි'))
+    await waitFor(() => expect(pastSummary).toHaveTextContent('3 / 7 තහවුරුයි'))
     expect(screen.queryByRole('region', { name: 'අවධානය අවශ්‍යයි' })).not.toBeInTheDocument()
   })
 
@@ -111,11 +111,11 @@ describe('event progress', () => {
     expect(within(mixedCard).getByRole('progressbar', { name: 'සූදානම' })).toHaveAttribute('aria-valuenow', '3')
     expect(mixedCard).toHaveTextContent('පවරා නැති 2 · තහවුරු නොවූ 1')
     expect(mixedCard).toHaveTextContent('අර්ධ වශයෙන් තහවුරු 1')
-    expect(mixedCard).not.toHaveTextContent('සියලු අයිතම තහවුරුයි')
+    expect(mixedCard).not.toHaveTextContent('සියල්ල තහවුරුයි')
 
     const readyCard = within(upcoming).getByRole('link', { name: /ගුරු මණ්ඩලය/ })
     expect(readyCard).toHaveTextContent('2 / 2 තහවුරුයි')
-    expect(readyCard).toHaveTextContent('සියලු අයිතම තහවුරුයි')
+    expect(readyCard).toHaveTextContent('සියල්ල තහවුරුයි')
     expect(readyCard).not.toHaveTextContent('පවරා නැති')
 
     const emptyCard = within(upcoming).getByRole('link', { name: /සිල්වා පවුල/ })

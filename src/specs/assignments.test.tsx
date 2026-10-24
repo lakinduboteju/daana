@@ -50,7 +50,7 @@ describe('assignments', () => {
     await user.click(within(itemRow(rice, 'සුදු බත්')).getByRole('link', { name: /සුදු බත්/ }))
     expect(currentPath()).toBe(`/events/${eventId}/items/${itemId}`)
     expect(await screen.findByRole('heading', { level: 1, name: 'සුදු බත්' })).toBeInTheDocument()
-    const status = screen.getByRole('region', { name: 'අයිතමයේ තත්ත්වය' })
+    const status = screen.getByRole('region', { name: 'තත්ත්වය' })
     expect(status).toHaveTextContent('◑අර්ධ වශයෙන් තහවුරුයි')
     expect(status).toHaveTextContent('අවශ්‍ය ප්‍රමාණය කි.ග්‍රෑ. 3')
     expect(within(status).getByRole('progressbar', { name: 'තහවුරු ප්‍රමාණය' })).toHaveAttribute('aria-valuenow', '2')
@@ -75,7 +75,7 @@ describe('assignments', () => {
     await seedAssignment(itemId, nimal)
     const { user } = await renderApp(`/events/${eventId}/items/${itemId}`, { signedInAs: organizer })
 
-    const status = await screen.findByRole('region', { name: 'අයිතමයේ තත්ත්වය' })
+    const status = await screen.findByRole('region', { name: 'තත්ත්වය' })
     await waitFor(() => expect(status).toHaveTextContent('◔තහවුරු කර නැත'))
     const choice = screen.getByRole('radiogroup', { name: 'නිමල් සිල්වා — තත්ත්වය' })
     await user.click(within(choice).getByRole('radio', { name: /තහවුරුයි/ }))
@@ -110,7 +110,7 @@ describe('assignments', () => {
     offline.mockRestore()
     await user.click(within(banner).getByRole('button', { name: 'නැවත උත්සාහ කරන්න' }))
     expect(await screen.findByRole('status')).toHaveTextContent('නිමල් සිල්වා — තහවුරුයි ලෙස සුරැකිණි')
-    await waitFor(() => expect(screen.getByRole('region', { name: 'අයිතමයේ තත්ත්වය' })).toHaveTextContent('✓තහවුරුයි'))
+    await waitFor(() => expect(screen.getByRole('region', { name: 'තත්ත්වය' })).toHaveTextContent('✓තහවුරුයි'))
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 })
@@ -142,8 +142,8 @@ describe('assigning several contributors and changing plans', () => {
     expect(currentPath()).toBe(`/events/${eventId}/items/${itemId}`)
     const contributors = screen.getByRole('list', { name: 'දායකයන්' })
     await waitFor(() => expect(within(contributors).getAllByRole('listitem')).toHaveLength(2))
-    await waitFor(() => expect(screen.getByRole('region', { name: 'අයිතමයේ තත්ත්වය' })).toHaveTextContent('✓තහවුරුයි'))
-    expect(screen.getByRole('region', { name: 'අයිතමයේ තත්ත්වය' })).toHaveTextContent('තහවුරු 3 / 3')
+    await waitFor(() => expect(screen.getByRole('region', { name: 'තත්ත්වය' })).toHaveTextContent('✓තහවුරුයි'))
+    expect(screen.getByRole('region', { name: 'තත්ත්වය' })).toHaveTextContent('තහවුරු 3 / 3')
   })
 
   it('adds a new contributor from inside the assign sheet', async () => {
@@ -154,7 +154,7 @@ describe('assigning several contributors and changing plans', () => {
 
     const sheet = await screen.findByRole('dialog', { name: 'ඉඟුරු තේ — දායකයා' })
     await user.type(within(sheet).getByRole('searchbox', { name: 'දායකයා සොයන්න' }), 'දිල්රුක්ෂි')
-    await user.click(within(sheet).getByRole('radio', { name: /නව දායකයෙක් එක් කරන්න/ }))
+    await user.click(within(sheet).getByRole('radio', { name: 'අළුත් දායකයෙක්' }))
     expect(within(sheet).getByLabelText('නම')).toHaveValue('දිල්රුක්ෂි')
     await user.type(within(sheet).getByLabelText('දුරකථන අංකය (optional)'), '0711234567')
     await user.click(within(sheet).getByRole('button', { name: 'දිල්රුක්ෂි ට පවරන්න' }))
@@ -189,7 +189,7 @@ describe('assigning several contributors and changing plans', () => {
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(await screen.findByRole('status')).toHaveTextContent('නිමල් සිල්වාගේ පැවරුම සුරැකිණි')
-    const status = screen.getByRole('region', { name: 'අයිතමයේ තත්ත්වය' })
+    const status = screen.getByRole('region', { name: 'තත්ත්වය' })
     await waitFor(() => expect(status).toHaveTextContent('✓තහවුරුයි'))
     expect(status).toHaveTextContent('තහවුරු 3 / 3')
 

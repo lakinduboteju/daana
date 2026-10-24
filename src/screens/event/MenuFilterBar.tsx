@@ -19,7 +19,7 @@ type Props = {
 
 /**
  * Status chips with counts, category and contributor pickers, and in-menu
- * search; "අයිතම Nක් පෙන්වයි" and Clear while filtered.
+ * search; "Nක් පෙන්වයි" and Clear while filtered.
  */
 export function MenuFilterBar({ menu, shown, filters: { filters, set, clear } }: Props) {
   const [searching, setSearching] = useState(false)
@@ -93,7 +93,7 @@ export function MenuFilterBar({ menu, shown, filters: { filters, set, clear } }:
       )}
       {isFiltered(filters) && (
         <div className={styles.summary}>
-          <span>අයිතම {shown}ක් පෙන්වයි</span>
+          <span>{shown}ක් පෙන්වයි</span>
           <button
             type="button"
             className={styles.clear}

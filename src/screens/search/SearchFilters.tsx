@@ -36,7 +36,7 @@ export function SearchFilters({ filters, onChange }: { filters: Filters; onChang
         <Preset label="පවරා නැති" pressed={filters.status === 'unassigned'} onToggle={(on) => onChange({ status: on ? 'unassigned' : null })} />
         {latest && (
           <Preset
-            label={`${latest.name.split(' ')[0]}ගේ අයිතම`}
+            label={`${latest.name.split(' ')[0]}ගේ දේවල්`}
             pressed={filters.contributorId === latest.id}
             onToggle={(on) => onChange({ contributor: on ? latest.id : null })}
           />

@@ -63,7 +63,7 @@ function StatusSection({ item }: { item: Item }) {
   return (
     <section aria-labelledby="item-status" className={styles.card}>
       <div className={styles.statusRow}>
-        <h2 id="item-status" className={styles.cardTitle}>අයිතමයේ තත්ත්වය</h2>
+        <h2 id="item-status" className={styles.cardTitle}>තත්ත්වය</h2>
         <StatusBadge status={item.status} />
       </div>
       {required != null && (

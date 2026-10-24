@@ -29,7 +29,7 @@ export function EventHeader({ event }: { event: EventSummary }) {
             <div className={styles.readinessRow}>
               <span className={styles.readinessTitle}>සූදානම</span>
               <span>
-                <b className={styles.readyCount}>{event.ready_count}</b> / {event.item_count} අයිතම තහවුරුයි
+                <b className={styles.readyCount}>{event.ready_count}</b> / {event.item_count} තහවුරුයි
               </span>
             </div>
             <StackedProgress progress={event} />
@@ -53,7 +53,7 @@ function CountChips({ event }: { event: EventSummary }) {
   return (
     <div className={styles.chips}>
       {event.monk_count > 0 && <Chip label="ස්වාමීන් වහන්සේලා" count={event.monk_count} />}
-      {event.layperson_count > 0 && <Chip label="ගිහි" count={event.layperson_count} />}
+      {event.layperson_count > 0 && <Chip label="ගිහි පිරිස" count={event.layperson_count} />}
       <Chip label="මුළු" count={total} />
     </div>
   )

@@ -149,6 +149,7 @@ describe('event card more-menu', () => {
     expect(confirm).toHaveTextContent('පැවරීම්')
     expect(confirm).toHaveTextContent('ගෙවීම්')
     expect(confirm).toHaveTextContent('ලේඛන')
+    expect(confirm).not.toHaveTextContent('කාණ්ඩ සහ අයිතම')
 
     await user.click(within(confirm).getByRole('button', { name: 'එපා' }))
     expect(screen.getByRole('link', { name: /බොතේජු පවුල/ })).toBeInTheDocument()

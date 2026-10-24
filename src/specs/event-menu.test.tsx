@@ -21,7 +21,7 @@ describe('event menu', () => {
     expect(screen.getByRole('heading', { name: 'මාලබේ අසපුව · ඉරිදා' })).toBeInTheDocument()
     expect(screen.getByText('බොතේජු පවුල')).toBeInTheDocument()
     expect(screen.getByText('ස්වාමීන් වහන්සේලා').parentElement).toHaveTextContent('ස්වාමීන් වහන්සේලා 12')
-    expect(screen.getByText('ගිහි').parentElement).toHaveTextContent('ගිහි 20')
+    expect(screen.getByText('ගිහි පිරිස').parentElement).toHaveTextContent('ගිහි පිරිස 20')
     expect(screen.getByText('මුළු').parentElement).toHaveTextContent('මුළු 32')
 
     const tabs = screen.getByRole('navigation', { name: 'දාන කොටස්' })

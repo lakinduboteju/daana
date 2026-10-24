@@ -107,7 +107,7 @@ describe('global search', () => {
     const { user } = await renderApp('/search', { signedInAs: organizer })
 
     // Sunil was assigned most recently.
-    await user.click(await screen.findByRole('button', { name: 'සුනිල්ගේ අයිතම' }))
+    await user.click(await screen.findByRole('button', { name: 'සුනිල්ගේ දේවල්' }))
     expect(currentPath()).toBe(`/search?contributor=${sunil}`)
     expect(await screen.findByText('ප්‍රතිඵල 2')).toBeInTheDocument()
     expect(screen.getByRole('combobox', { name: 'දායකයා' })).toHaveDisplayValue('සුනිල් ජයසිංහ')
@@ -118,10 +118,11 @@ describe('global search', () => {
 
     await user.click(screen.getByRole('button', { name: 'තහවුරු නොවූ' }))
     await waitFor(() => expect(screen.getByText('ප්‍රතිඵල 0')).toBeInTheDocument())
+    expect(screen.getByText('Not Found')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Clear' }))
     expect(currentPath()).toBe('/search')
     expect(screen.queryByText(/ප්‍රතිඵල/)).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'සුනිල්ගේ අයිතම' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: 'සුනිල්ගේ දේවල්' })).toHaveAttribute('aria-pressed', 'false')
   })
 })
