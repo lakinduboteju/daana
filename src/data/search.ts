@@ -7,6 +7,11 @@ import type { ItemStatus } from './status'
 /** What /search's query string asks for. */
 export type SearchCriteria = {
   q: string
+  /** 'YYYY-MM-DD', inclusive. */
+  from: string | null
+  to: string | null
+  /** Any of these item statuses; null for all. */
+  statuses: ItemStatus[] | null
 }
 
 /** One matching item, with its event. */
@@ -30,10 +35,16 @@ export type SearchResult = {
 /** Items across all the household's events that match, in event order then menu order. */
 export function useSearch(criteria: SearchCriteria, enabled: boolean) {
   const q = criteria.q.trim()
+  const { from, to, statuses } = criteria
   return useQuery({
-    queryKey: ['search', { q }],
+    queryKey: ['search', { q, from, to, statuses }],
     queryFn: async (): Promise<SearchResult[]> => {
-      const { data, error } = await supabase.rpc('search_items', { p_q: q || null })
+      const { data, error } = await supabase.rpc('search_items', {
+        p_q: q || null,
+        p_from: from,
+        p_to: to,
+        p_statuses: statuses,
+      })
       if (error) throw error
       return data as SearchResult[]
     },

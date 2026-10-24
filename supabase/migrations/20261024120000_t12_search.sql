@@ -1,10 +1,17 @@
 -- Global search across all of the household's events (ticket #12).
 
 -- Items whose name, contributors' names, monastery or host contain `p_q`
--- (ignoring English capital letters; Sinhala matches as typed), with each
--- item's status from item_status, in event order then menu order.
+-- (ignoring English capital letters; Sinhala matches as typed), in events
+-- dated `p_from`..`p_to` (inclusive), whose status from item_status is one of
+-- `p_statuses`. A null criterion matches everything. In event order, then
+-- menu order.
 -- Security invoker: row-level security keeps it to the caller's household.
-create function public.search_items(p_q text default null)
+create function public.search_items(
+  p_q text default null,
+  p_from date default null,
+  p_to date default null,
+  p_statuses text[] default null
+)
 returns table (
   item_id uuid,
   item_name text,
@@ -56,14 +63,18 @@ as $$
   join public.event e on e.id = i.event_id
   join public.monastery m on m.id = e.monastery_id
   left join names n on n.item_id = i.id
-  where
-    not exists (select 1 from term)
-    or exists (
-      select 1 from term t
-      where i.name ilike t.pattern
-        or m.name ilike t.pattern
-        or e.host ilike t.pattern
-        or exists (select 1 from unnest(n.contributor_names) as cn(name) where cn.name ilike t.pattern)
+  where (p_from is null or e.date >= p_from)
+    and (p_to is null or e.date <= p_to)
+    and (p_statuses is null or s.status = any (p_statuses))
+    and (
+      not exists (select 1 from term)
+      or exists (
+        select 1 from term t
+        where i.name ilike t.pattern
+          or m.name ilike t.pattern
+          or e.host ilike t.pattern
+          or exists (select 1 from unnest(n.contributor_names) as cn(name) where cn.name ilike t.pattern)
+      )
     )
   order by e.date, e.meal, e.created_at, cat.position, cat.created_at, i.position, i.created_at
 $$;

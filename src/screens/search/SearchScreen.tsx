@@ -4,22 +4,31 @@ import { PageHeader } from '../../components/PageHeader'
 import { StatusBadge } from '../../components/StatusBadge'
 import { MEAL_LABEL } from '../../data/meal'
 import { useSearch, type SearchResult } from '../../data/search'
+import { STATUS_LABEL, type ItemStatus } from '../../data/status'
 import { formatQuantity } from '../../data/units'
 import { formatDayMonth } from '../../lib/dates'
+import { SearchFilters } from './SearchFilters'
 import styles from './SearchScreen.module.css'
 
 /** /search: items across all events, by free text and filters kept in the URL. */
 export function SearchScreen() {
   const [searchParams, setSearchParams] = useSearchParams()
   const q = searchParams.get('q') ?? ''
-  const hasCriteria = q.trim() !== ''
-  const search = useSearch({ q }, hasCriteria)
+  const from = validDate(searchParams.get('from'))
+  const to = validDate(searchParams.get('to'))
+  const status = searchParams.get('status') ?? ''
+  const statuses = parseStatuses(status)
+  const hasCriteria = q.trim() !== '' || from !== null || to !== null || statuses !== null
+  const search = useSearch({ q, from, to, statuses }, hasCriteria)
 
-  function setQ(value: string) {
+  /** Sets (or, when empty, removes) query params; typing replaces history, choosing a filter pushes. */
+  function setParams(changes: Record<string, string | null>, replace = false) {
     const next = new URLSearchParams(searchParams)
-    if (value) next.set('q', value)
-    else next.delete('q')
-    setSearchParams(next, { replace: true })
+    for (const [key, value] of Object.entries(changes)) {
+      if (value) next.set(key, value)
+      else next.delete(key)
+    }
+    setSearchParams(next, { replace })
   }
 
   const results = hasCriteria ? search.data : undefined
@@ -34,11 +43,16 @@ export function SearchScreen() {
           type="search"
           placeholder="සියලු දාන තුළ සොයන්න"
           value={q}
-          onChange={(event) => setQ(event.target.value)}
+          onChange={(event) => setParams({ q: event.target.value }, true)}
           className={styles.searchInput}
         />
         <svg className={styles.searchIcon} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
       </div>
+
+      <SearchFilters
+        filters={{ from, to, status }}
+        onChange={(changes) => setParams(changes)}
+      />
 
       {!hasCriteria && (
         <p className={styles.message}>අයිතමයක්, දායකයෙක්, අසපුවක් හෝ දානය භාරගත් අය සොයන්න, නැත්නම් පෙරහනක් තෝරන්න.</p>
@@ -61,6 +75,18 @@ export function SearchScreen() {
       )}
     </>
   )
+}
+
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+
+function validDate(value: string | null): string | null {
+  return value && DATE_PATTERN.test(value) ? value : null
+}
+
+/** 'pending,partial' → ['pending', 'partial']; unknown statuses are ignored, none means all. */
+function parseStatuses(value: string): ItemStatus[] | null {
+  const statuses = value.split(',').filter((s): s is ItemStatus => s in STATUS_LABEL)
+  return statuses.length > 0 ? statuses : null
 }
 
 /** Consecutive results of the same event (results come in event order). */

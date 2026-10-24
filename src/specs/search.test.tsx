@@ -1,7 +1,7 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
-import { seedAssignment, seedContributor, seedEvent, seedHousehold, seedItem } from '../test/seed'
+import { colomboDate, seedAssignment, seedContributor, seedEvent, seedHousehold, seedItem } from '../test/seed'
 
 describe('global search', () => {
   it('finds a Sinhala item across events, grouped by event, each result linking to its item', async () => {
@@ -64,5 +64,31 @@ describe('global search', () => {
     await renderApp(`/search?q=${encodeURIComponent('කිරිබත්')}`, { signedInAs: mine.organizer })
     expect(await screen.findByText('ප්‍රතිඵල 1')).toBeInTheDocument()
     expect(screen.queryByText(/කිරිබත් කෑලි|කිරිබත් පවුල|කිරිබත් අම්මා/)).not.toBeInTheDocument()
+  })
+
+  it('"පවරා නැති" with upcoming dates lists every unassigned item in upcoming events', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const past = await seedEvent(householdId, { date: colomboDate(-3), categories: ['බත්'] })
+    const today = await seedEvent(householdId, { date: colomboDate(0), monastery: 'මාලබේ අසපුව', categories: ['බත්'] })
+    const later = await seedEvent(householdId, { date: colomboDate(12), monastery: 'පොල්ගහවෙල අසපුව', categories: ['බත්'] })
+    await seedItem(past, 'බත්', { name: 'පරණ බත්' })
+    await seedItem(today, 'බත්', { name: 'බෝංචි' })
+    const pending = await seedItem(today, 'බත්', { name: 'අල තෙම්පරාදුව' })
+    await seedItem(later, 'බත්', { name: 'අන්නාසි' })
+    const confirmed = await seedItem(later, 'බත්', { name: 'වතුර බෝතල්' })
+    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ')
+    await seedAssignment(pending, sunil)
+    await seedAssignment(confirmed, sunil, { status: 'confirmed' })
+    const { user } = await renderApp('/search', { signedInAs: organizer })
+
+    await user.click(await screen.findByRole('button', { name: 'පවරා නැති' }))
+    await user.selectOptions(screen.getByRole('combobox', { name: 'දින පරාසය' }), 'ඉදිරි දාන')
+    expect(currentPath()).toBe(`/search?status=unassigned&from=${colomboDate(0)}`)
+    expect(screen.getByRole('button', { name: 'පවරා නැති' })).toHaveAttribute('aria-pressed', 'true')
+
+    await waitFor(() => expect(screen.getByText('ප්‍රතිඵල 2')).toBeInTheDocument())
+    expect(screen.getByRole('region', { name: /මාලබේ අසපුව/ })).toHaveTextContent('බෝංචිදායකයෙකු තවම නැත○පවරා නැත')
+    expect(screen.getByRole('region', { name: /පොල්ගහවෙල අසපුව/ })).toHaveTextContent('අන්නාසිදායකයෙකු තවම නැත○පවරා නැත')
+    expect(screen.queryByText(/පරණ බත්|අල තෙම්පරාදුව|වතුර බෝතල්/)).not.toBeInTheDocument()
   })
 })

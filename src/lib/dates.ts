@@ -28,3 +28,10 @@ export function formatDaysAway(daysAway: number): string {
   if (daysAway === 1) return 'හෙට'
   return `තව දින ${daysAway}`
 }
+
+/** Today in Sri Lanka plus `offsetDays`, as 'YYYY-MM-DD'. */
+export function colomboToday(offsetDays = 0): string {
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: TIME_ZONE }).format(new Date())
+  const [year, month, day] = today.split('-').map(Number)
+  return new Date(Date.UTC(year, month - 1, day + offsetDays)).toISOString().slice(0, 10)
+}
