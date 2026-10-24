@@ -1,14 +1,14 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
-import { admin, colomboDate, seedAssignment, seedContributor, seedEvent, seedHousehold, seedItem } from '../test/seed'
+import { admin, colomboDate, seedAssignment, seedContributor, seedEvent, seedOrganizer, seedItem } from '../test/seed'
 
 describe('contributor details', () => {
   it("lists a contributor's assignments across events, grouped by event, past events included", async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ', { phone: '077 123 4567' })
+    const organizer = await seedOrganizer()
+    const sunil = await seedContributor(organizer, 'සුනිල් ජයසිංහ', { phone: '077 123 4567' })
     await admin.from('contributor').update({ notes: 'සෙනසුරාදා උදේට කතා කරන්න.' }).eq('id', sunil)
-    const upcoming = await seedEvent(householdId, {
+    const upcoming = await seedEvent(organizer, {
       date: '2099-11-08',
       host: 'බොතේජු පවුල',
       monastery: 'මාලබේ අසපුව',
@@ -18,7 +18,7 @@ describe('contributor details', () => {
     const water = await seedItem(upcoming, 'පාන', { name: 'වතුර බෝතල්', requiredQuantity: 40 })
     await seedAssignment(rice, sunil, { quantity: 1 })
     await seedAssignment(water, sunil, { quantity: 40, status: 'confirmed' })
-    const past = await seedEvent(householdId, {
+    const past = await seedEvent(organizer, {
       date: colomboDate(-30),
       host: 'ජයසිංහ පවුල',
       monastery: 'පොල්ගහවෙල අසපුව',
@@ -27,7 +27,7 @@ describe('contributor details', () => {
     const kiribath = await seedItem(past, 'බත්', { name: 'කිරිබත්', requiredQuantity: 3, unit: 'kg' })
     await seedAssignment(kiribath, sunil, { quantity: 3, status: 'received' })
     // Someone else's assignment on the same event doesn't show.
-    const kamala = await seedContributor(householdId, 'කමලා රත්නායක')
+    const kamala = await seedContributor(organizer, 'කමලා රත්නායක')
     const curd = await seedItem(upcoming, 'බත්', { name: 'කිරි' })
     await seedAssignment(curd, kamala)
 
@@ -61,9 +61,9 @@ describe('contributor details', () => {
   })
 
   it('one tap on "✓ එකඟ වුණා" confirms a pending assignment, and the item status follows in the menu', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ')
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })
+    const organizer = await seedOrganizer()
+    const sunil = await seedContributor(organizer, 'සුනිල් ජයසිංහ')
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්'] })
     const rice = await seedItem(eventId, 'බත්', { name: 'සුදු බත්', requiredQuantity: 1, unit: 'kg' })
     const kiribath = await seedItem(eventId, 'බත්', { name: 'කිරිබත්' })
     await seedAssignment(rice, sunil, { quantity: 1 })
@@ -86,17 +86,17 @@ describe('contributor details', () => {
   })
 
   it('shows how many events a contributor helped with and how many items they brought', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ')
-    const lastMonth = await seedEvent(householdId, { date: colomboDate(-30), categories: ['බත්'] })
+    const organizer = await seedOrganizer()
+    const sunil = await seedContributor(organizer, 'සුනිල් ජයසිංහ')
+    const lastMonth = await seedEvent(organizer, { date: colomboDate(-30), categories: ['බත්'] })
     await seedAssignment(await seedItem(lastMonth, 'බත්', { name: 'කිරිබත්' }), sunil, { status: 'received' })
     await seedAssignment(await seedItem(lastMonth, 'බත්', { name: 'කැවුම්' }), sunil, { status: 'received' })
-    const nextWeek = await seedEvent(householdId, { date: colomboDate(7), categories: ['බත්'] })
+    const nextWeek = await seedEvent(organizer, { date: colomboDate(7), categories: ['බත්'] })
     await seedAssignment(await seedItem(nextWeek, 'බත්', { name: 'සුදු බත්' }), sunil, { status: 'confirmed' })
     // Only asked so far, and a cancelled event, don't count as helping.
-    const later = await seedEvent(householdId, { date: colomboDate(14), categories: ['බත්'] })
+    const later = await seedEvent(organizer, { date: colomboDate(14), categories: ['බත්'] })
     await seedAssignment(await seedItem(later, 'බත්', { name: 'පරිප්පු' }), sunil)
-    const cancelled = await seedEvent(householdId, { date: colomboDate(-10), categories: ['බත්'] })
+    const cancelled = await seedEvent(organizer, { date: colomboDate(-10), categories: ['බත්'] })
     await admin.from('event').update({ cancelled_at: new Date().toISOString() }).eq('id', cancelled)
     await seedAssignment(await seedItem(cancelled, 'බත්', { name: 'අල' }), sunil, { status: 'received' })
 
@@ -108,15 +108,15 @@ describe('contributor details', () => {
   })
 
   it('the directory shows how many pending assignments each contributor has in upcoming events, and opens their page', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ')
-    await seedContributor(householdId, 'අනුලා විජේසේකර')
-    const upcoming = await seedEvent(householdId, { date: colomboDate(3), categories: ['බත්'] })
+    const organizer = await seedOrganizer()
+    const sunil = await seedContributor(organizer, 'සුනිල් ජයසිංහ')
+    await seedContributor(organizer, 'අනුලා විජේසේකර')
+    const upcoming = await seedEvent(organizer, { date: colomboDate(3), categories: ['බත්'] })
     await seedAssignment(await seedItem(upcoming, 'බත්', { name: 'සුදු බත්' }), sunil)
     await seedAssignment(await seedItem(upcoming, 'බත්', { name: 'කිරිබත්' }), sunil)
     await seedAssignment(await seedItem(upcoming, 'බත්', { name: 'පරිප්පු' }), sunil, { status: 'confirmed' })
     // A pending assignment on a past event is history, not a follow-up.
-    const past = await seedEvent(householdId, { date: colomboDate(-3), categories: ['බත්'] })
+    const past = await seedEvent(organizer, { date: colomboDate(-3), categories: ['බත්'] })
     await seedAssignment(await seedItem(past, 'බත්', { name: 'අල' }), sunil)
 
     const { user } = await renderApp('/contributors', { signedInAs: organizer })
@@ -132,14 +132,14 @@ describe('contributor details', () => {
   })
 
   it('"WhatsApp" opens WhatsApp with a Sinhala message listing that event\'s items and quantities', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ', { phone: '0711111111', whatsapp: '077 123 4567' })
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', monastery: 'මාලබේ අසපුව', categories: ['බත්'] })
+    const organizer = await seedOrganizer()
+    const sunil = await seedContributor(organizer, 'සුනිල් ජයසිංහ', { phone: '0711111111', whatsapp: '077 123 4567' })
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', monastery: 'මාලබේ අසපුව', categories: ['බත්'] })
     await seedAssignment(await seedItem(eventId, 'බත්', { name: 'සුදු බත්', unit: 'kg' }), sunil, { quantity: 1 })
     await seedAssignment(await seedItem(eventId, 'බත්', { name: 'කිරිබත්' }), sunil, { status: 'confirmed' })
-    const other = await seedEvent(householdId, { date: '2099-11-21', categories: ['බත්'] })
+    const other = await seedEvent(organizer, { date: '2099-11-21', categories: ['බත්'] })
     await seedAssignment(await seedItem(other, 'බත්', { name: 'වතුර බෝතල්' }), sunil, { quantity: 40 })
-    const past = await seedEvent(householdId, { date: colomboDate(-5), categories: ['බත්'] })
+    const past = await seedEvent(organizer, { date: colomboDate(-5), categories: ['බත්'] })
     await seedAssignment(await seedItem(past, 'බත්', { name: 'කැවුම්' }), sunil)
 
     await renderApp(`/contributors/${sunil}`, { signedInAs: organizer })
@@ -161,10 +161,10 @@ describe('contributor details', () => {
     expect(within(screen.getByRole('region', { name: /පසුගිය/ })).queryByRole('link', { name: 'WhatsApp' })).not.toBeInTheDocument()
   })
 
-  it("another household's contributor is not found", async () => {
-    const other = await seedHousehold('සිල්වා පවුල')
-    const stranger = await seedContributor(other.householdId, 'ගුණපාල')
-    const { organizer } = await seedHousehold()
+  it("another organizer's contributor is not found", async () => {
+    const other = await seedOrganizer()
+    const stranger = await seedContributor(other, 'ගුණපාල')
+    const organizer = await seedOrganizer()
     await renderApp(`/contributors/${stranger}`, { signedInAs: organizer })
     expect(await screen.findByRole('heading', { name: 'පිටුව හමු නොවීය' })).toBeInTheDocument()
     expect(screen.queryByText('ගුණපාල')).not.toBeInTheDocument()

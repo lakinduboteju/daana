@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
-import { seedHousehold } from '../test/seed'
+import { seedOrganizer } from '../test/seed'
 
 describe('signing in', () => {
   it('sends a signed-out organizer to the login screen, remembering where they were going', async () => {
@@ -14,7 +14,7 @@ describe('signing in', () => {
   })
 
   it('signs in with a username and returns to where the organizer was going', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user } = await renderApp('/contributors')
 
     await user.type(await screen.findByLabelText('නම'), organizer.username)
@@ -26,7 +26,7 @@ describe('signing in', () => {
   })
 
   it('lands on the events home after signing in from the login screen', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user } = await renderApp('/login')
 
     await user.type(await screen.findByLabelText('නම'), organizer.username)
@@ -39,7 +39,7 @@ describe('signing in', () => {
   })
 
   it('shows the password when the organizer presses Show password, without signing in', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user } = await renderApp('/login')
 
     const password = await screen.findByLabelText('Password')
@@ -73,7 +73,7 @@ describe('signing in', () => {
   })
 
   it('shows a Sinhala error when the password is wrong', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user } = await renderApp('/login')
 
     await user.type(await screen.findByLabelText('නම'), organizer.username)
@@ -85,7 +85,7 @@ describe('signing in', () => {
   })
 
   it('keeps the organizer signed in when the app is reloaded', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user, unmount } = await renderApp('/login')
     await user.type(await screen.findByLabelText('නම'), organizer.username)
     await user.type(screen.getByLabelText('Password'), organizer.password)
@@ -102,7 +102,7 @@ describe('signing in', () => {
 
 describe('signing out', () => {
   it('returns the organizer to the login screen, and pages need signing in again', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user, unmount } = await renderApp('/events', { signedInAs: organizer })
 
     await user.click(await screen.findByRole('link', { name: 'Settings' }))

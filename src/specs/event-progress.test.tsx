@@ -1,16 +1,16 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { renderApp } from '../test/renderApp'
-import { admin, colomboDate, seedAssignment, seedContributor, seedEvent, seedHousehold, seedItem } from '../test/seed'
+import { admin, colomboDate, seedAssignment, seedContributor, seedEvent, seedOrganizer, seedItem, type Organizer } from '../test/seed'
 
 /**
  * Seeds a menu with one of each kind of item:
  * බත් — received, confirmed, partial; ව්‍යංජන — pending, unassigned ×2, confirmed.
  * 7 items: 3 ready, 3 need attention (2 unassigned, 1 pending), 1 short (partial).
  */
-async function seedMixedMenu(householdId: string, eventId: string) {
-  const kamala = await seedContributor(householdId, 'කමලා රත්නායක')
-  const sunil = await seedContributor(householdId, 'සුනිල් ජයසිංහ')
+async function seedMixedMenu(organizer: Organizer, eventId: string) {
+  const kamala = await seedContributor(organizer, 'කමලා රත්නායක')
+  const sunil = await seedContributor(organizer, 'සුනිල් ජයසිංහ')
 
   const kesel = await seedItem(eventId, 'බත්', { name: 'කෙසෙල්' })
   await seedAssignment(kesel, kamala, { status: 'received' })
@@ -30,9 +30,9 @@ async function seedMixedMenu(householdId: string, eventId: string) {
 
 describe('event progress', () => {
   it('the event screen shows how many items are ready and a bar split by item status', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: colomboDate(10), categories: ['බත්', 'ව්‍යංජන'] })
-    await seedMixedMenu(householdId, eventId)
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: colomboDate(10), categories: ['බත්', 'ව්‍යංජන'] })
+    await seedMixedMenu(organizer, eventId)
     await renderApp(`/events/${eventId}`, { signedInAs: organizer })
 
     const summary = await screen.findByRole('region', { name: /මාලබේ අසපුව/ })
@@ -43,9 +43,9 @@ describe('event progress', () => {
   })
 
   it('an upcoming event lists what needs attention, with short items on a softer line', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: colomboDate(0), categories: ['බත්', 'ව්‍යංජන'] })
-    await seedMixedMenu(householdId, eventId)
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: colomboDate(0), categories: ['බත්', 'ව්‍යංජන'] })
+    await seedMixedMenu(organizer, eventId)
     await renderApp(`/events/${eventId}`, { signedInAs: organizer })
 
     const attention = await screen.findByRole('region', { name: 'අවධානය අවශ්‍යයි' })
@@ -55,12 +55,12 @@ describe('event progress', () => {
   })
 
   it('cancelled and past events show their progress but nothing needing attention', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const cancelled = await seedEvent(householdId, { date: colomboDate(3), categories: ['බත්', 'ව්‍යංජන'] })
-    await seedMixedMenu(householdId, cancelled)
+    const organizer = await seedOrganizer()
+    const cancelled = await seedEvent(organizer, { date: colomboDate(3), categories: ['බත්', 'ව්‍යංජන'] })
+    await seedMixedMenu(organizer, cancelled)
     await admin.from('event').update({ cancelled_at: new Date().toISOString() }).eq('id', cancelled).throwOnError()
-    const past = await seedEvent(householdId, { date: colomboDate(-1), categories: ['බත්', 'ව්‍යංජන'] })
-    await seedMixedMenu(householdId, past)
+    const past = await seedEvent(organizer, { date: colomboDate(-1), categories: ['බත්', 'ව්‍යංජන'] })
+    await seedMixedMenu(organizer, past)
 
     const { unmount } = await renderApp(`/events/${cancelled}`, { signedInAs: organizer })
     const cancelledSummary = await screen.findByRole('region', { name: /මාලබේ අසපුව/ })
@@ -76,9 +76,9 @@ describe('event progress', () => {
   })
 
   it('each category header shows how many of its items are ready', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: colomboDate(10), categories: ['බත්', 'ව්‍යංජන', 'පලතුරු'] })
-    await seedMixedMenu(householdId, eventId)
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: colomboDate(10), categories: ['බත්', 'ව්‍යංජන', 'පලතුරු'] })
+    await seedMixedMenu(organizer, eventId)
     await renderApp(`/events/${eventId}`, { signedInAs: organizer })
 
     const rice = await screen.findByRole('region', { name: 'බත්' })
@@ -95,14 +95,14 @@ describe('event progress', () => {
   })
 
   it('home cards show progress, what needs attention and short items, all-ready, and no menu', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const mixed = await seedEvent(householdId, { date: colomboDate(4), host: 'බොතේජු පවුල', categories: ['බත්', 'ව්‍යංජන'] })
-    await seedMixedMenu(householdId, mixed)
-    const ready = await seedEvent(householdId, { date: colomboDate(5), host: 'ගුරු මණ්ඩලය', categories: ['බත්'] })
-    const kamala = await seedContributor(householdId, 'කමලා')
+    const organizer = await seedOrganizer()
+    const mixed = await seedEvent(organizer, { date: colomboDate(4), host: 'බොතේජු පවුල', categories: ['බත්', 'ව්‍යංජන'] })
+    await seedMixedMenu(organizer, mixed)
+    const ready = await seedEvent(organizer, { date: colomboDate(5), host: 'ගුරු මණ්ඩලය', categories: ['බත්'] })
+    const kamala = await seedContributor(organizer, 'කමලා')
     await seedAssignment(await seedItem(ready, 'බත්', { name: 'කිරිබත්' }), kamala, { status: 'confirmed' })
     await seedAssignment(await seedItem(ready, 'බත්', { name: 'කෙසෙල්' }), kamala, { status: 'received' })
-    await seedEvent(householdId, { date: colomboDate(6), host: 'සිල්වා පවුල', categories: ['බත්'] })
+    await seedEvent(organizer, { date: colomboDate(6), host: 'සිල්වා පවුල', categories: ['බත්'] })
     await renderApp('/events', { signedInAs: organizer })
 
     const upcoming = await screen.findByRole('region', { name: 'ඉදිරි දාන' })

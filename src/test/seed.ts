@@ -15,12 +15,12 @@ export type Organizer = {
   userId: string
 }
 
-export type SeededHousehold = {
-  householdId: string
-  organizer: Organizer
-}
-
-async function seedOrganizer(): Promise<Organizer> {
+/**
+ * Creates a fresh organizer the way production does: just the user. The
+ * database gives them the default category templates. Every test seeds its
+ * own organizer, so tests never see each other's data.
+ */
+export async function seedOrganizer(): Promise<Organizer> {
   const username = `organizer-${crypto.randomUUID().slice(0, 8)}`
   const password = 'password123'
 
@@ -35,26 +35,6 @@ async function seedOrganizer(): Promise<Organizer> {
   return { username, password, userId: data.user.id }
 }
 
-/**
- * Creates a fresh organizer and their household, the same way the household
- * setup script does in production. Every test seeds its own household, so
- * tests never see each other's data.
- */
-export async function seedHousehold(name = 'බොතේජු පවුල'): Promise<SeededHousehold> {
-  const organizer = await seedOrganizer()
-
-  const { data: householdId, error: setupError } = await admin.rpc('setup_household', {
-    p_name: name,
-    p_username: organizer.username,
-  })
-  if (setupError) throw setupError
-
-  return {
-    householdId: householdId as string,
-    organizer,
-  }
-}
-
 type SeedEventOptions = {
   /** 'YYYY-MM-DD'. Use `colomboDate(offset)` for dates relative to today in Sri Lanka. */
   date: string
@@ -67,11 +47,11 @@ type SeedEventOptions = {
   categories?: string[]
 }
 
-/** Adds an event (and a new monastery for it) to a household. Returns the event's id. */
-export async function seedEvent(householdId: string, options: SeedEventOptions): Promise<string> {
+/** Adds an event (and a new monastery for it) for the organizer. Returns the event's id. */
+export async function seedEvent(organizer: Organizer, options: SeedEventOptions): Promise<string> {
   const { data: monastery, error: monasteryError } = await admin
     .from('monastery')
-    .insert({ household_id: householdId, name: options.monastery ?? 'මාලබේ අසපුව' })
+    .insert({ organizer_id: organizer.userId, name: options.monastery ?? 'මාලබේ අසපුව' })
     .select('id')
     .single()
   if (monasteryError) throw monasteryError
@@ -79,7 +59,7 @@ export async function seedEvent(householdId: string, options: SeedEventOptions):
   const { data: event, error } = await admin
     .from('event')
     .insert({
-      household_id: householdId,
+      organizer_id: organizer.userId,
       monastery_id: monastery.id,
       date: options.date,
       meal: options.meal ?? 'lunch',
@@ -148,16 +128,16 @@ type SeedContributorOptions = {
   archived?: boolean
 }
 
-/** Adds a contributor to a household. Returns the contributor's id. */
+/** Adds a contributor to the organizer's list. Returns the contributor's id. */
 export async function seedContributor(
-  householdId: string,
+  organizer: Organizer,
   name: string,
   options: SeedContributorOptions = {},
 ): Promise<string> {
   const { data, error } = await admin
     .from('contributor')
     .insert({
-      household_id: householdId,
+      organizer_id: organizer.userId,
       name,
       phone: options.phone ?? null,
       whatsapp: options.whatsapp ?? null,
@@ -216,21 +196,23 @@ type SeedDocumentOptions = {
   mimeType?: 'application/pdf' | 'image/jpeg'
   itemId?: string | null
   transactionId?: string | null
+  /** The path's first folder. The event's organizer by default; files stored before ADR 0004 sit under a household's id. */
+  folder?: string
 }
 
 /**
- * Stores a file in the documents bucket under the event's household/event
+ * Stores a file in the documents bucket under the event's organizer/event
  * folder and records it. Returns the document's id and storage path.
  */
 export async function seedDocument(
   eventId: string,
   options: SeedDocumentOptions,
 ): Promise<{ documentId: string; storagePath: string }> {
-  const { data: event, error: eventError } = await admin.from('event').select('household_id').eq('id', eventId).single()
+  const { data: event, error: eventError } = await admin.from('event').select('organizer_id').eq('id', eventId).single()
   if (eventError) throw eventError
   const mimeType = options.mimeType ?? 'application/pdf'
   const content = new TextEncoder().encode(options.content ?? '%PDF-1.4 test')
-  const storagePath = `${event.household_id}/${eventId}/${crypto.randomUUID()}.${mimeType === 'application/pdf' ? 'pdf' : 'jpg'}`
+  const storagePath = `${options.folder ?? event.organizer_id}/${eventId}/${crypto.randomUUID()}.${mimeType === 'application/pdf' ? 'pdf' : 'jpg'}`
   const { error: uploadError } = await admin.storage.from('documents').upload(storagePath, content, { contentType: mimeType })
   if (uploadError) throw uploadError
   const { data, error } = await admin

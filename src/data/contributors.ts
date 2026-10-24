@@ -14,7 +14,7 @@ export type ContributorInput = Omit<Contributor, 'id'>
 const COLUMNS = 'id, name, phone, whatsapp, notes'
 
 /**
- * The household's active (not archived) contributors, by name. `q` matches
+ * The organizer's active (not archived) contributors, by name. `q` matches
  * the name or phone number, ignoring English capital letters.
  */
 export function useContributors(q: string) {
@@ -52,7 +52,7 @@ export function useContributor(contributorId: string) {
   })
 }
 
-/** Adds a contributor to the organizer's household. Resolves to the new contributor. */
+/** Adds a contributor to the organizer's list. Resolves to the new contributor. */
 export function useAddContributor() {
   const queryClient = useQueryClient()
   return useMutation({
@@ -62,15 +62,9 @@ export function useAddContributor() {
 }
 
 export async function addContributor(input: ContributorInput): Promise<Contributor> {
-  const { data: household, error: householdError } = await supabase
-    .from('household')
-    .select('id')
-    .limit(1)
-    .single()
-  if (householdError) throw householdError
   const { data, error } = await supabase
     .from('contributor')
-    .insert({ ...input, household_id: household.id })
+    .insert(input)
     .select(COLUMNS)
     .single()
   if (error) throw error

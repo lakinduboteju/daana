@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { usernameToEmail } from '../auth/username'
 import { supabase } from '../lib/supabase'
 import { currentPath, renderApp } from '../test/renderApp'
-import { seedDocument, seedEvent, seedHousehold, seedItem, seedTransaction, type Organizer } from '../test/seed'
+import { seedDocument, seedEvent, seedOrganizer, seedItem, seedTransaction, type Organizer } from '../test/seed'
 
 function pdf(name: string, text = '%PDF-1.4 සහල් බිල්පත') {
   return new File([text], name, { type: 'application/pdf' })
@@ -12,8 +12,8 @@ function pdf(name: string, text = '%PDF-1.4 සහල් බිල්පත') {
 
 describe('documents', () => {
   it('organizer uploads a PDF on the money tab and can download it', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08' })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08' })
     const { user } = await renderApp(`/events/${eventId}/money`, { signedInAs: organizer })
 
     const section = await screen.findByRole('region', { name: /^ලේඛන/ })
@@ -37,8 +37,8 @@ describe('documents', () => {
   })
 
   it('organizer adds a receipt photo on item details; it stays on the event when the item is deleted', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්'] })
     const rice = await seedItem(eventId, 'බත්', { name: 'සුදු බත්' })
     const { user } = await renderApp(`/events/${eventId}/items/${rice}`, { signedInAs: organizer })
 
@@ -69,8 +69,8 @@ describe('documents', () => {
   })
 
   it('organizer attaches a bill to an expense from the transaction sheet', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්'] })
     const rice = await seedItem(eventId, 'බත්', { name: 'සුදු බත්' })
     const expense = await seedTransaction(eventId, { kind: 'expense', amount: 1850, itemId: rice })
     await seedDocument(eventId, { name: 'අසපුවේ උපදෙස්' })
@@ -92,8 +92,8 @@ describe('documents', () => {
   })
 
   it("deleting an event deletes its documents' files", async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', host: 'බොතේජු පවුල' })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', host: 'බොතේජු පවුල' })
     await seedDocument(eventId, { name: 'සහල් බිල්පත' })
     const { user } = await renderApp(`/events/${eventId}/money`, { signedInAs: organizer })
 
@@ -112,8 +112,8 @@ describe('documents', () => {
   })
 
   it('files that are not images or PDFs, or are over 10 MB, are refused with a message', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08' })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08' })
     await renderApp(`/events/${eventId}/money`, { signedInAs: organizer })
     // A file picker can be switched to "all files", so the accept filter is no guarantee.
     const user = userEvent.setup({ applyAccept: false })
@@ -135,23 +135,23 @@ describe('documents', () => {
   })
 
   it('the documents bucket itself refuses other file types', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08' })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08' })
     await signIn(organizer)
 
     const { error } = await supabase.storage
       .from('documents')
-      .upload(`${householdId}/${eventId}/notes.txt`, new TextEncoder().encode('hello'), { contentType: 'text/plain' })
+      .upload(`${organizer.userId}/${eventId}/notes.txt`, new TextEncoder().encode('hello'), { contentType: 'text/plain' })
     expect(error).not.toBeNull()
   })
 
-  it("household B can't read or add to household A's files", async () => {
-    const a = await seedHousehold()
-    const b = await seedHousehold('සිල්වා පවුල')
-    const eventId = await seedEvent(a.householdId, { date: '2099-11-08' })
+  it("organizer B can't read or add to organizer A's files", async () => {
+    const a = await seedOrganizer()
+    const b = await seedOrganizer()
+    const eventId = await seedEvent(a, { date: '2099-11-08' })
     const { storagePath } = await seedDocument(eventId, { name: 'බැංකු රිසිට්පත', content: '%PDF-1.4 secret' })
 
-    await renderApp(`/events/${eventId}/money`, { signedInAs: b.organizer })
+    await renderApp(`/events/${eventId}/money`, { signedInAs: b })
     expect(await screen.findByRole('heading', { name: 'පිටුව හමු නොවීය' })).toBeInTheDocument()
     expect(screen.queryByText('බැංකු රිසිට්පත')).not.toBeInTheDocument()
 
@@ -159,8 +159,8 @@ describe('documents', () => {
     const files = supabase.storage.from('documents')
     expect((await files.download(storagePath)).data).toBeNull()
     expect((await files.createSignedUrl(storagePath, 60)).data).toBeNull()
-    expect((await files.list(`${a.householdId}/${eventId}`)).data ?? []).toHaveLength(0)
-    const upload = await files.upload(`${a.householdId}/${eventId}/planted.pdf`, new TextEncoder().encode('%PDF'), {
+    expect((await files.list(`${a.userId}/${eventId}`)).data ?? []).toHaveLength(0)
+    const upload = await files.upload(`${a.userId}/${eventId}/planted.pdf`, new TextEncoder().encode('%PDF'), {
       contentType: 'application/pdf',
     })
     expect(upload.error).not.toBeNull()
@@ -168,14 +168,29 @@ describe('documents', () => {
 
     // A still has the file.
     await supabase.auth.signOut({ scope: 'local' })
-    await signIn(a.organizer)
+    await signIn(a)
     const own = await files.download(storagePath)
     expect(await own.data?.text()).toBe('%PDF-1.4 secret')
   })
 
+  it('a file stored under a household folder, before organizers owned their data, still downloads', async () => {
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08' })
+    const { storagePath } = await seedDocument(eventId, {
+      name: 'පරණ බිල්පත',
+      content: '%PDF-1.4 old',
+      folder: crypto.randomUUID(),
+    })
+
+    await renderApp(`/events/${eventId}/money`, { signedInAs: organizer })
+    expect(await screen.findByText('පරණ බිල්පත')).toBeInTheDocument()
+    const own = await supabase.storage.from('documents').download(storagePath)
+    expect(await own.data?.text()).toBe('%PDF-1.4 old')
+  })
+
   it('a failed upload shows an alert with retry', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08' })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08' })
     const { user } = await renderApp(`/events/${eventId}/money`, { signedInAs: organizer })
     const section = await screen.findByRole('region', { name: /^ලේඛන/ })
     await within(section).findByText('තවම ලේඛන නැත.')
@@ -199,8 +214,8 @@ describe('documents', () => {
   })
 
   it('organizer renames a document and deletes it after confirming', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08' })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08' })
     await seedDocument(eventId, { name: 'scan_0012' })
     const { user } = await renderApp(`/events/${eventId}/money`, { signedInAs: organizer })
 

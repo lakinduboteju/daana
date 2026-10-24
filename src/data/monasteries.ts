@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 
 export type Monastery = { id: string; name: string }
 
-/** The household's monasteries that aren't archived, most recently used first. */
+/** The organizer's monasteries that aren't archived, most recently used first. */
 export function useRecentMonasteries() {
   return useQuery({
     queryKey: ['monasteries', 'recent'],
@@ -18,10 +18,10 @@ export function useRecentMonasteries() {
   })
 }
 
-export async function createMonastery(householdId: string, name: string): Promise<string> {
+export async function createMonastery(name: string): Promise<string> {
   const { data, error } = await supabase
     .from('monastery')
-    .insert({ household_id: householdId, name: name.trim() })
+    .insert({ name: name.trim() })
     .select('id')
     .single()
   if (error) throw error

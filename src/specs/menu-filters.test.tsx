@@ -1,12 +1,12 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
-import { seedAssignment, seedContributor, seedEvent, seedHousehold, seedItem } from '../test/seed'
+import { seedAssignment, seedContributor, seedEvent, seedOrganizer, seedItem } from '../test/seed'
 
 /** A menu with one item of each status, across three categories. */
 async function seedMenu() {
-  const { householdId, organizer } = await seedHousehold()
-  const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්', 'ව්‍යංජන', 'පලතුරු'] })
+  const organizer = await seedOrganizer()
+  const eventId = await seedEvent(organizer, { date: '2099-11-08', categories: ['බත්', 'ව්‍යංජන', 'පලතුරු'] })
   const kiribath = await seedItem(eventId, 'බත්', { name: 'කිරිබත්' })
   const rice = await seedItem(eventId, 'බත්', { name: 'සුදු බත්', requiredQuantity: 3, unit: 'kg' })
   const dhal = await seedItem(eventId, 'ව්‍යංජන', { name: 'පරිප්පු' })
@@ -14,9 +14,9 @@ async function seedMenu() {
   const potato = await seedItem(eventId, 'ව්‍යංජන', { name: 'අල තෙම්පරාදුව' })
   const banana = await seedItem(eventId, 'පලතුරු', { name: 'කෙසෙල්' })
   await seedItem(eventId, 'පලතුරු', { name: 'අන්නාසි' })
-  const nimal = await seedContributor(householdId, 'නිමල් සිල්වා')
-  const kamala = await seedContributor(householdId, 'කමලා රත්නායක')
-  const sunil = await seedContributor(householdId, 'Sunil Jayasinghe')
+  const nimal = await seedContributor(organizer, 'නිමල් සිල්වා')
+  const kamala = await seedContributor(organizer, 'කමලා රත්නායක')
+  const sunil = await seedContributor(organizer, 'Sunil Jayasinghe')
   await seedAssignment(kiribath, nimal, { status: 'confirmed' })
   await seedAssignment(rice, kamala, { quantity: 2, status: 'confirmed' })
   await seedAssignment(rice, sunil, { quantity: 1 })

@@ -1,11 +1,11 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
-import { admin, seedHousehold } from '../test/seed'
+import { admin, seedOrganizer, type Organizer } from '../test/seed'
 
 describe('contributors directory', () => {
   it('adds a contributor and finds them by searching in Sinhala or English', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user } = await renderApp('/contributors', { signedInAs: organizer })
 
     expect(await screen.findByText('තවම දායකයන් නැත.')).toBeInTheDocument()
@@ -38,9 +38,9 @@ describe('contributors directory', () => {
   })
 
   it('edits a contributor, keeping a long name whole', async () => {
-    const { householdId, organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const longName = 'සුනිල් ජයසිංහ ගමගේ (ගාල්ල පාර)'
-    await seedContributor(householdId, { name: longName, phone: '0771234567' })
+    await seedContributor(organizer, { name: longName, phone: '0771234567' })
     const { user } = await renderApp('/contributors', { signedInAs: organizer })
 
     await user.click(await screen.findByText(longName))
@@ -64,10 +64,10 @@ describe('contributors directory', () => {
   })
 
   it('calls and WhatsApps a contributor, using the phone number when there is no WhatsApp number', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    await seedContributor(householdId, { name: 'කමලා රත්නායක', phone: '077 123 4567' })
-    await seedContributor(householdId, { name: 'ගුණපාල', phone: '0711111111', whatsapp: '+94 77 999 9999' })
-    await seedContributor(householdId, { name: 'දිල්රුක්ෂි' })
+    const organizer = await seedOrganizer()
+    await seedContributor(organizer, { name: 'කමලා රත්නායක', phone: '077 123 4567' })
+    await seedContributor(organizer, { name: 'ගුණපාල', phone: '0711111111', whatsapp: '+94 77 999 9999' })
+    await seedContributor(organizer, { name: 'දිල්රුක්ෂි' })
     await renderApp('/contributors', { signedInAs: organizer })
 
     expect(await screen.findByRole('link', { name: 'කමලා රත්නායක අමතන්න' })).toHaveAttribute('href', 'tel:0771234567')
@@ -82,9 +82,9 @@ describe('contributors directory', () => {
   })
 
   it('archiving a contributor hides them from the list and from search', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const contributorId = await seedContributor(householdId, { name: 'රුවන් කුමාර' })
-    await seedContributor(householdId, { name: 'නිමල් සිල්වා' })
+    const organizer = await seedOrganizer()
+    const contributorId = await seedContributor(organizer, { name: 'රුවන් කුමාර' })
+    await seedContributor(organizer, { name: 'නිමල් සිල්වා' })
     const { user } = await renderApp(`/contributors/${contributorId}/edit`, { signedInAs: organizer })
 
     await user.click(await screen.findByRole('button', { name: 'Archive කරන්න' }))
@@ -100,9 +100,9 @@ describe('contributors directory', () => {
   })
 
   it('deletes a contributor who has never been assigned, after confirming', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const contributorId = await seedContributor(householdId, { name: 'ගුණපාල' })
-    await seedContributor(householdId, { name: 'නිමල් සිල්වා' })
+    const organizer = await seedOrganizer()
+    const contributorId = await seedContributor(organizer, { name: 'ගුණපාල' })
+    await seedContributor(organizer, { name: 'නිමල් සිල්වා' })
     const { user, unmount } = await renderApp(`/contributors/${contributorId}/edit`, { signedInAs: organizer })
 
     await user.click(await screen.findByRole('button', { name: 'මකන්න' }))
@@ -118,11 +118,11 @@ describe('contributors directory', () => {
     expect(await screen.findByRole('heading', { name: 'පිටුව හමු නොවීය' })).toBeInTheDocument()
   })
 
-  it("shows not found for another household's contributor", async () => {
-    const theirs = await seedHousehold('සිල්වා පවුල')
-    const contributorId = await seedContributor(theirs.householdId, { name: 'නිමල් සිල්වා' })
-    const mine = await seedHousehold()
-    await renderApp(`/contributors/${contributorId}/edit`, { signedInAs: mine.organizer })
+  it("shows not found for another organizer's contributor", async () => {
+    const theirs = await seedOrganizer()
+    const contributorId = await seedContributor(theirs, { name: 'නිමල් සිල්වා' })
+    const mine = await seedOrganizer()
+    await renderApp(`/contributors/${contributorId}/edit`, { signedInAs: mine })
 
     expect(await screen.findByRole('heading', { name: 'පිටුව හමු නොවීය' })).toBeInTheDocument()
     expect(screen.queryByDisplayValue('නිමල් සිල්වා')).not.toBeInTheDocument()
@@ -130,12 +130,12 @@ describe('contributors directory', () => {
 })
 
 async function seedContributor(
-  householdId: string,
+  organizer: Organizer,
   fields: { name: string; phone?: string; whatsapp?: string },
 ): Promise<string> {
   const { data, error } = await admin
     .from('contributor')
-    .insert({ household_id: householdId, ...fields })
+    .insert({ organizer_id: organizer.userId, ...fields })
     .select('id')
     .single()
   if (error) throw error

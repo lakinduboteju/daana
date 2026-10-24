@@ -2,10 +2,10 @@
 -- Never runs against the hosted project.
 --
 -- Organizers (username / password):
---   organizer / password123   household "බොතේජු පවුල"
---   other     / password123   household "සිල්වා පවුල" (for household isolation checks)
+--   organizer / password123   the design sample data below
+--   other     / password123   nothing but the default category templates (for isolation checks)
 --
--- Tests don't rely on this data: each test seeds its own household (see src/test/).
+-- Tests don't rely on this data: each test seeds its own organizer (see src/test/).
 
 create function pg_temp.create_organizer(p_username text, p_password text)
 returns uuid
@@ -38,25 +38,25 @@ begin
 end;
 $$;
 
-select pg_temp.create_organizer('organizer', 'password123');
-select public.setup_household('බොතේජු පවුල', 'organizer');
-
 select pg_temp.create_organizer('other', 'password123');
-select public.setup_household('සිල්වා පවුල', 'other');
+
+-- Everything below belongs to `organizer`: rows take `auth.uid()` as their
+-- organizer, as they do when the app adds them.
+select set_config(
+  'request.jwt.claims',
+  json_build_object('sub', pg_temp.create_organizer('organizer', 'password123'))::text,
+  false
+);
 
 -- Design sample events for `organizer` (dates relative to today, so there is
 -- always something upcoming and something past).
-with h as (
-  select id from public.household where name = 'බොතේජු පවුල'
-), m as (
-  insert into public.monastery (household_id, name)
-  select h.id, v.name
-  from h, (values ('මාලබේ අසපුව'), ('පොල්ගහවෙල අසපුව')) as v (name)
-  returning id, household_id, name
+with m as (
+  insert into public.monastery (name)
+  select v.name
+  from (values ('මාලබේ අසපුව'), ('පොල්ගහවෙල අසපුව')) as v (name)
+  returning id, name
 )
-select public.create_event(
-  m.household_id, v.date, v.meal, m.id, v.host, v.monks, v.lay
-)
+select public.create_event(v.date, v.meal, m.id, v.host, v.monks, v.lay)
 from m
 join (values
   ('මාලබේ අසපුව', current_date + 15, 'lunch', 'බොතේජු පවුල', 12, 20),
@@ -69,7 +69,6 @@ join (values
 insert into public.item (event_id, category_id, name, required_quantity, unit, custom_unit, notes)
 select c.event_id, c.id, v.name, v.qty, v.unit, v.custom_unit, v.notes
 from public.event e
-join public.household h on h.id = e.household_id and h.name = 'බොතේජු පවුල'
 join public.monastery mo on mo.id = e.monastery_id and mo.name = 'මාලබේ අසපුව'
 join public.category c on c.event_id = e.id
 join (values
@@ -90,11 +89,10 @@ join (values
 ) as v (category, name, qty, unit, custom_unit, notes) on v.category = c.name
 where e.date = current_date + 15 and e.meal = 'lunch';
 
--- Contributors from the design (Contributors / ContributorDetail artboards), in organizer's household.
-insert into public.contributor (household_id, name, phone, whatsapp, notes)
-select h.id, c.name, c.phone, c.whatsapp, c.notes
-from public.household h
-cross join (values
+-- Contributors from the design (Contributors / ContributorDetail artboards).
+insert into public.contributor (name, phone, whatsapp, notes)
+select c.name, c.phone, c.whatsapp, c.notes
+from (values
   ('සුනිල් ජයසිංහ', '077 123 4567', null, 'සෙනසුරාදා උදේට කතා කරන්න. වාහනයක් ඇත.'),
   ('අනුලා විජේසේකර', '071 234 5678', null, null),
   ('කමලා රත්නායක', '070 345 6789', '077 345 6789', null),
@@ -102,8 +100,7 @@ cross join (values
   ('දිල්රුක්ෂි', '075 567 8901', null, null),
   ('නිමල් සිල්වා', '076 678 9012', null, null),
   ('රුවන් කුමාර', null, null, null)
-) as c (name, phone, whatsapp, notes)
-where h.name = 'බොතේජු පවුල';
+) as c (name, phone, whatsapp, notes);
 
 -- Design sample assignments on the first මාලබේ event's menu (ticket #8).
 insert into public.assignment (event_id, item_id, contributor_id, quantity, status)
@@ -111,7 +108,6 @@ select i.event_id, i.id, co.id, v.qty, v.status
 from public.item i
 join public.event e on e.id = i.event_id and e.date = current_date + 15 and e.meal = 'lunch'
 join public.monastery mo on mo.id = e.monastery_id and mo.name = 'මාලබේ අසපුව'
-join public.household h on h.id = e.household_id and h.name = 'බොතේජු පවුල'
 join (values
   ('කිරිබත්', 'නිමල් සිල්වා', 3, 'confirmed'),
   ('සුදු බත්', 'කමලා රත්නායක', 2, 'confirmed'),
@@ -123,20 +119,17 @@ join (values
   ('කෙසෙල්', 'ගුණපාල', 2, 'received'),
   ('ඉඟුරු තේ', 'කමලා රත්නායක', 4, 'confirmed')
 ) as v (item, contributor, qty, status) on v.item = i.name
-join public.contributor co on co.household_id = h.id and co.name = v.contributor;
+join public.contributor co on co.name = v.contributor;
 
 -- Design sample money on the first මාලබේ event (ticket #13, Money artboard):
 -- given Rs 7,500, expenses Rs 6,200, ශ්‍රියා පෙරේරා owed Rs 1,200.
-insert into public.contributor (household_id, name, phone)
-select h.id, 'ශ්‍රියා පෙරේරා', '078 789 0123'
-from public.household h
-where h.name = 'බොතේජු පවුල';
+insert into public.contributor (name, phone)
+values ('ශ්‍රියා පෙරේරා', '078 789 0123');
 
 insert into public.transaction (event_id, item_id, contributor_id, kind, amount, date, method, notes)
 select e.id, i.id, co.id, v.kind, v.amount, current_date + v.day, v.method, v.notes
 from public.event e
 join public.monastery mo on mo.id = e.monastery_id and mo.name = 'මාලබේ අසපුව'
-join public.household h on h.id = e.household_id and h.name = 'බොතේජු පවුල'
 cross join (values
   ('given', 2500, 'සුනිල් ජයසිංහ', 'සුදු බත්', 6, 'bank_transfer', null),
   ('given', 3000, 'නිමල් සිල්වා', 'කිරිබත්', 8, 'cash', null),
@@ -146,5 +139,5 @@ cross join (values
   ('expense', 3150, null, null, 11, null, 'මල් හා පහන් තෙල්')
 ) as v (kind, amount, contributor, item, day, method, notes)
 left join public.item i on i.event_id = e.id and i.name = v.item
-left join public.contributor co on co.household_id = h.id and co.name = v.contributor
+left join public.contributor co on co.name = v.contributor
 where e.date = current_date + 15 and e.meal = 'lunch';

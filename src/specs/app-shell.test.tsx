@@ -1,19 +1,19 @@
 import { screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
-import { seedHousehold } from '../test/seed'
+import { seedOrganizer } from '../test/seed'
 
 describe('app shell', () => {
   it('opens the events home from the app root', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     await renderApp('/', { signedInAs: organizer })
 
     expect(await screen.findByRole('heading', { name: 'දාන' })).toBeInTheDocument()
     expect(currentPath()).toBe('/events')
   })
 
-  it('shows an empty state on the events home when the household has no events', async () => {
-    const { organizer } = await seedHousehold()
+  it('shows an empty state on the events home when the organizer has no events', async () => {
+    const organizer = await seedOrganizer()
     await renderApp('/events', { signedInAs: organizer })
 
     expect(await screen.findByText('නමෝ බුද්ධාය!')).toBeInTheDocument()
@@ -22,7 +22,7 @@ describe('app shell', () => {
   })
 
   it('opens settings from the events home', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user } = await renderApp('/events', { signedInAs: organizer })
 
     const settings = await screen.findByRole('link', { name: 'Settings' })
@@ -32,7 +32,7 @@ describe('app shell', () => {
   })
 
   it('moves between events, search and contributors with the bottom tab bar', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user } = await renderApp('/events', { signedInAs: organizer })
     const tabs = within(await screen.findByRole('navigation', { name: 'ප්‍රධාන' }))
 
@@ -55,7 +55,7 @@ describe('app shell', () => {
   })
 
   it('shows a not-found page for unknown paths that leads back to events', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user } = await renderApp('/no-such-page', { signedInAs: organizer })
 
     expect(await screen.findByRole('heading', { name: 'පිටුව හමු නොවීය' })).toBeInTheDocument()

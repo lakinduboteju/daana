@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
-import { colomboDate, seedEvent, seedHousehold } from '../test/seed'
+import { colomboDate, seedEvent, seedOrganizer } from '../test/seed'
 
 function goTo(path: string) {
   window.history.pushState(null, '', `${import.meta.env.BASE_URL.replace(/\/$/, '')}${path}`)
@@ -10,8 +10,8 @@ function goTo(path: string) {
 
 describe('editing an event', () => {
   it('opens the form prefilled and keeps the saved changes', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, {
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, {
       date: '2099-11-08',
       meal: 'lunch',
       host: 'බොතේජු පවුල',
@@ -49,8 +49,8 @@ describe('editing an event', () => {
   })
 
   it('asks before leaving with unsaved changes, and not once they are saved', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: '2099-11-08', host: 'බොතේජු පවුල' })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: '2099-11-08', host: 'බොතේජු පවුල' })
     const { user } = await renderApp(`/events/${eventId}/edit`, { signedInAs: organizer })
 
     await user.type(await screen.findByLabelText(/දානය භාරගත් අය/), ' සහ දරුවන්')
@@ -77,8 +77,8 @@ describe('editing an event', () => {
   })
 
   it('cancels an event, marks it cancelled on its card and screen, and undoes the cancellation', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: colomboDate(4), host: 'බොතේජු පවුල' })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: colomboDate(4), host: 'බොතේජු පවුල' })
     const { user } = await renderApp(`/events/${eventId}/edit`, { signedInAs: organizer })
 
     await user.click(await screen.findByRole('button', { name: 'දානය Cancel කරන්න' }))
@@ -103,8 +103,8 @@ describe('editing an event', () => {
   })
 
   it('marks a cancelled past event in the past list', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: colomboDate(-4), host: 'බොතේජු පවුල' })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: colomboDate(-4), host: 'බොතේජු පවුල' })
     const { user } = await renderApp(`/events/${eventId}/edit`, { signedInAs: organizer })
     await user.click(await screen.findByRole('button', { name: 'දානය Cancel කරන්න' }))
     await screen.findByRole('button', { name: 'දානය නැවත සක්‍රීය කරන්න' })
@@ -115,7 +115,7 @@ describe('editing an event', () => {
   })
 
   it('asks before leaving a half-filled new event', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user } = await renderApp('/events/new', { signedInAs: organizer })
 
     await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
@@ -127,8 +127,8 @@ describe('editing an event', () => {
 
 describe('event card more-menu', () => {
   it('opens the edit form from a card', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: colomboDate(3), host: 'බොතේජු පවුල' })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: colomboDate(3), host: 'බොතේජු පවුල' })
     const { user } = await renderApp('/events', { signedInAs: organizer })
 
     await user.click(await screen.findByRole('button', { name: 'බොතේජු පවුල: තවත් විකල්ප' }))
@@ -138,9 +138,9 @@ describe('event card more-menu', () => {
   })
 
   it('deletes an event after a confirmation that says what will be lost', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    await seedEvent(householdId, { date: colomboDate(3), host: 'බොතේජු පවුල' })
-    await seedEvent(householdId, { date: colomboDate(3), host: 'සිල්වා පවුල' })
+    const organizer = await seedOrganizer()
+    await seedEvent(organizer, { date: colomboDate(3), host: 'බොතේජු පවුල' })
+    await seedEvent(organizer, { date: colomboDate(3), host: 'සිල්වා පවුල' })
     const { user } = await renderApp('/events', { signedInAs: organizer })
 
     await user.click(await screen.findByRole('button', { name: 'බොතේජු පවුල: තවත් විකල්ප' }))
@@ -166,9 +166,9 @@ describe('event card more-menu', () => {
   })
 
   it('past events have the same more-menu: edit, copy and delete', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: colomboDate(-30), host: 'බොතේජු පවුල' })
-    await seedEvent(householdId, { date: colomboDate(-60), host: 'සිල්වා පවුල' })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: colomboDate(-30), host: 'බොතේජු පවුල' })
+    await seedEvent(organizer, { date: colomboDate(-60), host: 'සිල්වා පවුල' })
     const { user } = await renderApp('/events', { signedInAs: organizer })
 
     const past = await screen.findByRole('region', { name: 'පසුගිය දාන' })
@@ -184,8 +184,8 @@ describe('event card more-menu', () => {
   })
 
   it('deletes an event from its details screen and returns to the events home', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    const eventId = await seedEvent(householdId, { date: colomboDate(3), host: 'බොතේජු පවුල' })
+    const organizer = await seedOrganizer()
+    const eventId = await seedEvent(organizer, { date: colomboDate(3), host: 'බොතේජු පවුල' })
     const { user } = await renderApp(`/events/${eventId}/edit`, { signedInAs: organizer })
 
     await user.click(await screen.findByRole('button', { name: 'දානය මකන්න' }))

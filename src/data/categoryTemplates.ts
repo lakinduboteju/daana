@@ -2,14 +2,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 
 /**
- * A household-level default category. New events copy the templates when
+ * An organizer's default category. New events copy the templates when
  * they're created, so changing a template never touches existing events.
  */
 export type CategoryTemplate = { id: string; name: string; position: number }
 
 const KEY = ['category-templates']
 
-/** The household's category templates, in the order new events get them. */
+/** The organizer's category templates, in the order new events get them. */
 export function useCategoryTemplates() {
   return useQuery({
     queryKey: KEY,
@@ -25,17 +25,11 @@ export function useCategoryTemplates() {
   })
 }
 
-/** Adds a template after the household's last one. */
+/** Adds a template after the organizer's last one. */
 export function useAddCategoryTemplate() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (name: string) => {
-      const { data: household, error: householdError } = await supabase
-        .from('household')
-        .select('id')
-        .limit(1)
-        .single()
-      if (householdError) throw householdError
       const { data: last, error: lastError } = await supabase
         .from('category_template')
         .select('position')
@@ -45,7 +39,7 @@ export function useAddCategoryTemplate() {
       if (lastError) throw lastError
       const { error } = await supabase
         .from('category_template')
-        .insert({ household_id: household.id, name: name.trim(), position: (last?.position ?? 0) + 1 })
+        .insert({ name: name.trim(), position: (last?.position ?? 0) + 1 })
       if (error) throw error
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: KEY }),

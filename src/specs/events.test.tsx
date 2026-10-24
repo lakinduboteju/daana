@@ -1,11 +1,11 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
-import { colomboDate, seedEvent, seedHousehold } from '../test/seed'
+import { colomboDate, seedEvent, seedOrganizer } from '../test/seed'
 
 describe('events', () => {
   it('saves the calendar date the organizer picked and shows that date when they edit', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user } = await renderApp('/events/new', { signedInAs: organizer })
     const date = await screen.findByLabelText(/දිනය/)
 
@@ -20,7 +20,7 @@ describe('events', () => {
   })
 
   it('creates the event and opens its menu once the date, meal and monastery are filled', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user } = await renderApp('/events/new', { signedInAs: organizer })
 
     await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
@@ -36,7 +36,7 @@ describe('events', () => {
   })
 
   it('creates an event with a new monastery and shows it as a card on the events home', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user } = await renderApp('/events', { signedInAs: organizer })
 
     await user.click(await screen.findByRole('link', { name: 'අළුත් දානයක්' }))
@@ -82,10 +82,10 @@ describe('events', () => {
   })
 
   it("lists today's events (in Sri Lanka) as upcoming and yesterday's as past", async () => {
-    const { householdId, organizer } = await seedHousehold()
-    await seedEvent(householdId, { date: colomboDate(-1), host: 'ඊයේ පවුල' })
-    await seedEvent(householdId, { date: colomboDate(0), host: 'අද පවුල' })
-    await seedEvent(householdId, { date: colomboDate(5), host: 'ඉදිරි පවුල' })
+    const organizer = await seedOrganizer()
+    await seedEvent(organizer, { date: colomboDate(-1), host: 'ඊයේ පවුල' })
+    await seedEvent(organizer, { date: colomboDate(0), host: 'අද පවුල' })
+    await seedEvent(organizer, { date: colomboDate(5), host: 'ඉදිරි පවුල' })
     await renderApp('/events', { signedInAs: organizer })
 
     const upcoming = await screen.findByRole('region', { name: 'ඉදිරි දාන' })
@@ -103,12 +103,12 @@ describe('events', () => {
     expect(hosts[1]).toContain('ඉදිරි පවුල')
   })
 
-  it("never shows household A's events or monasteries to household B", async () => {
-    const a = await seedHousehold('බොතේජු පවුල')
-    const b = await seedHousehold('සිල්වා පවුල')
-    const aEventId = await seedEvent(a.householdId, { date: colomboDate(2), host: 'A පවුල', monastery: 'A අසපුව' })
+  it("never shows organizer A's events or monasteries to organizer B", async () => {
+    const a = await seedOrganizer()
+    const b = await seedOrganizer()
+    const aEventId = await seedEvent(a, { date: colomboDate(2), host: 'A පවුල', monastery: 'A අසපුව' })
 
-    const { user } = await renderApp('/events', { signedInAs: b.organizer })
+    const { user } = await renderApp('/events', { signedInAs: b })
     expect(await screen.findByText('තවම දාන කිසිවක් නැත')).toBeInTheDocument()
     expect(screen.queryByText(/A පවුල/)).not.toBeInTheDocument()
 
@@ -123,8 +123,8 @@ describe('events', () => {
   })
 
   it('reuses a monastery with the same trimmed name', async () => {
-    const { householdId, organizer } = await seedHousehold()
-    await seedEvent(householdId, { date: colomboDate(-30), monastery: 'පොල්ගහවෙල අසපුව' })
+    const organizer = await seedOrganizer()
+    await seedEvent(organizer, { date: colomboDate(-30), monastery: 'පොල්ගහවෙල අසපුව' })
     const { user } = await renderApp('/events/new', { signedInAs: organizer })
 
     const monastery = await screen.findByLabelText(/^අසපුව/)
@@ -153,10 +153,10 @@ describe('events', () => {
   })
 
   it('shows two events on the same date as separate cards under that date', async () => {
-    const { householdId, organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const date = colomboDate(3)
-    await seedEvent(householdId, { date, meal: 'lunch', host: 'බොතේජු පවුල', monastery: 'මාලබේ අසපුව' })
-    await seedEvent(householdId, { date, meal: 'breakfast', host: 'සිල්වා පවුල', monastery: 'පොල්ගහවෙල අසපුව' })
+    await seedEvent(organizer, { date, meal: 'lunch', host: 'බොතේජු පවුල', monastery: 'මාලබේ අසපුව' })
+    await seedEvent(organizer, { date, meal: 'breakfast', host: 'සිල්වා පවුල', monastery: 'පොල්ගහවෙල අසපුව' })
     await renderApp('/events', { signedInAs: organizer })
 
     const upcoming = await screen.findByRole('region', { name: 'ඉදිරි දාන' })
@@ -173,12 +173,12 @@ describe('events', () => {
   })
 
   it('hides a zero count, and hides the total only when both counts are zero', async () => {
-    const { householdId, organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const date = colomboDate(3)
-    await seedEvent(householdId, { date, host: 'හිස්', monkCount: 0, laypersonCount: 0 })
-    await seedEvent(householdId, { date, meal: 'breakfast', host: 'ස්වාමීන් පමණයි', monkCount: 4, laypersonCount: 0 })
-    await seedEvent(householdId, { date: colomboDate(4), host: 'ගිහියන් පමණයි', monkCount: 0, laypersonCount: 6 })
-    await seedEvent(householdId, { date: colomboDate(5), host: 'දෙපිරිසම', monkCount: 3, laypersonCount: 5 })
+    await seedEvent(organizer, { date, host: 'හිස්', monkCount: 0, laypersonCount: 0 })
+    await seedEvent(organizer, { date, meal: 'breakfast', host: 'ස්වාමීන් පමණයි', monkCount: 4, laypersonCount: 0 })
+    await seedEvent(organizer, { date: colomboDate(4), host: 'ගිහියන් පමණයි', monkCount: 0, laypersonCount: 6 })
+    await seedEvent(organizer, { date: colomboDate(5), host: 'දෙපිරිසම', monkCount: 3, laypersonCount: 5 })
     const { user } = await renderApp('/events', { signedInAs: organizer })
 
     const upcoming = await screen.findByRole('region', { name: 'ඉදිරි දාන' })
@@ -222,7 +222,7 @@ describe('events', () => {
   })
 
   it('saves zero counts when the steppers are left untouched', async () => {
-    const { organizer } = await seedHousehold()
+    const organizer = await seedOrganizer()
     const { user } = await renderApp('/events/new', { signedInAs: organizer })
 
     await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
