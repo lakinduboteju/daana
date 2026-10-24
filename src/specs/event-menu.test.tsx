@@ -60,6 +60,7 @@ describe('event menu', () => {
     await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(await screen.findByRole('status')).toHaveTextContent('සුරැකිණි')
     expect(currentPath()).toBe(`/events/${eventId}`)
     const item = await within(rice).findByRole('link', { name: /කිරිබත්/ })
     expect(item).toHaveTextContent('කි.ග්‍රෑ. 3')
@@ -111,6 +112,7 @@ describe('event menu', () => {
     await user.click(within(sheet).getByRole('button', { name: 'සුරකින්න' }))
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(await screen.findByRole('status')).toHaveTextContent('සුරැකිණි')
     expect(currentPath()).toBe(`/events/${eventId}/items/${itemId}`)
     expect(await screen.findByRole('heading', { level: 1, name: 'පරිප්පු හොදි' })).toBeInTheDocument()
 
@@ -176,6 +178,7 @@ describe('event menu', () => {
     await user.click(within(confirm).getByRole('button', { name: 'ඔව්, මකන්න' }))
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(await screen.findByRole('status')).toHaveTextContent('අන්නාසි මකා දැමුවා')
     expect(currentPath()).toBe(`/events/${eventId}`)
     expect(screen.queryByRole('link', { name: /අන්නාසි/ })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /කෙසෙල්/ })).toBeInTheDocument()

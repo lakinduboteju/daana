@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { Sheet } from '../../components/Sheet'
 import { useCloseSheet } from '../../components/sheetNavigation'
+import { useToast } from '../../components/useToast'
 import { findItem, useAddItem, useDeleteItem, useMenu, useUpdateItem, type Category, type ItemFields, type Unit } from '../../data/menu'
 import { UNIT_OPTIONS } from '../../data/units'
 import styles from './ItemSheets.module.css'
@@ -14,6 +15,7 @@ export function AddItemSheet() {
   const menu = useMenu(eventId)
   const addItem = useAddItem(eventId)
   const close = useCloseSheet(`/events/${eventId}`)
+  const toast = useToast()
 
   return (
     <Sheet title="අළුත් Item" onClose={close}>
@@ -30,7 +32,14 @@ export function AddItemSheet() {
           }}
           saving={addItem.isPending}
           failed={addItem.isError}
-          onSubmit={(fields) => addItem.mutate(fields, { onSuccess: close })}
+          onSubmit={(fields) =>
+            addItem.mutate(fields, {
+              onSuccess: () => {
+                toast('සුරැකිණි')
+                close()
+              },
+            })
+          }
         />
       )}
     </Sheet>
@@ -46,14 +55,18 @@ export function EditItemSheet() {
   const [confirming, setConfirming] = useState(false)
   const close = useCloseSheet(`/events/${eventId}/items/${itemId}`)
   const navigate = useNavigate()
+  const toast = useToast()
   // A deleted item has no details to go back to, so it's back to the menu.
   // mutateAsync, because the sheet unmounts once the menu no longer has the item.
-  const remove = () =>
+  const item = menu.data ? findItem(menu.data, itemId) : null
+  const remove = (name: string) =>
     deleteItem.mutateAsync(itemId).then(
-      () => navigate(`/events/${eventId}`, { replace: true }),
+      () => {
+        toast(`${name} මකා දැමුවා`)
+        navigate(`/events/${eventId}`, { replace: true })
+      },
       () => {},
     )
-  const item = menu.data ? findItem(menu.data, itemId) : null
 
   return (
     <Sheet title="Item සංස්කරණය" onClose={close}>
@@ -73,7 +86,17 @@ export function EditItemSheet() {
             }}
             saving={updateItem.isPending}
             failed={updateItem.isError}
-            onSubmit={(fields) => updateItem.mutate({ itemId: item.id, fields }, { onSuccess: close })}
+            onSubmit={(fields) =>
+              updateItem.mutate(
+                { itemId: item.id, fields },
+                {
+                  onSuccess: () => {
+                    toast('සුරැකිණි')
+                    close()
+                  },
+                },
+              )
+            }
           />
           <button type="button" className={styles.danger} onClick={() => setConfirming(true)}>
             Item එක මකන්න
@@ -85,7 +108,7 @@ export function EditItemSheet() {
               destructive
               busy={deleteItem.isPending}
               onCancel={() => setConfirming(false)}
-              onConfirm={() => void remove()}
+              onConfirm={() => void remove(item.name)}
             >
               <p>එයට පැවරූ දායකයන්ද ඉවත් වේ. එයට අදාළ මුදල් වාර්තා හා ලේඛන දානයේ ඉතිරි වේ.</p>
               {deleteItem.isError && <p role="alert">මැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න.</p>}
