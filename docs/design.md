@@ -45,4 +45,4 @@ Sri Lankan users are used to apps that mix Sinhala and English, and a fully Sinh
 | Edit categories | Edit Categories |
 | Clear filters/search | Clear |
 | Assign to someone | `<name>` ට පවරන්න |
-| Login field | නම (Username) + මුරපදය |
+| Login field | නම (Username) + Password |

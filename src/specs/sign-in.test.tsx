@@ -8,7 +8,7 @@ describe('signing in', () => {
     await renderApp('/events')
 
     expect(await screen.findByLabelText('නම')).toHaveAttribute('placeholder', 'Username')
-    expect(screen.getByLabelText('මුරපදය')).toBeInTheDocument()
+    expect(screen.getByLabelText('Password')).toBeInTheDocument()
     expect(currentPath()).toBe('/login?next=%2Fevents')
   })
 
@@ -17,7 +17,7 @@ describe('signing in', () => {
     const { user } = await renderApp('/contributors')
 
     await user.type(await screen.findByLabelText('නම'), organizer.username)
-    await user.type(screen.getByLabelText('මුරපදය'), organizer.password)
+    await user.type(screen.getByLabelText('Password'), organizer.password)
     await user.click(screen.getByRole('button', { name: 'ඇතුළු වන්න' }))
 
     expect(await screen.findByRole('heading', { name: 'දායකයන්' })).toBeInTheDocument()
@@ -29,7 +29,7 @@ describe('signing in', () => {
     const { user } = await renderApp('/login')
 
     await user.type(await screen.findByLabelText('නම'), organizer.username)
-    await user.type(screen.getByLabelText('මුරපදය'), organizer.password)
+    await user.type(screen.getByLabelText('Password'), organizer.password)
     await user.click(screen.getByRole('button', { name: 'ඇතුළු වන්න' }))
 
     expect(await screen.findByRole('heading', { name: 'දාන' })).toBeInTheDocument()
@@ -42,7 +42,7 @@ describe('signing in', () => {
     const { user } = await renderApp('/login')
 
     await user.type(await screen.findByLabelText('නම'), organizer.username)
-    await user.type(screen.getByLabelText('මුරපදය'), 'wrong-password')
+    await user.type(screen.getByLabelText('Password'), 'wrong-password')
     await user.click(screen.getByRole('button', { name: 'ඇතුළු වන්න' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('නම හෝ මුරපදය වැරදියි')
@@ -53,7 +53,7 @@ describe('signing in', () => {
     const { organizer } = await seedHousehold()
     const { user, unmount } = await renderApp('/login')
     await user.type(await screen.findByLabelText('නම'), organizer.username)
-    await user.type(screen.getByLabelText('මුරපදය'), organizer.password)
+    await user.type(screen.getByLabelText('Password'), organizer.password)
     await user.click(screen.getByRole('button', { name: 'ඇතුළු වන්න' }))
     await screen.findByRole('heading', { name: 'දාන' })
 

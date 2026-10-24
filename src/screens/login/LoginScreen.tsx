@@ -54,7 +54,7 @@ export function LoginScreen() {
           <input id="username" name="username" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} placeholder="Username" required className={styles.input} />
         </div>
         <div className={styles.field}>
-          <label htmlFor="password" className={styles.label}>මුරපදය</label>
+          <label htmlFor="password" className={styles.label}>Password</label>
           <input id="password" name="password" type="password" autoComplete="current-password" required className={styles.input} />
         </div>
         {error && <p role="alert" className={styles.error}>{error}</p>}
