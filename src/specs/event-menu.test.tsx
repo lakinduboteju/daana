@@ -144,6 +144,29 @@ describe('event menu', () => {
     expect(within(curries).queryByRole('link', { name: 'Item එකක් එක් කරන්න' })).not.toBeInTheDocument()
   })
 
+  it('a collapsed category stays collapsed after reloading', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්', 'හොදි'] })
+    await seedItem(eventId, 'හොදි', { name: 'පරිප්පු' })
+    const { user, unmount } = await renderApp(`/events/${eventId}`, { signedInAs: organizer })
+
+    const curries = await screen.findByRole('region', { name: 'හොදි' })
+    await user.click(within(curries).getByRole('button', { expanded: true }))
+    expect(within(curries).queryByRole('link', { name: /පරිප්පු/ })).not.toBeInTheDocument()
+
+    // Let the tap reach the database before reloading.
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    unmount()
+    await renderApp(`/events/${eventId}`)
+    const reloaded = await screen.findByRole('region', { name: 'හොදි' })
+    await waitFor(() => expect(within(reloaded).getByRole('button', { expanded: false })).toBeInTheDocument())
+    expect(within(reloaded).queryByRole('link', { name: /පරිප්පු/ })).not.toBeInTheDocument()
+    expect(within(screen.getByRole('region', { name: 'බත්' })).getByRole('button', { expanded: true })).toBeInTheDocument()
+
+    await user.click(within(reloaded).getByRole('button', { expanded: false }))
+    expect(await within(reloaded).findByRole('link', { name: /පරිප්පු/ })).toBeInTheDocument()
+  })
+
   it("opens a sheet from a direct link and closes it to the item's details", async () => {
     const { householdId, organizer } = await seedHousehold()
     const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })

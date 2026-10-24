@@ -1,9 +1,9 @@
-import { useState } from 'react'
 import { Link, useLocation, useOutlet, useParams } from 'react-router'
 import { ProgressBar } from '../../components/Progress'
 import { OVER_PARENT } from '../../components/sheetNavigation'
 import { StatusBadge } from '../../components/StatusBadge'
-import { useMenu, type Category, type Item } from '../../data/menu'
+import { useSaveFailed } from '../../components/useToast'
+import { useMenu, useSetCategoryCollapsed, type Category, type Item } from '../../data/menu'
 import { formatQuantity } from '../../data/units'
 import { MenuFilterBar } from './MenuFilterBar'
 import { filterMenu, fromMenu, isFiltered, useMenuFilters } from './menuFilters'
@@ -35,6 +35,7 @@ export function MenuTab() {
           {shown.map((category) => (
             <CategorySection
               key={category.id}
+              eventId={eventId}
               category={category}
               forceOpen={filtered}
             />
@@ -57,14 +58,25 @@ export function MenuTab() {
  * Its progress (from the database) always counts all its items, not just the shown ones.
  */
 function CategorySection({
+  eventId,
   category,
   forceOpen = false,
 }: {
+  eventId: string
   category: Category
   forceOpen?: boolean
 }) {
-  const [openState, setOpen] = useState(true)
-  const open = forceOpen || openState
+  const setCollapsed = useSetCategoryCollapsed(eventId)
+  const saveFailed = useSaveFailed()
+  const open = forceOpen || !category.collapsed
+  const toggle = () => {
+    const change = { categoryId: category.id, collapsed: open }
+    const save = () =>
+      setCollapsed.mutate(change, {
+        onError: () => saveFailed(`${category.name} — සුරැකීමට නොහැකි විය`, save),
+      })
+    save()
+  }
   const nameId = `category-name-${category.id}`
   const bodyId = `category-body-${category.id}`
   return (
@@ -74,7 +86,7 @@ function CategorySection({
         className={styles.categoryToggle}
         aria-expanded={open}
         aria-controls={bodyId}
-        onClick={() => setOpen(!open)}
+        onClick={toggle}
       >
         <span id={nameId} className={styles.categoryName}>{category.name}</span>
         {category.progress.item_count > 0 && <CategoryProgress category={category} />}

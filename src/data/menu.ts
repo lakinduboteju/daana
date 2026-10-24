@@ -45,6 +45,8 @@ export type CategoryProgress = { item_count: number; ready_count: number }
 export type Category = {
   id: string
   name: string
+  /** Saved as soon as the organizer taps the category header. */
+  collapsed: boolean
   items: Item[]
   /** Counts all the category's items, whatever the menu filters show. */
   progress: CategoryProgress
@@ -67,7 +69,7 @@ export function useMenu(eventId: string) {
       const [categories, statuses, assignments, progress] = await Promise.all([
         supabase
           .from('category')
-          .select(`id, name, items:item(${ITEM_COLUMNS})`)
+          .select(`id, name, collapsed, items:item(${ITEM_COLUMNS})`)
           .eq('event_id', eventId)
           .order('position')
           .order('created_at')
@@ -90,7 +92,7 @@ export function useMenu(eventId: string) {
       const progressOf = new Map(
         (progress.data as ({ category_id: string } & CategoryProgress)[]).map((p) => [p.category_id, p]),
       )
-      return (categories.data as { id: string; name: string; items: ItemRow[] }[]).map((category) => ({
+      return (categories.data as { id: string; name: string; collapsed: boolean; items: ItemRow[] }[]).map((category) => ({
         ...category,
         progress: {
           item_count: progressOf.get(category.id)?.item_count ?? 0,
@@ -178,5 +180,37 @@ export function useDeleteItem(eventId: string) {
       if (error) throw error
     },
     onSuccess: invalidate,
+  })
+}
+
+/** Collapses or opens a category on the menu, straight away (optimistic), rolling back if saving fails. */
+export function useSetCategoryCollapsed(eventId: string) {
+  const queryClient = useQueryClient()
+  const key = menuKey(eventId)
+  return useMutation({
+    mutationFn: async ({ categoryId, collapsed }: { categoryId: string; collapsed: boolean }) => {
+      const { error } = await supabase
+        .from('category')
+        .update({ collapsed })
+        .eq('id', categoryId)
+        .eq('event_id', eventId)
+        .select('id')
+        .single()
+      if (error) throw error
+    },
+    onMutate: async ({ categoryId, collapsed }) => {
+      await queryClient.cancelQueries({ queryKey: key })
+      const previous = queryClient.getQueryData<Category[]>(key)
+      if (previous) {
+        queryClient.setQueryData<Category[]>(
+          key,
+          previous.map((c) => (c.id === categoryId ? { ...c, collapsed } : c)),
+        )
+      }
+      return { previous }
+    },
+    onError: (_error, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(key, context.previous)
+    },
   })
 }
