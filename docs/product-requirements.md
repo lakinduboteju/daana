@@ -16,7 +16,7 @@ The application will use:
 
 - Frontend: React
 - Backend: Supabase (database, authentication, file storage)
-- Primary language: Sinhala
+- Primary language: Sinhala for domain and Buddhist terms and most labels, English for everyday words
 - Primary device: Mobile phones
 - Secondary device: Desktop and tablets
 
@@ -348,7 +348,7 @@ Design principles
 - Support long contributor names and Sinhala item names without breaking layouts.
 - Design responsive layouts for tablets and desktop while keeping mobile the priority.
 
-All user-facing navigation, buttons, labels, messages, and default category names should be in Sinhala. English support can be added later as an optional language setting.
+The interface mixes Sinhala and English. Keep Sinhala for domain and Buddhist terms and for most labels, and use English where it is the everyday word. There is no language setting.
 
 ## 7. Screens and User Flows Required from the Designer
 
