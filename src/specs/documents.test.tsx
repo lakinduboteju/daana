@@ -3,8 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { usernameToEmail } from '../auth/username'
 import { supabase } from '../lib/supabase'
-import { renderApp } from '../test/renderApp'
-import { seedDocument, seedEvent, seedHousehold, type Organizer } from '../test/seed'
+import { currentPath, renderApp } from '../test/renderApp'
+import { seedDocument, seedEvent, seedHousehold, seedItem, seedTransaction, type Organizer } from '../test/seed'
 
 function pdf(name: string, text = '%PDF-1.4 සහල් බිල්පත') {
   return new File([text], name, { type: 'application/pdf' })
@@ -32,6 +32,60 @@ describe('documents', () => {
     const response = await fetch(download.getAttribute('href')!)
     expect(response.ok).toBe(true)
     expect(await response.text()).toBe('%PDF-1.4 සහල් බිල්පත')
+  })
+
+  it('organizer adds a receipt photo on item details; it stays on the event when the item is deleted', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })
+    const rice = await seedItem(eventId, 'බත්', { name: 'සුදු බත්' })
+    const { user } = await renderApp(`/events/${eventId}/items/${rice}`, { signedInAs: organizer })
+
+    const section = await screen.findByRole('region', { name: 'ලේඛන (0)' })
+    await user.upload(
+      within(section).getByLabelText('ඡායාරූපයක් හෝ PDF එකක් උඩුගත කරන්න'),
+      new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], 'සහල් රිසිට්පත.jpg', { type: 'image/jpeg' }),
+    )
+    const grid = await within(section).findByRole('list', { name: 'ලේඛන' })
+    expect(section).toHaveAccessibleName('ලේඛන (1)')
+    await user.click(within(grid).getByRole('button', { name: 'සහල් රිසිට්පත — විකල්ප' }))
+    const sheet = await screen.findByRole('dialog', { name: 'සහල් රිසිට්පත' })
+    expect(within(sheet).getByRole('img', { name: 'සහල් රිසිට්පත' })).toHaveAttribute('src', expect.stringContaining('token='))
+    expect(sheet).toHaveTextContent('JPG')
+    expect(sheet).toHaveTextContent('සුදු බත්')
+    await user.click(within(sheet).getByRole('button', { name: 'වසන්න' }))
+
+    await user.click(screen.getByRole('link', { name: 'Item එක සංස්කරණය කරන්න' }))
+    await user.click(await screen.findByRole('button', { name: 'Item එක මකන්න' }))
+    await user.click(within(await screen.findByRole('dialog', { name: 'සුදු බත් මකන්නද?' })).getByRole('button', { name: 'ඔව්, මකන්න' }))
+    await waitFor(() => expect(currentPath()).toBe(`/events/${eventId}`))
+
+    await user.click(await screen.findByRole('link', { name: 'මුදල් හා ලේඛන' }))
+    const list = await screen.findByRole('list', { name: 'ලේඛන' })
+    expect(list).toHaveTextContent('සහල් රිසිට්පත')
+    expect(list).toHaveTextContent('සාමාන්‍ය')
+  })
+
+  it('organizer attaches a bill to an expense from the transaction sheet', async () => {
+    const { householdId, organizer } = await seedHousehold()
+    const eventId = await seedEvent(householdId, { date: '2099-11-08', categories: ['බත්'] })
+    const rice = await seedItem(eventId, 'බත්', { name: 'සුදු බත්' })
+    const expense = await seedTransaction(eventId, { kind: 'expense', amount: 1850, itemId: rice })
+    await seedDocument(eventId, { name: 'අසපුවේ උපදෙස්' })
+    const { user } = await renderApp(`/events/${eventId}/money/${expense}`, { signedInAs: organizer })
+
+    const section = await screen.findByRole('region', { name: 'ලේඛන (0)' })
+    const sheet = screen.getByRole('dialog', { name: 'ගනුදෙනුව සංස්කරණය' })
+    expect(sheet).toContainElement(section)
+    await user.upload(within(section).getByLabelText('ඡායාරූපයක් හෝ PDF එකක් උඩුගත කරන්න'), pdf('සහල් බිල්පත.pdf'))
+    expect(await within(section).findByRole('list', { name: 'ලේඛන' })).toHaveTextContent('සහල් බිල්පත')
+    expect(within(section).queryByText('අසපුවේ උපදෙස්')).not.toBeInTheDocument()
+
+    await user.click(within(sheet).getByRole('button', { name: 'වසන්න' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    const list = await screen.findByRole('list', { name: 'ලේඛන' })
+    expect(within(list).getAllByRole('listitem')).toHaveLength(2)
+    expect(within(list).getByRole('button', { name: 'සහල් බිල්පත — විකල්ප' })).toHaveTextContent('සුදු බත් · වියදම Rs 1,850')
+    expect(within(list).getByRole('button', { name: 'අසපුවේ උපදෙස් — විකල්ප' })).toHaveTextContent('සාමාන්‍ය')
   })
 
   it('files that are not images or PDFs, or are over 10 MB, are refused with a message', async () => {

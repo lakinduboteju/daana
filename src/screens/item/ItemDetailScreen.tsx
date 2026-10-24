@@ -12,6 +12,7 @@ import { useEventMoney } from '../../data/money'
 import { useMenu, type Assignment, type Category, type Item } from '../../data/menu'
 import { STATUS_LABEL, type AssignmentStatus } from '../../data/status'
 import { formatAmount, formatQuantity } from '../../data/units'
+import { DocumentsSection } from '../documents/DocumentsSection'
 import { menuPath } from '../event/menuFilters'
 import { TransactionList } from '../money/MoneyTab'
 import { NotFoundScreen } from '../not-found/NotFoundScreen'
@@ -19,7 +20,8 @@ import styles from './ItemDetailScreen.module.css'
 
 /**
  * /events/:eventId/items/:itemId: one item's status, required versus
- * confirmed quantity, contributors (one-tap status, call, WhatsApp) and notes.
+ * confirmed quantity, contributors (one-tap status, call, WhatsApp), notes,
+ * money and documents.
  * It covers the menu, which stays mounted underneath; its sheets (edit, assign,
  * edit assignment) open over it through the outlet.
  */
@@ -49,6 +51,7 @@ export function ItemDetailScreen() {
         </section>
       )}
       <ItemMoney eventId={eventId} itemId={item.id} />
+      <DocumentsSection eventId={eventId} itemId={item.id} layout="grid" className={styles.card} />
       <Link to="edit" state={OVER_PARENT} className={styles.edit}>Item එක සංස්කරණය කරන්න</Link>
       <Outlet />
     </>,

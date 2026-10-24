@@ -19,6 +19,7 @@ import {
   type TransactionKind,
 } from '../../data/money'
 import { colomboToday } from '../../lib/dates'
+import { DocumentsSection } from '../documents/DocumentsSection'
 import styles from '../event/ItemSheets.module.css'
 import sheetStyles from './TransactionSheets.module.css'
 
@@ -66,7 +67,7 @@ export function AddTransactionSheet() {
   )
 }
 
-/** /events/:eventId/money/:transactionId: view, edit or delete a transaction. */
+/** /events/:eventId/money/:transactionId: view, edit or delete a transaction, and its documents. */
 export function EditTransactionSheet() {
   const { eventId = '', transactionId = '' } = useParams()
   const money = useEventMoney(eventId)
@@ -117,6 +118,12 @@ export function EditTransactionSheet() {
       }
     >
       <>
+        <DocumentsSection
+          eventId={eventId}
+          transactionId={transaction.id}
+          itemId={transaction.item?.id}
+          className={sheetStyles.documents}
+        />
         <button type="button" className={styles.danger} onClick={() => setConfirming(true)}>
           මකන්න
         </button>
