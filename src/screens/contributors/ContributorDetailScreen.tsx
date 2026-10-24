@@ -86,7 +86,7 @@ function EventGroup({ contributor, group }: { contributor: Contributor; group: C
         </h2>
         {event.cancelled_at && <CancelledBadge />}
       </div>
-      <p className={styles.groupSub}>{[event.host, event.monastery_name].filter(Boolean).join(' · ')}</p>
+      <p className={styles.groupSub}>{[event.monastery_name, event.host].filter(Boolean).join(' · ')}</p>
       <ul className={styles.assignments}>
         {assignments.map((assignment) => (
           <AssignmentRow key={assignment.id} contributorId={contributor.id} assignment={assignment} />

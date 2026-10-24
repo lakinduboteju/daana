@@ -42,7 +42,7 @@ describe('contributor details', () => {
     )
 
     const upcomingGroup = await screen.findByRole('region', { name: /නොවැම්බර් 08 · දහවල් දානය/ })
-    expect(upcomingGroup).toHaveTextContent('බොතේජු පවුල · මාලබේ අසපුව')
+    expect(upcomingGroup).toHaveTextContent('මාලබේ අසපුව · බොතේජු පවුල')
     expect(assignmentRow(upcomingGroup, 'සුදු බත්')).toHaveTextContent('කි.ග්‍රෑ. 1')
     expect(assignmentRow(upcomingGroup, 'සුදු බත්')).toHaveTextContent('◔තහවුරු කර නැත')
     expect(assignmentRow(upcomingGroup, 'වතුර බෝතල්')).toHaveTextContent('40')
@@ -50,7 +50,7 @@ describe('contributor details', () => {
     expect(within(upcomingGroup).queryByText('කිරි')).not.toBeInTheDocument()
 
     const pastGroup = screen.getByRole('region', { name: /පසුගිය/ })
-    expect(pastGroup).toHaveTextContent('ජයසිංහ පවුල · පොල්ගහවෙල අසපුව')
+    expect(pastGroup).toHaveTextContent('පොල්ගහවෙල අසපුව · ජයසිංහ පවුල')
     expect(assignmentRow(pastGroup, 'කිරිබත්')).toHaveTextContent('කි.ග්‍රෑ. 3')
     expect(assignmentRow(pastGroup, 'කිරිබත්')).toHaveTextContent('✓✓ලැබී ඇත')
 
