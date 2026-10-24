@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { UnsavedChangesGuard } from '../../components/UnsavedChangesGuard'
 import { useToast } from '../../components/useToast'
 import { supabase } from '../../lib/supabase'
 import styles from './SettingsScreen.module.css'
@@ -37,6 +38,7 @@ export function PasswordForm() {
 
   return (
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
+      <UnsavedChangesGuard isDirty={() => password !== '' || repeat !== ''} />
       <div className={styles.field}>
         <label htmlFor="new-password" className={styles.label}>අළුත් මුරපදය</label>
         <input

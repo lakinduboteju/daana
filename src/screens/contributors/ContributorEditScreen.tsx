@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { BackHeader } from '../../components/BackHeader'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
@@ -22,11 +22,13 @@ export function ContributorEditScreen() {
   const remove = useRemoveContributor(contributorId)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const toast = useToast()
+  const done = useRef(false)
 
   if (contributor.data === null) return <NotFoundScreen />
 
   const name = contributor.data?.name ?? ''
   const toList = (message: string) => {
+    done.current = true
     toast(message)
     navigate('/contributors')
   }
@@ -44,6 +46,7 @@ export function ContributorEditScreen() {
         <ContributorForm
           initial={contributor.data}
           saving={busy}
+          done={done}
           error={failed ? 'සුරැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න.' : null}
           onSave={(input) => update.mutate(input, { onSuccess: () => toList('සුරැකිණි') })}
         >

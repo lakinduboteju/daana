@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { useParams } from 'react-router'
 import { Sheet } from '../../components/Sheet'
 import { useCloseSheet } from '../../components/sheetNavigation'
+import { UnsavedChangesGuard } from '../../components/UnsavedChangesGuard'
 import { useToast } from '../../components/useToast'
 import { useAssign } from '../../data/assignments'
 import { useContributors, useRecentContributors, type Contributor } from '../../data/contributors'
@@ -44,6 +45,8 @@ function AssignForm({ eventId, itemId, itemName, unit, onDone }: { eventId: stri
   const found = useContributors(q)
   const assign = useAssign(eventId)
   const toast = useToast()
+  const done = useRef(false)
+  const isDirty = () => !done.current && (pick !== null || quantity.trim() !== '' || status !== 'pending')
 
   const options: (Contributor & { meta: string | null })[] = searching
     ? (found.data ?? []).map((c) => ({ ...c, meta: c.phone }))
@@ -64,6 +67,7 @@ function AssignForm({ eventId, itemId, itemName, unit, onDone }: { eventId: stri
       },
       {
         onSuccess: (assigned) => {
+          done.current = true
           toast(`${itemName} ${assigned}ට පැවරුණා`)
           onDone()
         },
@@ -73,6 +77,7 @@ function AssignForm({ eventId, itemId, itemName, unit, onDone }: { eventId: stri
 
   return (
     <form className={styles.form} onSubmit={submit}>
+      <UnsavedChangesGuard isDirty={isDirty} />
       <input
         type="search"
         aria-label="දායකයා සොයන්න"

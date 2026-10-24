@@ -1,8 +1,9 @@
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent, type RefObject } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { Sheet } from '../../components/Sheet'
 import { useCloseSheet } from '../../components/sheetNavigation'
+import { UnsavedChangesGuard } from '../../components/UnsavedChangesGuard'
 import { useToast } from '../../components/useToast'
 import { findItem, useAddItem, useDeleteItem, useMenu, useUpdateItem, type Category, type ItemFields, type Unit } from '../../data/menu'
 import { UNIT_OPTIONS } from '../../data/units'
@@ -16,6 +17,7 @@ export function AddItemSheet() {
   const addItem = useAddItem(eventId)
   const close = useCloseSheet(`/events/${eventId}`)
   const toast = useToast()
+  const done = useRef(false)
 
   return (
     <Sheet title="අළුත් Item" onClose={close}>
@@ -32,9 +34,11 @@ export function AddItemSheet() {
           }}
           saving={addItem.isPending}
           failed={addItem.isError}
+          done={done}
           onSubmit={(fields) =>
             addItem.mutate(fields, {
               onSuccess: () => {
+                done.current = true
                 toast('සුරැකිණි')
                 close()
               },
@@ -56,12 +60,14 @@ export function EditItemSheet() {
   const close = useCloseSheet(`/events/${eventId}/items/${itemId}`)
   const navigate = useNavigate()
   const toast = useToast()
+  const done = useRef(false)
   // A deleted item has no details to go back to, so it's back to the menu.
   // mutateAsync, because the sheet unmounts once the menu no longer has the item.
   const item = menu.data ? findItem(menu.data, itemId) : null
   const remove = (name: string) =>
     deleteItem.mutateAsync(itemId).then(
       () => {
+        done.current = true
         toast(`${name} මකා දැමුවා`)
         navigate(`/events/${eventId}`, { replace: true })
       },
@@ -86,11 +92,13 @@ export function EditItemSheet() {
             }}
             saving={updateItem.isPending}
             failed={updateItem.isError}
+            done={done}
             onSubmit={(fields) =>
               updateItem.mutate(
                 { itemId: item.id, fields },
                 {
                   onSuccess: () => {
+                    done.current = true
                     toast('සුරැකිණි')
                     close()
                   },
@@ -125,16 +133,27 @@ type ItemFormProps = {
   initial: ItemFields
   saving: boolean
   failed: boolean
+  /** Set once the sheet saved or deleted the item, so leaving doesn't ask about unsaved changes. */
+  done: RefObject<boolean>
   onSubmit: (fields: ItemFields) => void
 }
 
-function ItemForm({ categories, initial, saving, failed, onSubmit }: ItemFormProps) {
+function ItemForm({ categories, initial, saving, failed, done, onSubmit }: ItemFormProps) {
   const [categoryId, setCategoryId] = useState(initial.categoryId)
   const [name, setName] = useState(initial.name)
   const [quantity, setQuantity] = useState(initial.requiredQuantity?.toString() ?? '')
   const [unit, setUnit] = useState<Unit>(initial.unit)
   const [customUnit, setCustomUnit] = useState(initial.customUnit)
   const [notes, setNotes] = useState(initial.notes)
+
+  const isDirty = () =>
+    !done.current &&
+    (categoryId !== initial.categoryId ||
+      name !== initial.name ||
+      quantity !== (initial.requiredQuantity?.toString() ?? '') ||
+      unit !== initial.unit ||
+      customUnit !== initial.customUnit ||
+      notes !== initial.notes)
 
   function submit(e: FormEvent) {
     e.preventDefault()
@@ -144,6 +163,7 @@ function ItemForm({ categories, initial, saving, failed, onSubmit }: ItemFormPro
 
   return (
     <form className={styles.form} onSubmit={submit}>
+      <UnsavedChangesGuard isDirty={isDirty} />
       <label className={styles.field}>
         <span className={styles.label}>නම <span className={styles.required}>*</span></span>
         <input className={styles.input} value={name} onChange={(e) => setName(e.target.value)} required />

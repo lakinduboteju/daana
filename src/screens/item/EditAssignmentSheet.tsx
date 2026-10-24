@@ -1,8 +1,9 @@
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { useParams } from 'react-router'
 import { Sheet } from '../../components/Sheet'
 import { useCloseSheet } from '../../components/sheetNavigation'
 import { StatusChoice } from '../../components/StatusChoice'
+import { UnsavedChangesGuard } from '../../components/UnsavedChangesGuard'
 import { useToast } from '../../components/useToast'
 import { useRemoveAssignment, useUpdateAssignment } from '../../data/assignments'
 import { findItem, useMenu, type Assignment } from '../../data/menu'
@@ -53,6 +54,9 @@ function AssignmentForm({ eventId, itemName, unit, assignment, onRemoved, onDone
   const remove = useRemoveAssignment(eventId)
   const toast = useToast()
   const { name } = assignment.contributor
+  const done = useRef(false)
+  const isDirty = () =>
+    !done.current && (quantity !== (assignment.quantity?.toString() ?? '') || status !== assignment.status)
 
   function submit(e: FormEvent) {
     e.preventDefault()
@@ -60,6 +64,7 @@ function AssignmentForm({ eventId, itemName, unit, assignment, onRemoved, onDone
       { assignmentId: assignment.id, quantity: quantity.trim() === '' ? null : Number(quantity), status },
       {
         onSuccess: () => {
+          done.current = true
           toast(`${name}ගේ පැවරුම සුරැකිණි`)
           onDone()
         },
@@ -69,6 +74,7 @@ function AssignmentForm({ eventId, itemName, unit, assignment, onRemoved, onDone
 
   return (
     <form className={styles.form} onSubmit={submit}>
+      <UnsavedChangesGuard isDirty={isDirty} />
       <p className={styles.optionName}>{name} · {itemName}</p>
       <label className={styles.field}>
         <span className={styles.label}>ප්‍රමාණය{unit && ` (${unit})`}</span>
@@ -99,6 +105,7 @@ function AssignmentForm({ eventId, itemName, unit, assignment, onRemoved, onDone
           // mutateAsync, because this form unmounts once the menu no longer has the assignment.
           remove.mutateAsync(assignment.id).then(
             () => {
+              done.current = true
               toast(`${name} ${itemName} වෙතින් ඉවත් කළා`)
               onDone()
             },
