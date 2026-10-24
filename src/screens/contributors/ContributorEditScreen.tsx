@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { BackHeader } from '../../components/BackHeader'
+import { ConfirmDialog } from '../../components/ConfirmDialog'
 import {
   useArchiveContributor,
   useContributor,
@@ -52,18 +53,16 @@ export function ContributorEditScreen() {
             </button>
           </div>
           {confirmingDelete && (
-            <dialog open aria-labelledby="delete-contributor-title" className={styles.confirm}>
-              <h2 id="delete-contributor-title" className={styles.confirmTitle}>{contributor.data.name} මකන්නද?</h2>
-              <p className={styles.hint}>
-                කිසිදු දානයකට පවරා නැත්නම් සම්පූර්ණයෙන්ම මැකේ. පවරා ඇත්නම් Archive වේ.
-              </p>
-              <div className={styles.confirmButtons}>
-                <button type="button" className={styles.secondary} onClick={() => setConfirmingDelete(false)}>එපා</button>
-                <button type="button" className={styles.danger} disabled={busy} onClick={() => remove.mutate(undefined, toList)}>
-                  ඔව්, මකන්න
-                </button>
-              </div>
-            </dialog>
+            <ConfirmDialog
+              title={`${contributor.data.name} මකන්නද?`}
+              confirmLabel="ඔව්, මකන්න"
+              destructive
+              busy={busy}
+              onCancel={() => setConfirmingDelete(false)}
+              onConfirm={() => remove.mutate(undefined, toList)}
+            >
+              <p>කිසිදු දානයකට පවරා නැත්නම් සම්පූර්ණයෙන්ම මැකේ. පවරා ඇත්නම් Archive වේ.</p>
+            </ConfirmDialog>
           )}
         </ContributorForm>
       )}
