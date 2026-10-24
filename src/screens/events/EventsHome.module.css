@@ -212,7 +212,7 @@
   overflow-wrap: anywhere;
 }
 
-.monastery {
+.host {
   font-size: 15px;
   color: var(--color-text-muted);
 }

@@ -119,14 +119,8 @@ function EventCard({ event }: { event: EventSummary }) {
           <span className={styles.meal}>{MEAL_LABEL[event.meal]}</span>
           {event.cancelled_at && <CancelledBadge />}
         </span>
-        {event.host ? (
-          <>
-            <span className={styles.cardTitle}>{event.host}</span>
-            <span className={styles.monastery}>{event.monastery_name}</span>
-          </>
-        ) : (
-          <span className={styles.cardTitle}>{event.monastery_name}</span>
-        )}
+        <span className={styles.cardTitle}>{event.monastery_name}</span>
+        {event.host && <span className={styles.host}>{event.host}</span>}
         <CountLine event={event} />
         <CardProgress event={event} />
       </Link>

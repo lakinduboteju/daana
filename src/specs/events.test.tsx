@@ -152,6 +152,16 @@ describe('events', () => {
     })
   })
 
+  it('names the monastery, then the host, on an upcoming card', async () => {
+    const organizer = await seedOrganizer()
+    await seedEvent(organizer, { date: colomboDate(3), meal: 'lunch', host: 'බොතේජු පවුල', monastery: 'මාලබේ අසපුව' })
+    await renderApp('/events', { signedInAs: organizer })
+
+    const upcoming = await screen.findByRole('region', { name: 'ඉදිරි දාන' })
+    const card = within(upcoming).getByRole('link', { name: /මාලබේ අසපුව/ })
+    expect(card).toHaveTextContent(/දහවල් දානය.*මාලබේ අසපුව.*බොතේජු පවුල/)
+  })
+
   it('shows two events on the same date as separate cards under that date', async () => {
     const organizer = await seedOrganizer()
     const date = colomboDate(3)
