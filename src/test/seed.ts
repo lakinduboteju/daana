@@ -20,8 +20,7 @@ export type SeededHousehold = {
   organizer: Organizer
 }
 
-/** An organizer who can sign in, with no household yet. */
-export async function seedOrganizer(): Promise<Organizer> {
+async function seedOrganizer(): Promise<Organizer> {
   const username = `organizer-${crypto.randomUUID().slice(0, 8)}`
   const password = 'password123'
 

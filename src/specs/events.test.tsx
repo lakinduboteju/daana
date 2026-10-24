@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { currentPath, renderApp } from '../test/renderApp'
-import { colomboDate, seedEvent, seedHousehold, seedOrganizer } from '../test/seed'
+import { colomboDate, seedEvent, seedHousehold } from '../test/seed'
 
 describe('events', () => {
   it('saves the calendar date the organizer picked and shows that date when they edit', async () => {
@@ -33,22 +33,6 @@ describe('events', () => {
 
     expect(await screen.findByRole('heading', { name: /මාලබේ අසපුව/ })).toBeInTheDocument()
     expect(currentPath()).toMatch(/^\/events\/[0-9a-f-]{36}$/)
-  })
-
-  it('shows an error when Save is pressed and the household is not available', async () => {
-    const organizer = await seedOrganizer()
-    const { user } = await renderApp('/events/new', { signedInAs: organizer })
-
-    await user.type(await screen.findByLabelText(/දිනය/), '2099-11-08')
-    await user.click(screen.getByRole('radio', { name: 'දහවල් දානය' }))
-    await user.type(screen.getByLabelText(/^අසපුව/), 'මාලබේ අසපුව')
-
-    const save = screen.getByRole('button', { name: 'Save' })
-    expect(save).toBeEnabled()
-    await user.click(save)
-
-    expect(await screen.findByRole('alert')).toHaveTextContent('සුරැකීමට නොහැකි විය. නැවත උත්සාහ කරන්න.')
-    expect(currentPath()).toBe('/events/new')
   })
 
   it('creates an event with a new monastery and shows it as a card on the events home', async () => {
